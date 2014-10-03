@@ -2,6 +2,8 @@
 
 # $Id$
 
+import logging
+import logging.handlers
 import threading
 import Queue
 
@@ -15,6 +17,12 @@ DIMENSIO = 5
 # nombre de combinacions en cada paquet enviat als treballadors
 MAX_COMBINACIONS_PAQUET = 25000
 
+# paràmetres del servidor de log
+SERVIDOR_LOG = "localhost"
+PORT_LOG = 8001
+
+
+logger = logging.getLogger("servidor")
 
 cua_sortida = Queue.Queue(maxsize=10)
 cua_entrada = Queue.Queue(maxsize=20)
@@ -54,7 +62,7 @@ def consumidor():
     while True:
         paquet = cua_entrada.get()
         total += len(paquet)
-        print "**** #bases %i" % total
+        logger.debug("**** #bases %i", total)
 
 
 def rpc_servir_paquet():
@@ -70,7 +78,7 @@ def rpc_servir_paquet():
     """
     paquet = cua_sortida.get()
     id_paquet = paquets_pendents.put(paquet)
-    print "**** Servint paquet #%06i" % id_paquet
+    logger.debug("**** Servint paquet #%06i", id_paquet)
     return {
         "id"    : id_paquet,
         "dades" : paquet
@@ -88,24 +96,35 @@ def rpc_recepcionar_resultat(idpaquet, bases):
     """
     if idpaquet not in paquets_pendents:
         raise ValueError("paquet #%i no esta pendent")
-    print "**** Recepcionant resultats #%06i" % idpaquet
+    logger.debug("**** Recepcionant resultats #%06i", idpaquet)
     paquets_pendents.get(idpaquet)
-    print "**** Encuant resultat"
+    logger.debug("**** Encuant resultat")
     cua_entrada.put(bases)
-    print "**** Paquet recepcionat     #%06i" % idpaquet
+    logger.debug("**** Paquet recepcionat     #%06i" , idpaquet)
 
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        datefmt="%H:%M:%S",
+        format="%(asctime)-9s - %(message)s",
+        level=logging.DEBUG
+    )
+    socketHandler = logging.handlers.SocketHandler(
+        SERVIDOR_LOG,
+        PORT_LOG
+    )
+    logger.addHandler(socketHandler)
+
     prod_thread = threading.Thread(target=productor,
                                    args=(DIMENSIO, MAX_COMBINACIONS_PAQUET))
     cons_thread = threading.Thread(target=consumidor)
 
-    print "Iniciant productor"
+    logger.info("Iniciant productor")
     prod_thread.start()
-    print "Iniciant consumidor"
+    logger.info("Iniciant consumidor")
     cons_thread.start()
-    print "Arrancant coodinador"
+    logger.info("Arrancant coodinador")
     servidor_rpc.arrancar_servidor_rpc(
         [
             (rpc_servir_paquet, "descarregar"),

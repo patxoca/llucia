@@ -5,10 +5,21 @@
 import client_rpc
 import domini
 import logging
+import logging.handlers
 import Queue
 import time
 import threading
 
+
+# paràmetres del servidor RPC
+SERVIDOR_RPC = "localhost"
+PORT_RPC = "8000"
+
+# paràmetres del servidor de log
+SERVIDOR_LOG = SERVIDOR_RPC
+PORT_LOG = 8001
+
+logger = logging.getLogger("client")
 
 cua_entrada = Queue.Queue(maxsize=1)
 cua_sortida = Queue.Queue(maxsize=1)
@@ -21,11 +32,12 @@ def descarregador():
     d'esperar a que s'en descarregui un.
 
     """
-    pdown = client_rpc.RPCProxy("localhost", "8000")
+    logger.debug("descarregador:creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
+    pdown = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
     while True:
-        logging.debug("descarregador:descarregant")
+        logger.debug("descarregador:descarregant")
         paquet = pdown.descarregar()
-        logging.debug("descarregador:encuant %i", paquet["id"])
+        logger.debug("descarregador:encuant %i", paquet["id"])
         cua_entrada.put(paquet)
 
 def pujador():
@@ -33,11 +45,12 @@ def pujador():
     càlcul/descarrega.
 
     """
-    pup   = client_rpc.RPCProxy("localhost", "8000")
+    logger.debug("pujador:creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
+    pup   = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
     while True:
-        logging.debug("pujador:desencuant")
+        logger.debug("pujador:desencuant")
         id, paquet = cua_sortida.get()
-        logging.debug("pujador:pujant %i", id)
+        logger.debug("pujador:pujant %i", id)
         pup.pujar(id, paquet)
 
 def calculador(funcio):
@@ -83,20 +96,20 @@ def calculador(funcio):
         temps_pujada = t4 - t3
         temps_total = temps_descarrega + temps_calcul + temps_pujada
 
-        logging.debug("#paquets: %i    #comb %i (%i)    #bas %i (%i)",
+        logger.debug("#paquets: %i    #comb %i (%i)    #bas %i (%i)",
                       nombre_paquets,
                       total_combinacions,
                       len(candidats),
                       total_bases,
                       len(resultat)
         )
-        logging.debug("    TT: %9.2f    TD: %9.2f    TC: %9.2f    TP: %9.2f",
+        logger.debug("    TT: %9.2f    TD: %9.2f    TC: %9.2f    TP: %9.2f",
                       temps_total,
                       temps_descarrega,
                       temps_calcul,
                       temps_pujada
         )
-        logging.debug("                    %%TD:    %6.2f   %%TC:    %6.2f   %%TP:    %6.2f",
+        logger.debug("                    %%TD:    %6.2f   %%TC:    %6.2f   %%TP:    %6.2f",
                       temps_descarrega / temps_total * 100,
                       temps_calcul / temps_total * 100,
                       temps_pujada / temps_total * 100
@@ -115,6 +128,12 @@ if __name__ == "__main__":
         format="%(asctime)-9s - %(message)s",
         level=logging.DEBUG
     )
+    socketHandler = logging.handlers.SocketHandler(
+        SERVIDOR_LOG,
+        PORT_LOG
+    )
+    logger.addHandler(socketHandler)
+
     fil_down = threading.Thread(target=descarregador)
     fil_up   = threading.Thread(target=pujador)
 
