@@ -5,6 +5,7 @@
 import threading
 import Queue
 
+import synced_table
 import domini
 import servidor_rpc
 
@@ -26,9 +27,8 @@ cua_entrada = Queue.Queue(maxsize=20)
 # La idea (no està implementat) es ser resistent davant treballadors
 # que deixen de funcionar, permetent reenviar paquets pendents a
 # treballadors ociosos.
-id_paquet = 0
-paquets_pendents = {}
-lock_pp = threading.Lock()
+
+paquets_pendents = synced_table.SyncedTable()
 
 
 def productor(dimensio, mida_paquet):
@@ -68,11 +68,8 @@ def rpc_servir_paquet():
              bases)
 
     """
-    global id_paquet
     paquet = cua_sortida.get()
-    with lock_pp:
-        id_paquet += 1
-        paquets_pendents[id_paquet] = paquet
+    id_paquet = paquets_pendents.put(paquet)
     print "**** Servint paquet #%06i" % id_paquet
     return {
         "id"    : id_paquet,
@@ -89,11 +86,11 @@ def rpc_recepcionar_resultat(idpaquet, bases):
     * bases:    subconjunt de les combinacions que formen una base
 
     """
-    with lock_pp:
-        if idpaquet not in paquets_pendents:
-            raise ValueError("paquet #%i no esta pendent")
-        print "**** Recepcionant resultats #%06i" % idpaquet
-        del paquets_pendents[idpaquet]
+    if idpaquet not in paquets_pendents:
+        raise ValueError("paquet #%i no esta pendent")
+    print "**** Recepcionant resultats #%06i" % idpaquet
+    paquets_pendents.get(idpaquet)
+    print "**** Encuant resultat"
     cua_entrada.put(bases)
     print "**** Paquet recepcionat     #%06i" % idpaquet
 
