@@ -19,7 +19,8 @@ class SyncedTable(collections.OrderedDict):
     Aquesta estructura és thread-safe.
 
     """
-    def __init__(self):
+    def __init__(self, maxsize=0):
+        self._maxsize = maxsize if maxsize >= 0 else 0
         self._id_paquet = 0
         self._dict = collections.OrderedDict()
         self._lock = threading.Lock()
@@ -30,6 +31,8 @@ class SyncedTable(collections.OrderedDict):
         Retorna l'identificador.
         """
         with self._lock:
+            if self._maxsize and len(self._dict) == self._maxsize:
+                raise ValueError("plena")
             self._id_paquet += 1
             self._dict[self._id_paquet] = paquet
             return self._id_paquet
