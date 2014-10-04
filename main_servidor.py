@@ -24,7 +24,7 @@ PORT_LOG = 8001
 # nombre màxim de clients que accepta el coodinador
 MAX_CLIENTS = 10
 
-logger = logging.getLogger("servidor")
+logger = logging.getLogger("srv")
 
 cua_sortida = Queue.Queue(maxsize=MAX_CLIENTS)
 cua_entrada = Queue.Queue(maxsize=MAX_CLIENTS)
@@ -66,7 +66,7 @@ def consumidor():
     while True:
         paquet = cua_entrada.get()
         total += len(paquet)
-        logger.debug("**** #bases %i", total)
+        logger.debug("#bases %i", total)
 
 def check_client_registrat(idclient):
     """Verifica que el client IDCLIENT està registrat.
@@ -114,7 +114,7 @@ def rpc_servir_paquet(idclient):
     client = check_client_registrat(idclient)
     paquet = cua_sortida.get()
     id_paquet = paquets_pendents.put(paquet)
-    logger.debug("**** Servint paquet #%06i", id_paquet)
+    logger.debug("Servint paquet #%06i", id_paquet)
     return {
         "id"    : id_paquet,
         "dades" : paquet
@@ -133,11 +133,11 @@ def rpc_recepcionar_resultat(idclient, idpaquet, bases):
     client = check_client_registrat(idclient)
     if idpaquet not in paquets_pendents:
         raise ValueError("paquet #%i no esta pendent")
-    logger.debug("**** Recepcionant resultats #%06i", idpaquet)
+    logger.debug("Recepcionant resultats #%06i", idpaquet)
     paquets_pendents.get(idpaquet)
-    logger.debug("**** Encuant resultat")
+    logger.debug("Encuant resultat")
     cua_entrada.put(bases)
-    logger.debug("**** Paquet recepcionat     #%06i" , idpaquet)
+    logger.debug("Paquet recepcionat     #%06i" , idpaquet)
 
 
 

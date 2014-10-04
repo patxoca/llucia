@@ -27,7 +27,9 @@ PORT_LOG = 8001
 # valor de l'espera es torna a "no-espera" (None, no zero).
 MAX_ESPERA = 64
 
-logger = logging.getLogger("client")
+logger = logging.getLogger("cli")
+logger_down = logger
+logger_up = logger
 
 cua_entrada = Queue.Queue(maxsize=1)
 cua_sortida = Queue.Queue(maxsize=1)
@@ -50,21 +52,21 @@ def descarregador(idclient):
     d'esperar a que s'en descarregui un.
 
     """
-    logger.debug("descarregador:creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
+    logger_down.debug("creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
     pdown = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
     espera = None
     while True:
-        logger.debug("descarregador:descarregant")
+        logger_down.debug("descarregant")
         try:
             paquet = pdown.descarregar(idclient)
         except httplib.HTTPException as e:
-            logger.error("descarregador:error de connexio %s", str(e))
+            logger_down.error("error de connexio %s", str(e))
             espera = get_temps_espera(espera)
-            logger.info("descarregador:esperant %is per reintentar", espera)
+            logger_down.info("esperant %is per reintentar", espera)
             time.sleep(espera)
         else:
             espera = None
-            logger.debug("descarregador:encuant %i", paquet["id"])
+            logger_down.debug("encuant %i", paquet["id"])
             cua_entrada.put(paquet)
 
 def pujador(idclient):
@@ -72,23 +74,23 @@ def pujador(idclient):
     càlcul/descarrega.
 
     """
-    logger.debug("pujador:creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
-    pup   = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
+    logger_up.debug("creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
+    pup = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
     idpaquet = None
     espera = None
     while True:
         if idpaquet is None:
-            logger.debug("pujador:desencuant")
+            logger_up.debug("desencuant")
             idpaquet, paquet = cua_sortida.get()
         else:
-            logger.debug("pujador:reintentant")
-        logger.debug("pujador:pujant %i", idpaquet)
+            logger_up.debug("reintentant")
+        logger_up.debug("pujant %i", idpaquet)
         try:
             pup.pujar(idclient, idpaquet, paquet)
         except httplib.HTTPException as e:
-            logger.error("pujador:error de connexio %s", str(e))
+            logger_up.error("error de connexio %s", str(e))
             espera = get_temps_espera(espera)
-            logger.info("pujador:esperant %is per reintentar", espera)
+            logger_up.info("esperant %is per reintentar", espera)
             time.sleep(espera)
         else:
             idpaquet = None
@@ -175,8 +177,14 @@ if __name__ == "__main__":
     logger.addHandler(socketHandler)
 
     proxy = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
+    logger.debug("registrant client")
     IDCLIENT = proxy.registrar()
     if IDCLIENT is not None:
+        logger.debug("client registrat: %i", IDCLIENT)
+        logger = logging.getLogger("cli.%03i" % IDCLIENT)
+        logger_down = logging.getLogger("cli.%03i.down" % IDCLIENT)
+        logger_up = logging.getLogger("cli.%03i.up" % IDCLIENT)
+
         fil_down = threading.Thread(target=descarregador, args=(IDCLIENT, ))
         fil_up   = threading.Thread(target=pujador, args=(IDCLIENT, ))
 
