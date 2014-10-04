@@ -32,6 +32,10 @@ logger = logging.getLogger("client")
 cua_entrada = Queue.Queue(maxsize=1)
 cua_sortida = Queue.Queue(maxsize=1)
 
+# variable que emmagatzema el ID assignat al treballador pel
+# coordinador
+IDCLIENT = None
+
 
 def get_temps_espera(temps):
     if temps is None:
@@ -40,7 +44,7 @@ def get_temps_espera(temps):
         return temps
     return temps * 2
 
-def descarregador():
+def descarregador(idclient):
     """Aquesta funció intenta que sempre hi hagi un paquet disponible en
     la cua d'entrada per evitar que la funció 'calculador()' hagi
     d'esperar a que s'en descarregui un.
@@ -52,7 +56,7 @@ def descarregador():
     while True:
         logger.debug("descarregador:descarregant")
         try:
-            paquet = pdown.descarregar()
+            paquet = pdown.descarregar(idclient)
         except httplib.HTTPException as e:
             logger.error("descarregador:error de connexio %s", str(e))
             espera = get_temps_espera(espera)
@@ -63,7 +67,7 @@ def descarregador():
             logger.debug("descarregador:encuant %i", paquet["id"])
             cua_entrada.put(paquet)
 
-def pujador():
+def pujador(idclient):
     """Aquesta funció intenta pujar el resultat en paralel al
     càlcul/descarrega.
 
@@ -80,7 +84,7 @@ def pujador():
             logger.debug("pujador:reintentant")
         logger.debug("pujador:pujant %i", idpaquet)
         try:
-            pup.pujar(idpaquet, paquet)
+            pup.pujar(idclient, idpaquet, paquet)
         except httplib.HTTPException as e:
             logger.error("pujador:error de connexio %s", str(e))
             espera = get_temps_espera(espera)
@@ -170,9 +174,14 @@ if __name__ == "__main__":
     )
     logger.addHandler(socketHandler)
 
-    fil_down = threading.Thread(target=descarregador)
-    fil_up   = threading.Thread(target=pujador)
+    proxy = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
+    IDCLIENT = proxy.registrar()
+    if IDCLIENT is not None:
+        fil_down = threading.Thread(target=descarregador, args=(IDCLIENT, ))
+        fil_up   = threading.Thread(target=pujador, args=(IDCLIENT, ))
 
-    fil_down.start()
-    fil_up.start()
-    calculador(fer_algo)
+        fil_down.start()
+        fil_up.start()
+        calculador(fer_algo)
+    else:
+        logger.error("client no registrat")

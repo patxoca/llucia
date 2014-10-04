@@ -21,11 +21,13 @@ MAX_COMBINACIONS_PAQUET = 25000
 SERVIDOR_LOG = "localhost"
 PORT_LOG = 8001
 
+# nombre màxim de clients que accepta el coodinador
+MAX_CLIENTS = 10
 
 logger = logging.getLogger("servidor")
 
-cua_sortida = Queue.Queue(maxsize=10)
-cua_entrada = Queue.Queue(maxsize=20)
+cua_sortida = Queue.Queue(maxsize=MAX_CLIENTS)
+cua_entrada = Queue.Queue(maxsize=MAX_CLIENTS)
 
 # Taula pels paquets pendents: aquesta taula emmagatzema els paquets
 # que s'han enviat als treballadors però pels que encara no s'ha rebut
@@ -37,6 +39,8 @@ cua_entrada = Queue.Queue(maxsize=20)
 # treballadors ociosos.
 
 paquets_pendents = synced_table.SyncedTable()
+
+taula_clients = synced_table.SyncedTable(maxsize=MAX_CLIENTS)
 
 
 def productor(dimensio, mida_paquet):
@@ -64,8 +68,38 @@ def consumidor():
         total += len(paquet)
         logger.debug("**** #bases %i", total)
 
+def check_client_registrat(idclient):
+    """Verifica que el client IDCLIENT està registrat.
 
-def rpc_servir_paquet():
+    Retorna l'objecte associat al client.
+
+    Si el client no està registrat loggeja l'error i dispara una
+    excepció ValueError.
+
+    """
+    if idclient not in taula_clients:
+        logger.info("client no registrat: %i", idclient)
+        raise ValueError("client no registrat")
+    return taula_clients.get(idclient)
+
+def rpc_registrar_client():
+    """Registra un client.
+
+    Registra un client i li retorna un identificador únic. Si s'ha
+    assolit el màxim de clients retorna None.
+
+    Actualment no es fa cap verificació de la identitat del client
+    (falsos clients o clients duplicats).
+
+    """
+    estadistiques = {}
+    try:
+        idclient = taula_clients.put(estadistiques)
+    except ValueError:
+        idclient = None
+    return idclient
+
+def rpc_servir_paquet(idclient):
     """Funció cridada per un treballador per obtindre un paquet de dades.
 
     Retorna un diccionari amb les claus:
@@ -76,6 +110,7 @@ def rpc_servir_paquet():
              bases)
 
     """
+    client = check_client_registrat(idclient)
     paquet = cua_sortida.get()
     id_paquet = paquets_pendents.put(paquet)
     logger.debug("**** Servint paquet #%06i", id_paquet)
@@ -84,7 +119,7 @@ def rpc_servir_paquet():
         "dades" : paquet
     }
 
-def rpc_recepcionar_resultat(idpaquet, bases):
+def rpc_recepcionar_resultat(idclient, idpaquet, bases):
     """Funció cridada pel client per pujar un paquet de resultats.
 
     Paràmetres:
@@ -94,6 +129,7 @@ def rpc_recepcionar_resultat(idpaquet, bases):
     * bases:    subconjunt de les combinacions que formen una base
 
     """
+    client = check_client_registrat(idclient)
     if idpaquet not in paquets_pendents:
         raise ValueError("paquet #%i no esta pendent")
     logger.debug("**** Recepcionant resultats #%06i", idpaquet)
@@ -128,6 +164,7 @@ if __name__ == "__main__":
     servidor_rpc.arrancar_servidor_rpc(
         [
             (rpc_servir_paquet, "descarregar"),
-            (rpc_recepcionar_resultat, "pujar")
+            (rpc_recepcionar_resultat, "pujar"),
+            (rpc_registrar_client, "registrar"),
         ]
     )
