@@ -138,23 +138,23 @@ def calculador(funcio):
         temps_pujada = t4 - t3
         temps_total = temps_descarrega + temps_calcul + temps_pujada
 
-        logger.debug("#paquets: %i    #comb %i (%i)    #bas %i (%i)",
-                      nombre_paquets,
-                      total_combinacions,
-                      len(candidats),
-                      total_bases,
-                      len(resultat)
+        logger.info("#paquets: %i    #comb %i (%i)    #bas %i (%i)",
+                    nombre_paquets,
+                    total_combinacions,
+                    len(candidats),
+                    total_bases,
+                    len(resultat)
         )
-        logger.debug("    TT: %9.2f    TD: %9.2f    TC: %9.2f    TP: %9.2f",
-                      temps_total,
-                      temps_descarrega,
-                      temps_calcul,
-                      temps_pujada
+        logger.info("    TT: %9.2f    TD: %9.2f    TC: %9.2f    TP: %9.2f",
+                    temps_total,
+                    temps_descarrega,
+                    temps_calcul,
+                    temps_pujada
         )
-        logger.debug("                    %%TD:    %6.2f   %%TC:    %6.2f   %%TP:    %6.2f",
-                      temps_descarrega / temps_total * 100,
-                      temps_calcul / temps_total * 100,
-                      temps_pujada / temps_total * 100
+        logger.info("                    %%TD:    %6.2f   %%TC:    %6.2f   %%TP:    %6.2f",
+                    temps_descarrega / temps_total * 100,
+                    temps_calcul / temps_total * 100,
+                    temps_pujada / temps_total * 100
         )
 
 def fer_algo(candidats):
