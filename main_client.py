@@ -20,12 +20,25 @@ PORT_RPC = "8000"
 SERVIDOR_LOG = SERVIDOR_RPC
 PORT_LOG = 8001
 
+# si es produeix un error de connexió amb el servidor s'introdueix un
+# temps d'espera per tornar a intertar-ho. Inicialment l'espera és de
+# 1 segon i es va doblant en cada error succesiu fins arribar o
+# superar el valor de MAX_ESPERA. Una vegada establida la connexió el
+# valor de l'espera es torna a "no-espera" (None, no zero).
+MAX_ESPERA = 64
+
 logger = logging.getLogger("client")
 
 cua_entrada = Queue.Queue(maxsize=1)
 cua_sortida = Queue.Queue(maxsize=1)
 
 
+def get_temps_espera(temps):
+    if temps is None:
+        return 1
+    if temps >= MAX_ESPERA:
+        return temps
+    return temps * 2
 
 def descarregador():
     """Aquesta funció intenta que sempre hi hagi un paquet disponible en
@@ -35,13 +48,18 @@ def descarregador():
     """
     logger.debug("descarregador:creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
     pdown = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
+    espera = None
     while True:
         logger.debug("descarregador:descarregant")
         try:
             paquet = pdown.descarregar()
         except httplib.HTTPException as e:
             logger.error("descarregador:error de connexio %s", str(e))
+            espera = get_temps_espera(espera)
+            logger.info("descarregador:esperant %is per reintentar", espera)
+            time.sleep(espera)
         else:
+            espera = None
             logger.debug("descarregador:encuant %i", paquet["id"])
             cua_entrada.put(paquet)
 
@@ -53,6 +71,7 @@ def pujador():
     logger.debug("pujador:creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
     pup   = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
     idpaquet = None
+    espera = None
     while True:
         if idpaquet is None:
             logger.debug("pujador:desencuant")
@@ -64,6 +83,9 @@ def pujador():
             pup.pujar(idpaquet, paquet)
         except httplib.HTTPException as e:
             logger.error("pujador:error de connexio %s", str(e))
+            espera = get_temps_espera(espera)
+            logger.info("pujador:esperant %is per reintentar", espera)
+            time.sleep(espera)
         else:
             idpaquet = None
 
