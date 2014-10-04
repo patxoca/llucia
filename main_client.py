@@ -4,6 +4,7 @@
 
 import client_rpc
 import domini
+import httplib
 import logging
 import logging.handlers
 import Queue
@@ -36,9 +37,13 @@ def descarregador():
     pdown = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
     while True:
         logger.debug("descarregador:descarregant")
-        paquet = pdown.descarregar()
-        logger.debug("descarregador:encuant %i", paquet["id"])
-        cua_entrada.put(paquet)
+        try:
+            paquet = pdown.descarregar()
+        except httplib.HTTPException as e:
+            logger.error("descarregador:error de connexio %s", str(e))
+        else:
+            logger.debug("descarregador:encuant %i", paquet["id"])
+            cua_entrada.put(paquet)
 
 def pujador():
     """Aquesta funció intenta pujar el resultat en paralel al
@@ -47,11 +52,20 @@ def pujador():
     """
     logger.debug("pujador:creant connexio amb %s:%s" % (SERVIDOR_RPC, PORT_RPC))
     pup   = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
+    idpaquet = None
     while True:
-        logger.debug("pujador:desencuant")
-        id, paquet = cua_sortida.get()
-        logger.debug("pujador:pujant %i", id)
-        pup.pujar(id, paquet)
+        if idpaquet is None:
+            logger.debug("pujador:desencuant")
+            idpaquet, paquet = cua_sortida.get()
+        else:
+            logger.debug("pujador:reintentant")
+        logger.debug("pujador:pujant %i", idpaquet)
+        try:
+            pup.pujar(idpaquet, paquet)
+        except httplib.HTTPException as e:
+            logger.error("pujador:error de connexio %s", str(e))
+        else:
+            idpaquet = None
 
 def calculador(funcio):
     """Aquesta funció coordina el càlcul i recull estadístiques per
