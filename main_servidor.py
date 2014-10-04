@@ -80,7 +80,7 @@ def check_client_registrat(idclient):
     if idclient not in taula_clients:
         logger.info("client no registrat: %i", idclient)
         raise ValueError("client no registrat")
-    return taula_clients.get(idclient)
+    return taula_clients.get(idclient, rm=False)
 
 def rpc_registrar_client():
     """Registra un client.
@@ -97,6 +97,7 @@ def rpc_registrar_client():
         idclient = taula_clients.put(estadistiques)
     except ValueError:
         idclient = None
+    logger.debug("Registrant client: %s", idclient)
     return idclient
 
 def rpc_servir_paquet(idclient):
