@@ -55,3 +55,6 @@ class SyncedTable(collections.OrderedDict):
 
     def __contains__(self, id_):
         return id_ in self._dict
+
+    def __nonzero__(self):
+        return bool(self._dict)
