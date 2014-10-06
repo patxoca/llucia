@@ -10,6 +10,7 @@ import Queue
 import synced_table
 import domini
 import servidor_rpc
+import utils
 
 # nombre de jugadors
 DIMENSIO = 5
@@ -42,13 +43,40 @@ paquets_pendents = synced_table.SyncedTable()
 
 taula_clients = synced_table.SyncedTable(maxsize=MAX_CLIENTS)
 
+estat_productor = 0 # 0 per arrancar
+                    # 1 produint
+                    # 2 finalitzat
 
+# variables on s'emmagatzemen els threads del productor i del
+# consumidor respectivament.
+prod_thread = None
+cons_thread = None
+
+def productor_finalitzat():
+    return estat_productor == 2
+
+@utils.trace(logger)
 def productor(dimensio, mida_paquet):
     """El productor intenta que sempre hi hagi paquets disponibles en la
     cua de sortida de forma que la funció rpc_servir_paquet() pugui
     enviar dades als treballadors minimitzant l'espera.
 
+    En finalitzar la producció encuarà MAX_CLIENTS paquets de
+    finalització (amb valor None) per informar als clients del final
+    del càlcul.
+
+    COMPTE: si hi ha menys de MAX_CLIENTS actius no es consumiran tots
+    els paquets de finalització i la cua no quedarà buida, no és un
+    problema però impedeix utilitzar el test 'cua_sortida.empty()' per
+    determinar si queden paquets per processar. Per una altra banda
+    cal que s'hagin consumit *tots* els paquets de dades per tal de
+    que el productor pugui emplenar la cua de sortida amb paquets de
+    finalització. Que el productor hagi finalitzat sí implica que la
+    cua de sortida no te paquets de dades per processar.
+
     """
+    global estat_productor
+    estat_productor = 1
     paquet = []
     for combinacio in domini.generar_combinacions(dimensio):
         paquet.append(combinacio)
@@ -57,6 +85,11 @@ def productor(dimensio, mida_paquet):
             paquet = []
     if paquet:
         cua_sortida.put(paquet)
+    for i in xrange(MAX_CLIENTS):
+        logger.debug("encuant paquet de finalitzacio per client %i", i + 1)
+        cua_sortida.put(None)
+    estat_productor = 2
+    logger.info("FINALITZANT PRODUCTOR")
 
 def consumidor():
     """El consumidor processa els resultats enviats pels treballadors.
@@ -64,9 +97,17 @@ def consumidor():
     """
     total = 0
     while True:
-        paquet = cua_entrada.get()
-        total += len(paquet)
-        logger.debug("#bases %i", total)
+        try:
+            # TODO: no m'agrada utilitzar un timeout
+            paquet = cua_entrada.get(True, 1)
+        except Queue.Empty:
+            pass
+        else:
+            total += len(paquet)
+            logger.debug("#bases %i", total)
+        if productor_finalitzat() and not paquets_pendents:
+            break
+    logger.info("FINALITZANT CONSUMIDOR")
 
 def check_client_registrat(idclient):
     """Verifica que el client IDCLIENT està registrat.
@@ -82,6 +123,7 @@ def check_client_registrat(idclient):
         raise ValueError("client no registrat")
     return taula_clients.get(idclient, rm=False)
 
+@utils.trace(logger)
 def rpc_registrar_client():
     """Registra un client.
 
@@ -100,6 +142,7 @@ def rpc_registrar_client():
     logger.debug("Registrant client: %s", idclient)
     return idclient
 
+@utils.trace(logger)
 def rpc_servir_paquet(idclient):
     """Funció cridada per un treballador per obtindre un paquet de dades.
 
@@ -112,14 +155,24 @@ def rpc_servir_paquet(idclient):
 
     """
     client = check_client_registrat(idclient)
+    # TODO: açò pot bloquejar indefinidament i no té en compte els
+    # paquets pendents. No hauria de ser un problema si els
+    # treballadors funcionen correctament. En tot cas, seria millor
+    # comprovar si el productor ha finalitzat i llavors tirar dels
+    # paquets pendents o retornar None.
     paquet = cua_sortida.get()
-    id_paquet = paquets_pendents.put(paquet)
-    logger.debug("Servint paquet #%06i", id_paquet)
+    if paquet is None:
+        id_paquet = -1
+        logger.info("No mes paquets, enviant paquet de finalitzacio")
+    else:
+        id_paquet = paquets_pendents.put(paquet)
+        logger.debug("Servint paquet #%06i", id_paquet)
     return {
         "id"    : id_paquet,
         "dades" : paquet
     }
 
+@utils.trace(logger)
 def rpc_recepcionar_resultat(idclient, idpaquet, bases):
     """Funció cridada pel client per pujar un paquet de resultats.
 

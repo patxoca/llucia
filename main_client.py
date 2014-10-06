@@ -68,6 +68,10 @@ def descarregador(idclient):
             espera = None
             logger_down.debug("encuant %i", paquet["id"])
             cua_entrada.put(paquet)
+            if paquet["id"] == -1:
+                logger_down.info("rebut paquet de finalitzacio")
+                break
+    logger_down.info("finalitzant descarregador")
 
 def pujador(idclient):
     """Aquesta funció intenta pujar el resultat en paralel al
@@ -84,6 +88,9 @@ def pujador(idclient):
             idpaquet, paquet = cua_sortida.get()
         else:
             logger_up.debug("reintentant")
+        if idpaquet == -1:
+            logger_up.info("rebut paquet de finalitzacio")
+            break
         logger_up.debug("pujant %i", idpaquet)
         try:
             pup.pujar(idclient, idpaquet, paquet)
@@ -94,6 +101,7 @@ def pujador(idclient):
             time.sleep(espera)
         else:
             idpaquet = None
+    logger_up.info("finalitzant pujador")
 
 def calculador(funcio):
     """Aquesta funció coordina el càlcul i recull estadístiques per
@@ -119,6 +127,11 @@ def calculador(funcio):
         t2 = time.time()
         idpaquet = dades["id"]
         candidats = dades["dades"]
+        if idpaquet == -1:
+            logger.info("rebut paquet de finalitzacio")
+            cua_sortida.put((-1, None))
+            break
+
         nombre_paquets += 1
         total_combinacions += len(candidats)
 
@@ -156,6 +169,8 @@ def calculador(funcio):
                     temps_calcul / temps_total * 100,
                     temps_pujada / temps_total * 100
         )
+    logger.info("finalitzant calculador")
+
 
 def fer_algo(candidats):
     resultats = []
@@ -191,5 +206,7 @@ if __name__ == "__main__":
         fil_down.start()
         fil_up.start()
         calculador(fer_algo)
+        fil_down.join()
+        fil_up.join()
     else:
         logger.error("client no registrat")
