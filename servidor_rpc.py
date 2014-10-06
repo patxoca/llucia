@@ -55,6 +55,9 @@ class RPCHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         res = cPickle.loads(zlib.decompress(self.rfile.read(l)))
         return res.get("args", ()), res.get("kwargs", {})
 
+    def log_message(self, format, *args):
+        pass
+
 
 def _normalitzar_funcions(funcions):
     res = {}
