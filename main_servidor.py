@@ -94,15 +94,16 @@ def consumidor(processador):
 
     """
     while True:
+        cua_buida = False
         try:
             # TODO: no m'agrada utilitzar un timeout
             paquet, resultats = cua_entrada.get(True, 1)
         except Queue.Empty:
-            pass
+            cua_buida = True
         else:
             for i, j in itertools.izip(paquet, resultats):
                 processador(i, j)
-        if productor_finalitzat() and not paquets_pendents:
+        if cua_buida and productor_finalitzat() and not paquets_pendents:
             break
     logger.info("FINALITZANT CONSUMIDOR")
 
