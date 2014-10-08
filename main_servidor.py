@@ -2,18 +2,16 @@
 
 # $Id$
 
+import itertools
 import logging
 import logging.handlers
 import threading
 import Queue
 
 import synced_table
-import domini
 import servidor_rpc
 import utils
 
-# nombre de jugadors
-DIMENSIO = 5
 
 # nombre de combinacions en cada paquet enviat als treballadors
 MAX_COMBINACIONS_PAQUET = 25000
@@ -56,7 +54,7 @@ def productor_finalitzat():
     return estat_productor == 2
 
 @utils.trace(logger)
-def productor(dimensio, mida_paquet):
+def productor(generador, mida_paquet):
     """El productor intenta que sempre hi hagi paquets disponibles en la
     cua de sortida de forma que la funció rpc_servir_paquet() pugui
     enviar dades als treballadors minimitzant l'espera.
@@ -78,7 +76,7 @@ def productor(dimensio, mida_paquet):
     global estat_productor
     estat_productor = 1
     paquet = []
-    for combinacio in domini.generar_combinacions(dimensio):
+    for combinacio in generador:
         paquet.append(combinacio)
         if len(paquet) == mida_paquet:
             cua_sortida.put(paquet)
@@ -91,20 +89,19 @@ def productor(dimensio, mida_paquet):
     estat_productor = 2
     logger.info("FINALITZANT PRODUCTOR")
 
-def consumidor():
+def consumidor(processador):
     """El consumidor processa els resultats enviats pels treballadors.
 
     """
-    total = 0
     while True:
         try:
             # TODO: no m'agrada utilitzar un timeout
-            paquet = cua_entrada.get(True, 1)
+            paquet, resultats = cua_entrada.get(True, 1)
         except Queue.Empty:
             pass
         else:
-            total += len(paquet)
-            logger.debug("#bases %i", total)
+            for i, j in itertools.izip(paquet, resultats):
+                processador(i, j)
         if productor_finalitzat() and not paquets_pendents:
             break
     logger.info("FINALITZANT CONSUMIDOR")
@@ -173,28 +170,29 @@ def rpc_servir_paquet(idclient):
     }
 
 @utils.trace(logger)
-def rpc_recepcionar_resultat(idclient, idpaquet, bases):
+def rpc_recepcionar_resultat(idclient, idpaquet, resultats):
     """Funció cridada pel client per pujar un paquet de resultats.
 
     Paràmetres:
 
-    * idpaquet: identificador del paquet al que correspon el resultat
+    * idpaquet:  identificador del paquet al que correspon el resultat
 
-    * bases:    subconjunt de les combinacions que formen una base
+    * resultats: llista amb els resultat de cada item del paquet
+                 original.
 
     """
     client = check_client_registrat(idclient)
     if idpaquet not in paquets_pendents:
         raise ValueError("paquet #%i no esta pendent")
     logger.debug("Recepcionant resultats #%06i", idpaquet)
-    paquets_pendents.get(idpaquet)
+    paquet = paquets_pendents.get(idpaquet)
     logger.debug("Encuant resultat")
-    cua_entrada.put(bases)
+    cua_entrada.put((paquet, resultats))
     logger.debug("Paquet recepcionat     #%06i" , idpaquet)
 
 
 
-if __name__ == "__main__":
+def main(generador, processador):
     logging.basicConfig(
         datefmt="%H:%M:%S",
         format="%(asctime)-9s - %(message)s",
@@ -206,9 +204,14 @@ if __name__ == "__main__":
     )
     logger.addHandler(socketHandler)
 
-    prod_thread = threading.Thread(target=productor,
-                                   args=(DIMENSIO, MAX_COMBINACIONS_PAQUET))
-    cons_thread = threading.Thread(target=consumidor)
+    prod_thread = threading.Thread(
+        target=productor,
+        args=(generador, MAX_COMBINACIONS_PAQUET)
+    )
+    cons_thread = threading.Thread(
+        target=consumidor,
+        args=(processador, )
+    )
 
     logger.info("Iniciant productor")
     prod_thread.start()

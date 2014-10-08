@@ -136,7 +136,7 @@ def calculador(funcio):
         total_combinacions += len(candidats)
 
         # @@
-        resultat = funcio(candidats)
+        resultat = map(funcio, candidats)
 
         t3 = time.time()
         total_bases += len(resultat)
@@ -172,14 +172,12 @@ def calculador(funcio):
     logger.info("finalitzant calculador")
 
 
-def fer_algo(candidats):
-    resultats = []
-    for i in domini.generar_bases(candidats):
-        resultats.append(i)
-    return resultats
 
+def main(calc):
+    global logger
+    global logger_down
+    global logger_up
 
-if __name__ == "__main__":
     logging.basicConfig(
         datefmt="%H:%M:%S",
         format="%(asctime)-9s - %(message)s",
@@ -205,7 +203,7 @@ if __name__ == "__main__":
 
         fil_down.start()
         fil_up.start()
-        calculador(fer_algo)
+        calculador(calc)
         fil_down.join()
         fil_up.join()
     else:
