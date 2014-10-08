@@ -105,7 +105,7 @@ def carregar_matrius(nom_arxiu, tipus=int):
 # pretty printing de vectors i bases
 #
 
-def vector_a_bonic(vector):
+def vector_a_jugador(vector):
     """
     (1, 0, 0) -> "1"
     (0, 1, 1) -> "23"
@@ -120,6 +120,10 @@ def vector_a_bonic(vector):
     else:
         return res
 
+def codificar_linia_base_arxiu(arxiu, base, classe, cont):
+    jugadors = [vector_a_jugador(i) for i in base]
+    jugadors.append(classe)
+    print >>arxiu, cont, ",".join(jugadors)
 
 def base_a_bonic(base):
     """
