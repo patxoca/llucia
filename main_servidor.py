@@ -76,8 +76,8 @@ def productor(generador, mida_paquet):
     global estat_productor
     estat_productor = 1
     paquet = []
-    for combinacio in generador:
-        paquet.append(combinacio)
+    for item in generador:
+        paquet.append(item)
         if len(paquet) == mida_paquet:
             cua_sortida.put(paquet)
             paquet = []
@@ -90,7 +90,11 @@ def productor(generador, mida_paquet):
     logger.info("FINALITZANT PRODUCTOR")
 
 def consumidor(processador):
-    """El consumidor processa els resultats enviats pels treballadors.
+    """El consumidor processa els paquets de resultats enviats pels
+    treballadors.
+
+    Per cada resultat crida a la funcio 'processador' passant-li el
+    ítem que ha originat el càlcul i el corresponent resultat.
 
     """
     while True:
@@ -148,8 +152,7 @@ def rpc_servir_paquet(idclient):
 
     * id:    identificador del paquet
 
-    * dades: llista de llistes de N vectors de dimensió N (candidats a
-             bases)
+    * dades: llista de ítems sobre els que fer el càlcul
 
     """
     client = check_client_registrat(idclient)
@@ -178,8 +181,8 @@ def rpc_recepcionar_resultat(idclient, idpaquet, resultats):
 
     * idpaquet:  identificador del paquet al que correspon el resultat
 
-    * resultats: llista amb els resultat de cada item del paquet
-                 original.
+    * resultats: llista amb els resultats d'aplicar el càlcul a cada
+                 item del paquet original.
 
     """
     client = check_client_registrat(idclient)

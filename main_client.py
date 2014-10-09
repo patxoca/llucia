@@ -107,17 +107,16 @@ def calculador(funcio):
     """Aquesta funció coordina el càlcul i recull estadístiques per
     analitzar el rendiment.
 
-    FUNCIO és la funció responsable de fer el càlcul. FUNCIO rebra una
-    llista de llistes de vectors (els candidats a base) i ha de
-    retorna una llista amb les bases.
+    FUNCIO és la funció responsable de fer el càlcul, rebrà un ítem i
+    ha de retornar el resultat d'aplicar el càlcul sobre aquest
+    element.
 
     """
     temps_descarrega = 0
     temps_calcul = 0
     temps_pujada = 0
     nombre_paquets = 0
-    total_combinacions = 0
-    total_bases = 0
+    total_items = 0
     while True:
         t1 = time.time()
 
@@ -126,20 +125,19 @@ def calculador(funcio):
 
         t2 = time.time()
         idpaquet = dades["id"]
-        candidats = dades["dades"]
+        paquet = dades["dades"]
         if idpaquet == -1:
             logger.info("rebut paquet de finalitzacio")
             cua_sortida.put((-1, None))
             break
 
         nombre_paquets += 1
-        total_combinacions += len(candidats)
+        total_items += len(paquet)
 
         # @@
-        resultat = map(funcio, candidats)
+        resultat = map(funcio, paquet)
 
         t3 = time.time()
-        total_bases += len(resultat)
 
         # @@
         cua_sortida.put((idpaquet, resultat))
@@ -151,12 +149,10 @@ def calculador(funcio):
         temps_pujada = t4 - t3
         temps_total = temps_descarrega + temps_calcul + temps_pujada
 
-        logger.info("#paquets: %i    #comb %i (%i)    #bas %i (%i)",
+        logger.info("#paquets: %i    #comb %i (%i)",
                     nombre_paquets,
-                    total_combinacions,
-                    len(candidats),
-                    total_bases,
-                    len(resultat)
+                    total_items,
+                    len(paquet),
         )
         logger.info("    TT: %9.2f    TD: %9.2f    TC: %9.2f    TP: %9.2f",
                     temps_total,
