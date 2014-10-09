@@ -47,6 +47,12 @@ cons_thread = None
 def productor_finalitzat():
     return estat_productor == 2
 
+def hi_ha_paquets_pendents():
+    """Retorna True si queden paquets de dades per processar.
+
+    """
+    return not productor_finalitzat() or paquets_pendents
+
 @utils.trace(logger)
 def productor(generador, mida_paquet):
     """El productor intenta que sempre hi hagi paquets disponibles en la
@@ -227,5 +233,8 @@ def main(generador, processador, funcions=()):
             (rpc_servir_paquet, "descarregar"),
             (rpc_recepcionar_resultat, "pujar"),
             (rpc_registrar_client, "registrar"),
-        ) + tuple(funcions)
+        ) + tuple(funcions),
+        hi_ha_paquets_pendents
     )
+    prod_thread.join()
+    cons_thread.join()
