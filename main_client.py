@@ -3,6 +3,7 @@
 # $Id$
 
 import client_rpc
+import configuracio
 import domini
 import httplib
 import logging
@@ -13,19 +14,16 @@ import threading
 
 
 # paràmetres del servidor RPC
-SERVIDOR_RPC = "localhost"
-PORT_RPC = "8000"
+SERVIDOR_RPC = configuracio.SERVIDOR_RPC
+PORT_RPC = str(configuracio.PORT_RPC)
 
-# paràmetres del servidor de log
-SERVIDOR_LOG = SERVIDOR_RPC
-PORT_LOG = 8001
 
 # si es produeix un error de connexió amb el servidor s'introdueix un
 # temps d'espera per tornar a intertar-ho. Inicialment l'espera és de
 # 1 segon i es va doblant en cada error succesiu fins arribar o
 # superar el valor de MAX_ESPERA. Una vegada establida la connexió el
 # valor de l'espera es torna a "no-espera" (None, no zero).
-MAX_ESPERA = 64
+MAX_ESPERA = configuracio.MAX_ESPERA
 
 logger = logging.getLogger("cli")
 logger_down = logger
@@ -173,17 +171,6 @@ def main(calc):
     global logger
     global logger_down
     global logger_up
-
-    logging.basicConfig(
-        datefmt="%H:%M:%S",
-        format="%(asctime)-9s - %(message)s",
-        level=logging.DEBUG
-    )
-    socketHandler = logging.handlers.SocketHandler(
-        SERVIDOR_LOG,
-        PORT_LOG
-    )
-    logger.addHandler(socketHandler)
 
     proxy = client_rpc.RPCProxy(SERVIDOR_RPC, PORT_RPC)
     logger.debug("registrant client")

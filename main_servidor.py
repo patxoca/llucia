@@ -4,24 +4,18 @@
 
 import itertools
 import logging
-import logging.handlers
 import threading
 import Queue
 
+import configuracio
 import synced_table
 import servidor_rpc
 import utils
 
 
-# nombre de combinacions en cada paquet enviat als treballadors
-MAX_COMBINACIONS_PAQUET = 25000
+MAX_CLIENTS = configuracio.MAX_TREBALLADORS
+MAX_COMBINACIONS_PAQUET = configuracio.MAX_COMBINACIONS_PAQUET
 
-# paràmetres del servidor de log
-SERVIDOR_LOG = "localhost"
-PORT_LOG = 8001
-
-# nombre màxim de clients que accepta el coodinador
-MAX_CLIENTS = 10
 
 logger = logging.getLogger("srv")
 
@@ -196,17 +190,23 @@ def rpc_recepcionar_resultat(idclient, idpaquet, resultats):
 
 
 
-def main(generador, processador):
-    logging.basicConfig(
-        datefmt="%H:%M:%S",
-        format="%(asctime)-9s - %(message)s",
-        level=logging.DEBUG
-    )
-    socketHandler = logging.handlers.SocketHandler(
-        SERVIDOR_LOG,
-        PORT_LOG
-    )
-    logger.addHandler(socketHandler)
+def main(generador, processador, funcions=()):
+    """Inicia el coordinador.
+
+    Paràmetres:
+
+    - generador: una funció que retorna (yield) un element cada vegada
+      que es cridada. Aquest element és el que rebrà el treballador
+      per realitzar el càlcul.
+
+    - processador: una funció que rep l'element generat per
+      'generador' i el resultat del càlcul retornat pel treballador.
+
+    - funcions: llista/tupla de parelles (funcio, nom) addicionals que
+      es registren amb el coordinador per ficar-les a disposició dels
+      treballadors.
+
+    """
 
     prod_thread = threading.Thread(
         target=productor,
@@ -223,9 +223,9 @@ def main(generador, processador):
     cons_thread.start()
     logger.info("Arrancant coodinador")
     servidor_rpc.arrancar_servidor_rpc(
-        [
+        (
             (rpc_servir_paquet, "descarregar"),
             (rpc_recepcionar_resultat, "pujar"),
             (rpc_registrar_client, "registrar"),
-        ]
+        ) + tuple(funcions)
     )
