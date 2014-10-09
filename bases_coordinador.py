@@ -27,7 +27,7 @@ class Processador(object):
         )
 
     def tancar(self):
-        self._arxiu.tancar()
+        self._arxiu.close()
 
 
 def generador():
