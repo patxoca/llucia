@@ -5,6 +5,7 @@
 import configuracio
 import domini
 import main_servidor
+import time
 import utils
 
 
@@ -14,19 +15,24 @@ class Processador(object):
         self._nom_arxiu = nom_arxiu
         self._arxiu = open(nom_arxiu, "w")
         self._comptador = 0
+        self._t1 = time.time()
 
     def __call__(self, candidat, classe):
         if classe is None:
             return
         self._comptador += 1
-        domini.codificar_linia_base_arxiu(
-            self._arxiu,
-            candidat,
-            classe,
-            self._comptador
-        )
+        # domini.codificar_linia_base_arxiu(
+        #     self._arxiu,
+        #     candidat,
+        #     classe,
+        #     self._comptador
+        # )
 
     def tancar(self):
+        print "#nbases %i, %9.2fs" % (
+            self._comptador,
+            time.time() - self._t1
+        )
         self._arxiu.close()
 
 
