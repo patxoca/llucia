@@ -46,3 +46,16 @@ def configurar_logging(servidor="localhost", port=8001, nivell=logging.INFO):
     logger = logging.getLogger()
     logger.addHandler(socketHandler)
     logger.info("Logging inicialitzat.")
+
+def generar_lots(elements, mida_lot):
+    """Genera lots de mida MIDA_LOT a partir de ELEMENTS.
+
+    """
+    lot = []
+    for i in elements:
+        lot.append(i)
+        if len(lot) == mida_lot:
+            yield lot
+            lot = []
+    if lot:
+        yield lot

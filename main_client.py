@@ -133,7 +133,7 @@ def calculador(funcio):
         total_items += len(paquet)
 
         # @@
-        resultat = map(funcio, paquet)
+        resultat = funcio(paquet)
 
         t3 = time.time()
 
