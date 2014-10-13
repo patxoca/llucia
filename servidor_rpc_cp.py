@@ -3,6 +3,8 @@
 # $Id$
 
 import cPickle
+import threading
+import time
 import zlib
 
 import cherrypy
@@ -54,6 +56,12 @@ class Arrel(object):
         res = cPickle.loads(zlib.decompress(cherrypy.request.rfile.read(l)))
         return res.get("args", ()), res.get("kwargs", {})
 
+def monitor(continuar):
+    while True:
+        if not continuar():
+            cherrypy.engine.exit()
+            break
+        time.sleep(1)
 
 def arrancar_servidor_rpc(funcions, continuar=None, host="localhost", port=8000):
     """Arranca el servidor RPC.
@@ -71,9 +79,12 @@ def arrancar_servidor_rpc(funcions, continuar=None, host="localhost", port=8000)
         "server.socket_port": port,
         "request.process_request_body": False,
     })
+    t = threading.Thread(target=monitor, args=(continuar, ))
+    t.start()
     cherrypy.quickstart(
         Arrel(funcions)
     )
+    t.join()
 
 
 
