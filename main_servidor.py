@@ -234,7 +234,9 @@ def main(generador, processador, funcions=()):
             (rpc_recepcionar_resultat, "pujar"),
             (rpc_registrar_client, "registrar"),
         ) + tuple(funcions),
-        hi_ha_paquets_pendents
+        hi_ha_paquets_pendents,
+        host=configuracio.SERVIDOR_RPC,
+        port=configuracio.PORT_RPC,
     )
     prod_thread.join()
     cons_thread.join()

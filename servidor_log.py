@@ -10,6 +10,8 @@ import logging.handlers
 import SocketServer
 import struct
 
+import configuracio
+
 
 class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
     """Handler for a streaming logging request.
@@ -82,7 +84,10 @@ class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer):
 def main():
     logging.basicConfig(
         format='%(relativeCreated)5d %(name)-15s %(levelname)-8s %(message)s')
-    tcpserver = LogRecordSocketReceiver(port=8001)
+    tcpserver = LogRecordSocketReceiver(
+        host=configuracio.SERVIDOR_LOG,
+        port=configuracio.PORT_LOG
+    )
     print('About to start TCP server...')
     tcpserver.serve_until_stopped()
 

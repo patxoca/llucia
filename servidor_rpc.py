@@ -71,7 +71,7 @@ def _normalitzar_funcions(funcions):
     return res
 
 
-def arrancar_servidor_rpc(funcions, continuar=None, port=8000):
+def arrancar_servidor_rpc(funcions, continuar=None, host="localhost", port=8000):
     """Arranca el servidor RPC.
 
     funcions: llista de funciona accesibles des dels clients. Cada
@@ -82,7 +82,7 @@ def arrancar_servidor_rpc(funcions, continuar=None, port=8000):
     """
     if continuar is None:
         continuar = lambda : True
-    server_address = ('', port)
+    server_address = (host, port)
     httpd = ThreadedHTTPServer(server_address, RPCHandler)
     httpd._funcions = _normalitzar_funcions(funcions)
     httpd.timeout = 1

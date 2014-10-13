@@ -55,7 +55,7 @@ class Arrel(object):
         return res.get("args", ()), res.get("kwargs", {})
 
 
-def arrancar_servidor_rpc(funcions, continuar=None, port=8000):
+def arrancar_servidor_rpc(funcions, continuar=None, host="localhost", port=8000):
     """Arranca el servidor RPC.
 
     funcions: llista de funciona accesibles des dels clients. Cada
@@ -66,8 +66,8 @@ def arrancar_servidor_rpc(funcions, continuar=None, port=8000):
     """
     if continuar is None:
         continuar = lambda : True
-    server_address = ('', port)
     cherrypy.config.update({
+        "server.socket_host": host,
         "server.socket_port": port,
         "request.process_request_body": False,
     })
