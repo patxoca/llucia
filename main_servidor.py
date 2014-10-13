@@ -9,7 +9,7 @@ import Queue
 
 import configuracio
 import synced_table
-import servidor_rpc
+import servidor_rpc_cp as servidor_rpc
 import utils
 
 
