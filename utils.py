@@ -2,10 +2,12 @@
 
 # $Id$
 
+import cPickle
 import functools
 import logging
 import logging.handlers
 import thread
+import zlib
 
 def trace(logger):
     """Decorador per traçar l'execució de les funcions i facilitar la
@@ -73,3 +75,9 @@ def normalitzar_taula_funcions(funcions):
         nom = tuple(nom.split("."))
         res[nom] = f
     return res
+
+def empaquetar(dades):
+    return zlib.compress(cPickle.dumps(dades))
+
+def desempaquetar(dades):
+    return cPickle.loads(zlib.decompress(dades))
