@@ -7,7 +7,6 @@ import logging
 import logging.handlers
 import thread
 
-
 def trace(logger):
     """Decorador per traçar l'execució de les funcions i facilitar la
     depuració d'errors.
@@ -61,6 +60,10 @@ def generar_lots(elements, mida_lot):
         yield lot
 
 def normalitzar_taula_funcions(funcions):
+    """Donada una llista on els elements son funcions o parelles (funcio,
+    nom) retorna un diccionari nom -> funcio.
+
+    """
     res = {}
     for f in funcions:
         if callable(f):
