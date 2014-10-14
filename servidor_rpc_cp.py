@@ -9,22 +9,12 @@ import zlib
 
 import cherrypy
 
-
-def _normalitzar_funcions(funcions):
-    res = {}
-    for f in funcions:
-        if callable(f):
-            nom = f.__name__
-        else:
-            f, nom = f
-        nom = tuple(nom.split("."))
-        res[nom] = f
-    return res
+import utils
 
 
 class Arrel(object):
     def __init__(self, funcions):
-        self._funcions = _normalitzar_funcions(funcions)
+        self._funcions = utils.normalitzar_taula_funcions(funcions)
 
     @cherrypy.expose
     def default(self, *path):

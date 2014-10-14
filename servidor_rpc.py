@@ -10,6 +10,9 @@ import zlib
 
 from SocketServer import ThreadingMixIn
 
+import utils
+
+
 class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
     """Handle requests in a separate thread."""
 
@@ -59,16 +62,6 @@ class RPCHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         pass
 
 
-def _normalitzar_funcions(funcions):
-    res = {}
-    for f in funcions:
-        if callable(f):
-            nom = f.__name__
-        else:
-            f, nom = f
-        nom = "/" + nom.replace(".", "/")
-        res[nom] = f
-    return res
 
 
 def arrancar_servidor_rpc(funcions, continuar=None, host="localhost", port=8000):
@@ -84,7 +77,7 @@ def arrancar_servidor_rpc(funcions, continuar=None, host="localhost", port=8000)
         continuar = lambda : True
     server_address = (host, port)
     httpd = ThreadedHTTPServer(server_address, RPCHandler)
-    httpd._funcions = _normalitzar_funcions(funcions)
+    httpd._funcions = utils.normalitzar_taula_funcions(funcions)
     httpd.timeout = 1
     while continuar():
         httpd.handle_request()
