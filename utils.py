@@ -61,21 +61,6 @@ def generar_lots(elements, mida_lot):
     if lot:
         yield lot
 
-def normalitzar_taula_funcions(funcions):
-    """Donada una llista on els elements son funcions o parelles (funcio,
-    nom) retorna un diccionari nom -> funcio.
-
-    """
-    res = {}
-    for f in funcions:
-        if callable(f):
-            nom = f.__name__
-        else:
-            f, nom = f
-        nom = tuple(nom.split("."))
-        res[nom] = f
-    return res
-
 def empaquetar(dades):
     return zlib.compress(cPickle.dumps(dades))
 
