@@ -2,8 +2,7 @@
 
 # $Id$
 
-# Aquest mòdul és importat per bases_coordinador y bases_treballador.
-# S'utilitza per definir opcions configurables centralitzadament,
+# Aquest mòdul defineix opcions configurables centralitzadament,
 # facilitant canviar-les sense haver de tocar el codi del programa.
 
 import logging
@@ -13,10 +12,9 @@ import logging
 DIMENSIO = 5
 
 # ------------------------------------------------------------------------
-# Adreça del coordinador
+# Adreça del productor
 
-SERVIDOR_RPC = "localhost"
-PORT_RPC = 8000
+PRODUCTOR = "tcp://127.0.0.1:5555"
 
 # ------------------------------------------------------------------------
 # Configuració del logging

@@ -2,6 +2,7 @@
 
 # $Id$
 
+import logging
 import sys
 import time
 
@@ -10,41 +11,83 @@ import zmq
 import domini
 import utils
 
-MAX_CLIENTS = 10
+
+_logger = logging.getLogger("prod")
 
 
-def arrancar_productor(generador, address="tcp://*:5555", consumidor="tcp://localhost:5556"):
+def arrancar_productor(generador, adreca, max_clients=10, mida_paquet=10000,
+                       progres=False, max_paquets=None):
+    """Arranca un productor basat an ZMQ.
+
+    Inicia un servei que consumeix els elements generats per
+    GENERADOR, els empaqueta en paquets de mida MIDA_PAQUET i els fica
+    a disposició dels treballadors en una cua en l'adreça ADRECA.
+
+    Els elements afegits a la cua son parelles (idpaquet, paquet), on
+    IDPAQUET és un valor enter major que zero, diferent per cada
+    paquet.
+
+    En exhuarir-se el generador fica en la cua MAX_CLIENTS paquets de
+    finalització, parelles (-1, None).
+
+    MAX_PAQUETS permet limitar el nombre de paquets que es generen,
+    acotant el consum de memòria. Si no s'especifica cap valor
+    s'utilitza el valor de MAX_CLIENTS multiplicat per 3. La
+    heurística és que un treballador té un paquet descarregant, un en
+    cua i un tercer processant.
+
+    Si PROGRES val True imprimeix per pantalla un punt cada vegada que
+    s'envia un paquet.
+
+    """
+    if max_paquets is None:
+        max_paquets = max_clients * 3
+    _logger.info(u"Iniciant productor")
+    _logger.info(u"  adreça             : %s", adreca)
+    _logger.info(u"  ítems/paquet       : %i", mida_paquet)
+    _logger.info(u"  max clients/paquets: %i/%i", max_clients, max_paquets)
+
     context = zmq.Context()
-
-    # Socket to send messages on
     sender = context.socket(zmq.PUSH)
-    sender.bind(address)
+    sender.set_hwm(max_paquets)
+    sender.bind(adreca)
 
-    # Socket with direct access to the sink: used to syncronize start of batch
-    # sink = context.socket(zmq.PUSH)
-    # sink.connect(consumidor)
-
-    print("Prem Return quen els treballadors estiguin preparats: ")
-    raw_input()
-    print("Sending tasks to workers...")
-
+    _logger.info(u"Enviant paquets als treballadors")
     t0 = time.time()
-    for idpaquet, paquet in enumerate(utils.generar_lots(generador, 250000), 1):
-        sys.stdout.write(".")
-        sys.stdout.flush()
-        sender.send_pyobj(utils.empaquetar((idpaquet, paquet)))
-    tf = time.time()
-    for i in xrange(MAX_CLIENTS):
-        sender.send_pyobj(utils.empaquetar((-1, None)))
+    for idpaquet, paquet in enumerate(utils.generar_lots(generador, mida_paquet), 1):
+        if progres:
+            sys.stdout.write(".")
+            sys.stdout.flush()
+        sender.send(utils.empaquetar((idpaquet, paquet)))
+    _logger.info(u"Tots els paquets enviats en %.2f segons", time.time() - t0)
 
-    print "%9.2f seg" % (tf - t0)
+    _logger.info(u"Enviant %i paquets de finalització", max_clients)
+    for i in xrange(max_clients):
+        sender.send(utils.empaquetar((-1, None)))
 
-    # Give 0MQ time to deliver
-    raw_input("Prem Return quan hagin acabat els treballadors")
+    _logger.info(u"Finalitzant productor")
 
 
 
 if __name__ == "__main__":
+    import configuracio
+
     def generador():
-        return domini.generar_combinacions(6)
-    arrancar_productor(generador())
+        return domini.generar_combinacions(configuracio.DIMENSIO)
+
+    utils.configurar_logging(
+        configuracio.SERVIDOR_LOG,
+        configuracio.PORT_LOG,
+        configuracio.NIVELL_LOG_COORDINADOR,
+    )
+
+    arrancar_productor(
+        generador(),
+        adreca=configuracio.PRODUCTOR,
+        max_clients=configuracio.MAX_TREBALLADORS,
+        mida_paquet=configuracio.MAX_COMBINACIONS_PAQUET,
+        progres=True,
+    )
+    # Actualment no es controla que els treballadors hagin finalitzat.
+    # Informa l'usuari.
+    raw_input("Prem Return quan hagin acabat els treballadors")
