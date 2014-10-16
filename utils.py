@@ -61,6 +61,14 @@ def generar_lots(elements, mida_lot):
     if lot:
         yield lot
 
+
+def composar_funcions(f, g):
+    """Retorna una funcio h tq h(x) = g(f(x))
+    """
+    def h(*args, **kw):
+        return g(f(*args, **kw))
+    return h
+
 def empaquetar(dades):
     return zlib.compress(cPickle.dumps(dades))
 
