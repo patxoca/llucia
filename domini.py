@@ -33,10 +33,45 @@ def generar_vectors(mida):
 
 
 def generar_combinacions(mida):
-    vectors = generar_vectors(mida)
+    """Genera totes les possibles combinacions de coalicions de fins MIDA
+    jugadors.
+
+    Cada combinació és una llista de coalicions i cada coalició és
+    representa mitjançant un valor enter que codifica en binari la
+    presència dels jugadors en la coalició:
+
+      1 -> (1, 0, 0)
+      2 -> (0, 1, 0)
+      3 -> (1, 1, 0)
+      etc.
+
+    """
+    vectors = range(1, 2**mida)
     for i in itertools.combinations(vectors, mida):
         yield i
 
+def construir_descodificador_coalicions(mida):
+    """Retorna una funció per descodificar coalicions de fins MIDA
+    jugadors.
+
+    """
+    taula = [None] # la posició zero no s'utilitza
+    for i in range(1, 2**mida):
+        taula.append(decimal_a_binari(i, mida))
+    def descodificador(coalicio):
+        return taula[coalicio]
+    return descodificador
+
+def descodificar_combinacio(combinacio, descodificador):
+    """Descodifica una combinació de coalicions.
+
+    DESCODIFICADOR és una funció que rep un enter i retorna un vector
+    binari.
+
+    Retorna una llista de vectors binaris.
+
+    """
+    return map(descodificador, combinacio)
 
 def generar_bases(iterador):
     for candidat in iterador:
@@ -129,7 +164,7 @@ def base_a_bonic(base):
     """
     [(1, 0, 0), (1, 1, 0), (0, 1, 1)] -> "{1, 12, 23}"
     """
-    return "{%s}" % ", ".join([vector_a_bonic(vector) for vector in base])
+    return "{%s}" % ", ".join([vector_a_jugador(vector) for vector in base])
 
 
 

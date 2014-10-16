@@ -9,6 +9,7 @@ import time
 import numpy
 import zmq
 
+import domini
 import utils
 
 
@@ -57,6 +58,9 @@ if __name__ == "__main__":
     import configuracio
 
     total = 0
+    descodificador = domini.construir_descodificador_coalicions(
+        configuracio.DIMENSIO
+    )
 
     def calculador(paquet):
         global total
@@ -66,6 +70,9 @@ if __name__ == "__main__":
                 total += 1
         return resultat
 
+    def descodificar_paquet(paquet):
+        return [domini.descodificar_combinacio(i, descodificador) for i in paquet]
+
     utils.configurar_logging(
         configuracio.SERVIDOR_LOG,
         configuracio.PORT_LOG,
@@ -73,7 +80,10 @@ if __name__ == "__main__":
     )
 
     arrancar_treballador(
-        calculador,
+        calculador=utils.composar_funcions(
+            descodificar_paquet,
+            calculador
+        ),
         productor=configuracio.PRODUCTOR,
         progres=True,
     )
