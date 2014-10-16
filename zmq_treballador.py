@@ -16,7 +16,7 @@ import utils
 _logger = logging.getLogger("treb")
 
 
-def arrancar_treballador(calculador, productor, progres=False):
+def arrancar_treballador(calculador, productor, empaquetador, progres=False):
     """Arranca un treballador basat en ZMQ.
 
     Connecta amb el productor en l'adreça PRODUCTOR. Descarrega i
@@ -40,7 +40,7 @@ def arrancar_treballador(calculador, productor, progres=False):
     num_paquets = 0
     t0 = time.time()
     while True:
-        idpaquet, paquet = utils.desempaquetar(receiver.recv())
+        idpaquet, paquet = empaquetador.desempaquetar(receiver.recv())
         if idpaquet == -1:
             break
         if progres:
@@ -85,6 +85,7 @@ if __name__ == "__main__":
             calculador
         ),
         productor=configuracio.PRODUCTOR,
+        empaquetador=utils.Empaquetador(configuracio.NIVELL_COMPRESSIO),
         progres=True,
     )
     print "%i bases" % total

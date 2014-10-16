@@ -15,8 +15,8 @@ import utils
 _logger = logging.getLogger("prod")
 
 
-def arrancar_productor(generador, adreca, max_clients=10, mida_paquet=10000,
-                       progres=False, max_paquets=None):
+def arrancar_productor(generador, adreca, empaquetador, max_clients=10,
+                       mida_paquet=10000, progres=False, max_paquets=None):
     """Arranca un productor basat an ZMQ.
 
     Inicia un servei que consumeix els elements generats per
@@ -58,12 +58,12 @@ def arrancar_productor(generador, adreca, max_clients=10, mida_paquet=10000,
         if progres:
             sys.stdout.write(".")
             sys.stdout.flush()
-        sender.send(utils.empaquetar((idpaquet, paquet)))
+        sender.send(empaquetador.empaquetar((idpaquet, paquet)))
     _logger.info(u"Tots els paquets enviats en %.2f segons", time.time() - t0)
 
     _logger.info(u"Enviant %i paquets de finalització", max_clients)
     for i in xrange(max_clients):
-        sender.send(utils.empaquetar((-1, None)))
+        sender.send(empaquetador.empaquetar((-1, None)))
 
     _logger.info(u"Finalitzant productor")
 
@@ -84,6 +84,7 @@ if __name__ == "__main__":
     arrancar_productor(
         generador(),
         adreca=configuracio.PRODUCTOR,
+        empaquetador=utils.Empaquetador(configuracio.NIVELL_COMPRESSIO),
         max_clients=configuracio.MAX_TREBALLADORS,
         mida_paquet=configuracio.MAX_COMBINACIONS_PAQUET,
         progres=True,

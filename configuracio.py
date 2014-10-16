@@ -33,6 +33,12 @@ MAX_COMBINACIONS_PAQUET = 25000
 # nombre màxim de treballadors que accepta el coodinador
 MAX_TREBALLADORS = 10
 
+# nivell de compressio dels paquets enviats als treballadors: 0 no es
+# comprimeix, 9 compressió màxima. Cal trobar un equilibri entre el
+# temps requerit per comprimir les dades i l'estalvi que suposa al
+# enviar-lo per xarxa.
+NIVELL_COMPRESSIO = 0
+
 # ------------------------------------------------------------------------
 # Configuració interna del treballador
 

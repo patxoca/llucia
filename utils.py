@@ -69,8 +69,18 @@ def composar_funcions(f, g):
         return g(f(*args, **kw))
     return h
 
-def empaquetar(dades):
-    return zlib.compress(cPickle.dumps(dades))
+class Empaquetador(object):
+    """Encapsula l'empaquetat/desempaquetat de dades.
 
-def desempaquetar(dades):
-    return cPickle.loads(zlib.decompress(dades))
+    """
+    def __init__(self, nivel_compressio=0):
+        self._nivell_compressio = nivel_compressio
+
+    def empaquetar(self, dades):
+        return zlib.compress(
+            cPickle.dumps(dades),
+            self._nivell_compressio
+        )
+
+    def desempaquetar(self, dades):
+        return cPickle.loads(zlib.decompress(dades))
