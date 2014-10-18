@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # $Id$
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 import sys, os
 
 version = "0.1"
+
+combinator = Extension("combinator", sources=["llucia/c/combinatormodule.c"])
 
 setup(name="llucia",
       version=version,
@@ -25,4 +27,5 @@ setup(name="llucia",
       entry_points="""
       # -*- Entry points: -*-
       """,
+      ext_modules = [combinator],
       )
