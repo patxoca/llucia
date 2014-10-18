@@ -34,6 +34,7 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
 
     context = zmq.Context()
     receiver = context.socket(zmq.PULL)
+    receiver.hwm = 1
     receiver.connect(productor)
 
     _logger.info(u"Processant paquets")
