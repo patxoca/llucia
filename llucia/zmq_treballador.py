@@ -9,8 +9,8 @@ import time
 import numpy
 import zmq
 
-import domini
-import utils
+from llucia import domini
+from llucia import utils
 
 
 _logger = logging.getLogger("treb")
@@ -56,7 +56,7 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
 
 
 if __name__ == "__main__":
-    import configuracio
+    from llucia import configuracio
 
     total = 0
     descodificador = domini.construir_descodificador_coalicions(

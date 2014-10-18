@@ -10,7 +10,7 @@ import logging.handlers
 import SocketServer
 import struct
 
-import configuracio
+from llucia import configuracio
 
 
 class LogRecordStreamHandler(SocketServer.StreamRequestHandler):

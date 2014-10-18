@@ -8,8 +8,8 @@ import time
 
 import zmq
 
-import domini
-import utils
+from llucia import domini
+from llucia import utils
 
 
 _logger = logging.getLogger("prod")
@@ -70,7 +70,7 @@ def arrancar_productor(generador, adreca, empaquetador, max_clients=10,
 
 
 if __name__ == "__main__":
-    import configuracio
+    from llucia import configuracio
 
     def generador():
         return domini.generar_combinacions(configuracio.DIMENSIO)
