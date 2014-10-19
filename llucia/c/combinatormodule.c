@@ -104,14 +104,12 @@ lot_combinacions_traverse(lot_combinacions_object *co, visitproc visit, void *ar
 static PyObject *
 lot_combinacions_next(lot_combinacions_object *co)
 {
-    PyObject *elem;
-    PyObject *oldelem;
     Py_ssize_t *indices = co->indices;
     PyObject *result = co->result;
     Py_ssize_t n = co->n;
     Py_ssize_t r = co->r;
     Py_ssize_t batch_size = co->batch_size;
-    Py_ssize_t i, j, k, min_i;
+    Py_ssize_t i, j, k;
 
     if (co->stopped)
         return NULL;
@@ -126,27 +124,11 @@ lot_combinacions_next(lot_combinacions_object *co)
             PyTuple_SET_ITEM(result, i, Py_BuildValue("i", indices[i]));
         }
     } else {
-        /* Copy the previous result tuple or re-use it if available */
-        if (Py_REFCNT(result) > 1) {
-            PyObject *old_result = result;
-            result = PyTuple_New(r);
-            if (result == NULL)
-                goto empty;
-            co->result = result;
-            for (i=0; i<r ; i++) {
-                elem = PyTuple_GET_ITEM(old_result, i);
-                Py_INCREF(elem);
-                PyTuple_SET_ITEM(result, i, elem);
-            }
-            Py_DECREF(old_result);
-        }
-        /* Now, we've got the only copy so we can update it in-place
-         * CPython's empty tuple is a singleton and cached in
-         * PyTuple's freelist.
-         */
-        assert(r == 0 || Py_REFCNT(result) == 1);
+        result = PyTuple_New(r);
+        if (result == NULL)
+            goto empty;
+        co->result = result;
 
-        min_i = r;
         for (k = 0; k < batch_size; k++) {
             /* Scan indices right-to-left until finding one that is not
                at its maximum (i + n - r). */
@@ -158,7 +140,6 @@ lot_combinacions_next(lot_combinacions_object *co)
             if (i < 0)
                 goto empty;
 
-            if (i < min_i) min_i = i;
             /* Increment the current index which we know is not at its
                maximum.  Then move back to the right setting each index
                to its lowest possible value (one higher than the index
@@ -169,10 +150,9 @@ lot_combinacions_next(lot_combinacions_object *co)
         }
         /* Update the result tuple for the new indices
            starting with i, the leftmost index that changed */
-        for (i=min_i ; i<r ; i++) {
-            oldelem = PyTuple_GET_ITEM(result, i);
+
+        for (i=0 ; i<r ; i++) {
             PyTuple_SET_ITEM(result, i, Py_BuildValue("i", indices[i]));
-            Py_DECREF(oldelem);
         }
     }
 
