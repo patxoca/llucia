@@ -8,7 +8,6 @@ import time
 
 import zmq
 
-from llucia import domini
 from llucia import utils
 
 
@@ -70,10 +69,22 @@ def arrancar_productor(generador, adreca, empaquetador, max_clients=10,
 
 
 if __name__ == "__main__":
+    from llucia import combinator
     from llucia import configuracio
+    from llucia import domini
 
     def generador():
-        return domini.generar_combinacions(configuracio.DIMENSIO)
+        """Genera tripletes (valor, llavor, mida)
+        """
+        valors = tuple(domini.generar_vectors(configuracio.DIMENSIO))
+        g = combinator.lot_combinacions(
+            len(valors),
+            configuracio.DIMENSIO,
+            configuracio.MAX_COMBINACIONS_PAQUET
+        )
+        for i in g:
+            _logger.debug("%r", i)
+            yield (valors, i, configuracio.MAX_COMBINACIONS_PAQUET)
 
     utils.configurar_logging(
         configuracio.SERVIDOR_LOG,
@@ -86,7 +97,8 @@ if __name__ == "__main__":
         adreca=configuracio.PRODUCTOR,
         empaquetador=utils.Empaquetador(configuracio.NIVELL_COMPRESSIO),
         max_clients=configuracio.MAX_TREBALLADORS,
-        mida_paquet=configuracio.MAX_COMBINACIONS_PAQUET,
+        mida_paquet=1,
+        max_paquets=2,
         progres=True,
     )
     # Actualment no es controla que els treballadors hagin finalitzat.

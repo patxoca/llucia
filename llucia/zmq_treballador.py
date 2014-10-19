@@ -9,7 +9,6 @@ import time
 import numpy
 import zmq
 
-from llucia import domini
 from llucia import utils
 
 
@@ -56,12 +55,11 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
 
 
 if __name__ == "__main__":
+    from llucia import combinator
     from llucia import configuracio
+    from llucia import domini
 
     total = 0
-    descodificador = domini.construir_descodificador_coalicions(
-        configuracio.DIMENSIO
-    )
 
     def calculador(paquet):
         global total
@@ -72,7 +70,11 @@ if __name__ == "__main__":
         return resultat
 
     def descodificar_paquet(paquet):
-        return [domini.descodificar_combinacio(i, descodificador) for i in paquet]
+        assert len(paquet) == 1
+        valors, llavor, mida_lot = paquet[0]
+        _logger.debug("%r", llavor)
+        l = list(combinator.combinador(valors, llavor, mida_lot))
+        return l
 
     utils.configurar_logging(
         configuracio.SERVIDOR_LOG,
