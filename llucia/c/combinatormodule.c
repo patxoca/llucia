@@ -275,7 +275,6 @@ combinador_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 		 */
         PyObject *obj = PyTuple_GET_ITEM(iseed, i);
         indices[i] = PyInt_AsLong(obj);
-        Py_XDECREF(obj);
         if (PyErr_Occurred()) {
             goto error;
         }
