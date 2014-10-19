@@ -11,6 +11,13 @@ import logging
 
 DIMENSIO = 5
 
+
+# ------------------------------------------------------------------------
+# Si True mostra més informació al executar el productor/treballador.
+# Actualment mostra el progrés.
+
+VERBOSE = False
+
 # ------------------------------------------------------------------------
 # Adreça del productor
 

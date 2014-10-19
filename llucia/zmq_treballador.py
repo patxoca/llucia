@@ -89,6 +89,6 @@ if __name__ == "__main__":
         ),
         productor=configuracio.PRODUCTOR,
         empaquetador=utils.Empaquetador(configuracio.NIVELL_COMPRESSIO),
-        progres=True,
+        progres=configuracio.VERBOSE,
     )
     print "%i bases" % total

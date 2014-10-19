@@ -99,7 +99,7 @@ if __name__ == "__main__":
         max_clients=configuracio.MAX_TREBALLADORS,
         mida_paquet=1,
         max_paquets=2,
-        progres=True,
+        progres=configuracio.VERBOSE,
     )
     # Actualment no es controla que els treballadors hagin finalitzat.
     # Informa l'usuari.
