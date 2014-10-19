@@ -61,7 +61,7 @@ def arrancar_productor(generador, adreca, empaquetador, max_clients=10,
     _logger.info(u"Tots els paquets enviats en %.2f segons", time.time() - t0)
 
     _logger.info(u"Enviant %i paquets de finalització", max_clients)
-    for i in xrange(max_clients):
+    for i in xrange(max_paquets):
         sender.send(empaquetador.empaquetar((-1, None)))
 
     _logger.info(u"Finalitzant productor")
