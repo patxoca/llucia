@@ -60,9 +60,15 @@ def arrancar_productor(generador, adreca, empaquetador, max_clients=10,
         sender.send(empaquetador.empaquetar((idpaquet, paquet)))
     _logger.info(u"Tots els paquets enviats en %.2f segons", time.time() - t0)
 
-    _logger.info(u"Enviant %i paquets de finalització", max_clients)
-    for i in xrange(max_paquets):
-        sender.send(empaquetador.empaquetar((-1, None)))
+    _logger.info(u"Enviant paquets de finalització. C-c per finalitzar")
+    try:
+        while True:
+            if progres:
+                sys.stdout.write(".")
+                sys.stdout.flush()
+            sender.send(empaquetador.empaquetar((-1, None)))
+    except KeyboardInterrupt:
+        pass
 
     _logger.info(u"Finalitzant productor")
 
@@ -101,6 +107,3 @@ if __name__ == "__main__":
         max_paquets=2,
         progres=configuracio.VERBOSE,
     )
-    # Actualment no es controla que els treballadors hagin finalitzat.
-    # Informa l'usuari.
-    raw_input("Prem Return quan hagin acabat els treballadors")
