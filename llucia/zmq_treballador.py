@@ -3,6 +3,7 @@
 # $Id$
 
 import logging
+import os
 import sys
 import time
 
@@ -12,7 +13,7 @@ import zmq
 from llucia import utils
 
 
-_logger = logging.getLogger("treb")
+_logger = logging.getLogger("W%s%05i" % (os.environ["HOSTNAME"], os.getpid()))
 
 
 def arrancar_treballador(calculador, productor, empaquetador, progres=False):
