@@ -80,8 +80,7 @@ if __name__ == "__main__":
         return resultat
 
     def descodificar_paquet(paquet):
-        assert len(paquet) == 1
-        valors, llavor, mida_lot = paquet[0]
+        valors, llavor, mida_lot = paquet
         _logger.debug("%r", llavor)
         l = list(combinator.combinador(valors, llavor, mida_lot))
         return l

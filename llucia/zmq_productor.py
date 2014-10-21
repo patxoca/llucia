@@ -53,7 +53,7 @@ def arrancar_productor(generador, adreca, empaquetador, max_clients=10,
 
     _logger.info(u"Enviant paquets als treballadors")
     t0 = time.time()
-    for idpaquet, paquet in enumerate(utils.generar_lots(generador, mida_paquet), 1):
+    for idpaquet, paquet in enumerate(generador, 1):
         if progres:
             sys.stdout.write(".")
             sys.stdout.flush()
