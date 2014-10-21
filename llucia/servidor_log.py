@@ -83,7 +83,7 @@ class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer):
 
 def main():
     logging.basicConfig(
-        format='%(relativeCreated)5d %(name)-15s %(levelname)-8s %(message)s')
+        format='%(asctime)s %(name)-15s %(levelname)-8s %(message)s')
     tcpserver = LogRecordSocketReceiver(
         host=configuracio.SERVIDOR_LOG,
         port=configuracio.PORT_LOG
