@@ -61,13 +61,22 @@ if __name__ == "__main__":
     from llucia import domini
 
     total = 0
+    limit = 1000000000
+    llindar = 10000
 
     def calculador(paquet):
         global total
+        global llindar
         resultat = list(numpy.linalg.det(paquet))
         for i in resultat:
             if i:
                 total += 1
+        if total >= llindar:
+            if total >= limit:
+                llindar += limit
+            else:
+                llindar *= 10
+            _logger.info("#bases: %i", total)
         return resultat
 
     def descodificar_paquet(paquet):
