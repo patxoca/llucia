@@ -23,8 +23,10 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
     Connecta amb el productor en l'adreça PRODUCTOR. Descarrega i
     processa paquets fins rebre un paquet de finalització.
 
-    CALCULADOR és una funció que rep un paquet i retorna una llista de
-    resultats, un per cada element del paquet, en el mateix ordre.
+    CALCULADOR és una funció que rep un paquet i realitza algun càlcul
+    amb ell. El resultat és ignorat. Si dispara una excepció
+    ``llucia.utils.Abort`` s'envia un missatge d'avortament al
+    productor.
 
     Si PROGRES val True imprimeix per pantalla un punt cada vegada que
     es processa un paquet.
@@ -35,14 +37,13 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
 
     context = zmq.Context()
     receiver = context.socket(zmq.REQ)
-    receiver.hwm = 1
     receiver.connect(productor)
 
     # registra el treballador
-    _logger.info(u"Registrant client")
+    _logger.info(u"Registrant treballador")
     receiver.send("REG")
     id_treballador = int(receiver.recv())
-    _logger.info(u"Client registrat #%i", id_treballador)
+    _logger.info(u"Treballador registrat #%i", id_treballador)
 
     _logger.info(u"Processant paquets")
     num_paquets = 0
@@ -51,6 +52,7 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
         receiver.send("GET")
         idpaquet, paquet = empaquetador.desempaquetar(receiver.recv())
         if idpaquet == -1:
+            _logger.info(u"Rebut paquet de finalització")
             break
         if progres:
             sys.stdout.write(".")
@@ -64,10 +66,10 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
             receiver.recv()
             break
     _logger.info(u"%i paquets processats en %.2f segons", num_paquets, time.time() - t0)
-    _logger.info(u"Desregistrant client.")
+    _logger.info(u"Desregistrant treballador.")
     receiver.send("UNREG")
     receiver.recv()
-    _logger.info(u"Client desregistrat.")
+    _logger.info(u"Treballador desregistrat.")
 
     _logger.info(u"Finalitzant treballador")
 
