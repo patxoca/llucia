@@ -2,6 +2,7 @@
 
 # $Id$
 
+import itertools
 import logging
 import sys
 import time
@@ -47,28 +48,45 @@ def arrancar_productor(generador, adreca, empaquetador, max_clients=10,
     _logger.info(u"  max clients/paquets: %i/%i", max_clients, max_paquets)
 
     context = zmq.Context()
-    sender = context.socket(zmq.PUSH)
+    sender = context.socket(zmq.REP)
     sender.set_hwm(max_paquets)
     sender.bind(adreca)
 
     _logger.info(u"Enviant paquets als treballadors")
+    generador = enumerate(generador, 1)
     t0 = time.time()
-    for idpaquet, paquet in enumerate(generador, 1):
+    num_treb = 0
+    while True:
         if progres:
             sys.stdout.write(".")
             sys.stdout.flush()
-        sender.send(empaquetador.empaquetar((idpaquet, paquet)))
-    _logger.info(u"Tots els paquets enviats en %.2f segons", time.time() - t0)
-
-    _logger.info(u"Enviant paquets de finalització. C-c per finalitzar")
-    try:
-        while True:
-            if progres:
-                sys.stdout.write(".")
-                sys.stdout.flush()
-            sender.send(empaquetador.empaquetar((-1, None)))
-    except KeyboardInterrupt:
-        pass
+        msg = sender.recv()
+        if msg == "GET":
+            try:
+                idpaquet, paquet = generador.next()
+            except StopIteration:
+                _logger.info("Dades exhaurides en %.2f segons", time.time() - t0)
+                generador = itertools.repeat((-1, None))
+                idpaquet, paquet = generador.next()
+            sender.send(empaquetador.empaquetar((idpaquet, paquet)))
+        elif msg == "ABORT":
+            _logger.info(u"Rebut ABORT")
+            generador = itertools.repeat((-1, None))
+            sender.send(empaquetador.empaquetar(generador.next()))
+        elif msg == "REG":
+            num_treb += 1
+            _logger.info(u"Registrant treballador #%i", num_treb)
+            sender.send(str(num_treb))
+        elif msg == "UNREG":
+            sender.send("OK")
+            assert num_treb >= 1
+            num_treb -= 1
+            _logger.info(u"Desregistrant treballador")
+            if num_treb == 0:
+                break
+        else:
+            _logger.warning(u"Missatge desconegut '%s'", msg)
+            sender.send(empaquetador.empaquetar((0, None)))
 
     _logger.info(u"Finalitzant productor")
 

@@ -4,6 +4,7 @@
 
 import logging
 import os
+import random
 import sys
 import time
 
@@ -33,14 +34,21 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
     _logger.info(u"  productor: %s", productor)
 
     context = zmq.Context()
-    receiver = context.socket(zmq.PULL)
+    receiver = context.socket(zmq.REQ)
     receiver.hwm = 1
     receiver.connect(productor)
+
+    # registra el treballador
+    _logger.info(u"Registrant client")
+    receiver.send("REG")
+    id_treballador = int(receiver.recv())
+    _logger.info(u"Client registrat #%i", id_treballador)
 
     _logger.info(u"Processant paquets")
     num_paquets = 0
     t0 = time.time()
     while True:
+        receiver.send("GET")
         idpaquet, paquet = empaquetador.desempaquetar(receiver.recv())
         if idpaquet == -1:
             break
@@ -48,8 +56,18 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
             sys.stdout.write(".")
             sys.stdout.flush()
         num_paquets += 1
-        resultat = calculador(paquet)
+        try:
+            resultat = calculador(paquet)
+        except utils.Abort:
+            _logger.info(u"Avortant càlcul")
+            receiver.send("ABORT")
+            receiver.recv()
+            break
     _logger.info(u"%i paquets processats en %.2f segons", num_paquets, time.time() - t0)
+    _logger.info(u"Desregistrant client.")
+    receiver.send("UNREG")
+    receiver.recv()
+    _logger.info(u"Client desregistrat.")
 
     _logger.info(u"Finalitzant treballador")
 
@@ -68,6 +86,8 @@ if __name__ == "__main__":
         global total
         global llindar
         resultat = list(numpy.linalg.det(paquet))
+        if random.random() > 0.95:
+            raise utils.Abort()
         for i in resultat:
             if i:
                 total += 1

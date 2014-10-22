@@ -9,6 +9,11 @@ import logging.handlers
 import thread
 import zlib
 
+
+class Abort(Exception):
+    pass
+
+
 def trace(logger):
     """Decorador per traçar l'execució de les funcions i facilitar la
     depuració d'errors.
