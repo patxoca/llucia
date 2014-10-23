@@ -48,6 +48,7 @@ def arrancar_treballador(calculador, productor, progres=False):
     _logger.info(u"Processant paquets")
     num_paquets = 0
     t0 = time.time()
+    tcalc = 0
     idpaquet = None
     while True:
         receiver.send_pyobj((id_treballador, "GET", idpaquet))
@@ -60,13 +61,16 @@ def arrancar_treballador(calculador, productor, progres=False):
             sys.stdout.flush()
         num_paquets += 1
         try:
+            tc0 = time.time()
             resultat = calculador(paquet)
+            tcalc += time.time() - tc0
         except utils.Abort:
             _logger.info(u"Avortant càlcul")
             receiver.send_pyobj((id_treballador, "ABORT", None))
             receiver.recv_pyobj()
             break
     _logger.info(u"%i paquets processats en %.2f segons", num_paquets, time.time() - t0)
+    _logger.info(u"Temps de càlcul: %.2f segons", tcalc)
     _logger.info(u"Desregistrant treballador.")
     receiver.send_pyobj((id_treballador, "UNREG", None))
     receiver.recv_pyobj()
@@ -82,15 +86,15 @@ if __name__ == "__main__":
     from llucia import domini
 
     total = 0
-    limit = 1000000000
+    limit = 100000000
     llindar = 10000
 
     def calculador(paquet):
         global total
         global llindar
         resultat = list(numpy.linalg.det(paquet))
-        if random.random() > 0.99:
-            raise utils.Abort()
+        # if random.random() > 0.99:
+        #     raise utils.Abort()
         for i in resultat:
             if i:
                 total += 1
