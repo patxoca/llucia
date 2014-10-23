@@ -17,7 +17,7 @@ from llucia import utils
 _logger = logging.getLogger("W%s%05i" % (os.environ["HOSTNAME"], os.getpid()))
 
 
-def arrancar_treballador(calculador, productor, empaquetador, progres=False):
+def arrancar_treballador(calculador, productor, progres=False):
     """Arranca un treballador basat en ZMQ.
 
     Connecta amb el productor en l'adreça PRODUCTOR. Descarrega i
@@ -41,16 +41,17 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
 
     # registra el treballador
     _logger.info(u"Registrant treballador")
-    receiver.send("REG")
-    id_treballador = int(receiver.recv())
+    receiver.send_pyobj((None, "REG", None))
+    id_treballador = receiver.recv_pyobj()
     _logger.info(u"Treballador registrat #%i", id_treballador)
 
     _logger.info(u"Processant paquets")
     num_paquets = 0
     t0 = time.time()
+    idpaquet = None
     while True:
-        receiver.send("GET")
-        idpaquet, paquet = empaquetador.desempaquetar(receiver.recv())
+        receiver.send_pyobj((id_treballador, "GET", idpaquet))
+        idpaquet, paquet = receiver.recv_pyobj()
         if idpaquet == -1:
             _logger.info(u"Rebut paquet de finalització")
             break
@@ -62,13 +63,13 @@ def arrancar_treballador(calculador, productor, empaquetador, progres=False):
             resultat = calculador(paquet)
         except utils.Abort:
             _logger.info(u"Avortant càlcul")
-            receiver.send("ABORT")
-            receiver.recv()
+            receiver.send_pyobj((id_treballador, "ABORT", None))
+            receiver.recv_pyobj()
             break
     _logger.info(u"%i paquets processats en %.2f segons", num_paquets, time.time() - t0)
     _logger.info(u"Desregistrant treballador.")
-    receiver.send("UNREG")
-    receiver.recv()
+    receiver.send_pyobj((id_treballador, "UNREG", None))
+    receiver.recv_pyobj()
     _logger.info(u"Treballador desregistrat.")
 
     _logger.info(u"Finalitzant treballador")
@@ -88,7 +89,7 @@ if __name__ == "__main__":
         global total
         global llindar
         resultat = list(numpy.linalg.det(paquet))
-        if random.random() > 0.95:
+        if random.random() > 0.99:
             raise utils.Abort()
         for i in resultat:
             if i:
@@ -103,7 +104,6 @@ if __name__ == "__main__":
 
     def descodificar_paquet(paquet):
         valors, llavor, mida_lot = paquet
-        _logger.debug("%r", llavor)
         l = list(combinator.combinador(valors, llavor, mida_lot))
         return l
 
@@ -119,7 +119,6 @@ if __name__ == "__main__":
             calculador
         ),
         productor=configuracio.PRODUCTOR,
-        empaquetador=utils.Empaquetador(configuracio.NIVELL_COMPRESSIO),
         progres=configuracio.VERBOSE,
     )
     print "%i bases" % total

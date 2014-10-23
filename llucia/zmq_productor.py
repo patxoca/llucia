@@ -11,21 +11,19 @@ import zmq
 
 from llucia import utils
 
+PAQUET_FINALITZACIO = (-1, None)
 
 _logger = logging.getLogger("prod")
 
-
-def arrancar_productor(generador, adreca, empaquetador,
-                       mida_paquet=10000, progres=False):
+def arrancar_productor(generador, adreca, progres=False):
     """Arranca un productor basat an ZMQ.
 
-    Inicia un servei que consumeix els elements generats per
-    GENERADOR, els empaqueta en paquets de mida MIDA_PAQUET i els fica
-    a disposició dels treballadors en una cua en l'adreça ADRECA.
+    Inicia un servei que consumeix els elements generats per GENERADOR
+    i els serveix als treballadors en l'adreça ADRECA.
 
-    Els elements afegits a la cua son parelles (idpaquet, paquet), on
-    IDPAQUET és un valor enter major que zero, diferent per cada
-    paquet.
+    Els elements enviats als treballadors son tuples (idpaquet, paquet),
+    on IDPAQUET és un valor enter major que zero, diferent per cada
+    paquet, i PAQUET son les dades a processar.
 
     Si PROGRES val True imprimeix per pantalla un punt cada vegada que
     s'envia un paquet.
@@ -33,47 +31,56 @@ def arrancar_productor(generador, adreca, empaquetador,
     """
     _logger.info(u"Iniciant productor")
     _logger.info(u"  adreça             : %s", adreca)
-    _logger.info(u"  ítems/paquet       : %i", mida_paquet)
 
     context = zmq.Context()
-    sender = context.socket(zmq.REP)
-    sender.bind(adreca)
+    socket = context.socket(zmq.REP)
+    socket.bind(adreca)
 
-    _logger.info(u"Enviant paquets als treballadors")
+    _logger.info(u"Esperant peticions dels treballadors")
     generador = enumerate(generador, 1)
     t0 = time.time()
     num_treb = 0
-    while True:
+    continuar = True
+    paquets_pendents = {}
+    while continuar:
         if progres:
             sys.stdout.write(".")
             sys.stdout.flush()
-        msg = sender.recv()
+        idtreb, msg, params = socket.recv_pyobj()
+        reposta = None
         if msg == "GET":
+            if params is not None:
+                # és el id del paquet anterior
+                if params in paquets_pendents:
+                    del paquets_pendents[params]
+                else:
+                    _logger.warning("ID de paquet desconegut %i (client %i)", params, idtreb)
             try:
-                idpaquet, paquet = generador.next()
+                resposta = idpaquet, paquet = generador.next()
             except StopIteration:
                 _logger.info("Dades exhaurides en %.2f segons", time.time() - t0)
-                generador = itertools.repeat((-1, None))
-                idpaquet, paquet = generador.next()
-            sender.send(empaquetador.empaquetar((idpaquet, paquet)))
+                generador = itertools.repeat(PAQUET_FINALITZACIO)
+                resposta = PAQUET_FINALITZACIO
+            else:
+                if idpaquet > 0:
+                    paquets_pendents[idpaquet] = (idtreb, paquet)
         elif msg == "ABORT":
-            _logger.info(u"Rebut ABORT")
-            generador = itertools.repeat((-1, None))
-            sender.send(empaquetador.empaquetar(generador.next()))
+            _logger.info(u"Rebut ABORT del treballador #%i", idtreb)
+            generador = itertools.repeat(PAQUET_FINALITZACIO)
         elif msg == "REG":
             num_treb += 1
             _logger.info(u"Registrant treballador #%i", num_treb)
-            sender.send(str(num_treb))
+            resposta = num_treb
         elif msg == "UNREG":
-            sender.send("OK")
             assert num_treb >= 1
             num_treb -= 1
-            _logger.info(u"Desregistrant treballador")
+            _logger.info(u"Desregistrant treballador #%i", idtreb)
             if num_treb == 0:
-                break
+                continuar = False
         else:
             _logger.warning(u"Missatge desconegut '%s'", msg)
-            sender.send(empaquetador.empaquetar((0, None)))
+
+        socket.send_pyobj(resposta)
 
     _logger.info(u"Finalitzant productor")
 
@@ -94,7 +101,6 @@ if __name__ == "__main__":
             configuracio.MAX_COMBINACIONS_PAQUET
         )
         for i in g:
-            _logger.debug("%r", i)
             yield (valors, i, configuracio.MAX_COMBINACIONS_PAQUET)
 
     utils.configurar_logging(
@@ -106,7 +112,5 @@ if __name__ == "__main__":
     arrancar_productor(
         generador(),
         adreca=configuracio.PRODUCTOR,
-        empaquetador=utils.Empaquetador(configuracio.NIVELL_COMPRESSIO),
-        mida_paquet=1,
         progres=configuracio.VERBOSE,
     )
