@@ -9,6 +9,7 @@ import logging
 import logging.handlers
 import SocketServer
 import struct
+import sys
 
 from llucia import configuracio
 
@@ -83,11 +84,16 @@ class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer):
 
 def main():
     logging.basicConfig(
-        format='%(asctime)s %(name)-15s %(levelname)-8s %(message)s')
+        filename="calcul.log",
+        format='%(asctime)s %(name)-15s %(levelname)-8s %(message)s'
+    )
     tcpserver = LogRecordSocketReceiver(
         host=configuracio.SERVIDOR_LOG,
         port=configuracio.PORT_LOG
     )
+    logger = logging.getLogger()
+    handler = logging.StreamHandler(sys.stdout)
+    logger.addHandler(handler)
     print('About to start TCP server...')
     tcpserver.serve_until_stopped()
 
