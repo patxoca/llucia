@@ -17,7 +17,12 @@ class Fraccio(object):
     Fraccio(num, den) -> num / den
     Fraccio(fraccio)  -> copia de fraccio
 
-    Cal que tant NUM com DEN siguin enters.
+    Cal que tant NUM com DEN siguin enters o que NUM sigui una Fraccio
+    i DEN 1.
+
+    En cas de que la fracció sigui negativa el signe s'associa al
+    numerador, es a dir, el denominador sempre serà positiu.
+
     """
     # _tipus_int és una llista amb els tipus acceptats pel numerador i
     # el denominador.
@@ -34,17 +39,15 @@ class Fraccio(object):
             raise ValueError("Tipus erroni numerador")
         if not isinstance(den, self._tipus_int):
             raise ValueError("Tipus erroni denominador")
+        if den < 0:
+            num = -num
+            den = -den
         self.num = num
         self.den = den
 
     def __add__(self, f):
-        if isinstance(f, self._tipus_int):
-            f = self.__class__(f)
-        res = Fraccio(
-            self.num * f.den + self.den * f.num,
-            self.den * f.den
-            )
-        #res.simplificar()
+        res = self.__class__(self)
+        res += f
         return res
 
     __radd__ = __add__
@@ -57,22 +60,13 @@ class Fraccio(object):
         return self
 
     def __sub__(self, f):
-        if isinstance(f, self._tipus_int):
-            f = self.__class__(f)
-        res = Fraccio(
-            self.num * f.den - self.den * f.num,
-            self.den * f.den
-            )
-        #res.simplificar()
+        res = self.__class__(self)
+        res -= f
         return res
 
     def __rsub__(self, f):
-        if isinstance(f, self._tipus_int):
-            f = self.__class__(f)
-        res = Fraccio(
-            f.num * self.den - f.den * self.num,
-            self.den * f.den
-            )
+        res = self.__class__(f)
+        res -= self
         return res
 
     def __isub__(self, f):
@@ -83,13 +77,8 @@ class Fraccio(object):
         return self
 
     def __mul__(self, f):
-        if isinstance(f, self._tipus_int):
-            f = self.__class__(f)
-        res = Fraccio(
-            self.num * f.num,
-            self.den * f.den
-        )
-        #res.simplificar()
+        res = self.__class__(self)
+        res *= f
         return res
 
     __rmul__ = __mul__
@@ -102,36 +91,25 @@ class Fraccio(object):
         return self
 
     def __div__(self, f):
-        if isinstance(f, self._tipus_int):
-            f = self.__class__(f)
-        if not f:
-            raise ZeroDivisionError()
-        res = Fraccio(
-            self.num * f.den,
-            self.den * f.num
-        )
-        #res.simplificar()
+        res = self.__class__(self)
+        res /= f
         return res
 
     def __rdiv__(self, f):
-        if isinstance(f, self._tipus_int):
-            f = self.__class__(f)
-        if not f:
-            raise ZeroDivisionError()
-        res = Fraccio(
-            self.den * f.num,
-            self.num * f.den
-        )
-        #res.simplificar()
+        res = self.__class__(f)
+        res /= self
         return res
 
     def __idiv__(self, f):
         if isinstance(f, self._tipus_int):
             f = self.__class__(f)
-        if not f:
-            raise ZeroDivisionError()
         self.num = self.num * f.den
         self.den = self.den * f.num
+        if self.den == 0:
+            raise ZeroDivisionError()
+        if self.den < 0:
+            self.num = -self.num
+            self.den = -self.den
         return self
 
     def __nonzero__(self):

@@ -9,12 +9,32 @@ import unittest
 
 import rat
 
-class TestAritmetica(unittest.TestCase):
 
+class TestRacionals(unittest.TestCase):
     def assertFraccio(self, f, num, den):
         f.simplificar()
         self.assertEqual(f.num, num)
         self.assertEqual(f.den, den)
+
+
+class TestConstructor(TestRacionals):
+
+    def test_enters(self):
+        f = rat.Fraccio(1, 2)
+        self.assertFraccio(f, 1, 2)
+
+    def test_fraccio_clona(self):
+        f1 = rat.Fraccio(1, 2)
+        f2 = rat.Fraccio(f1)
+        self.assertEqual(f1, f2)
+        self.failIf(f1 is f2)
+
+    def test_denominador_negatiu(self):
+        f = rat.Fraccio(1, -2)
+        self.assertFraccio(f, -1, 2)
+
+
+class TestAritmetica(TestRacionals):
 
     # suma
 
@@ -172,3 +192,8 @@ class TestAritmetica(unittest.TestCase):
         s1 = rat.Fraccio(1, 2)
         s1 /= rat.Fraccio(2, 3)
         self.assertFraccio(s1, 3, 4)
+
+    def test_divisio_fraccio_negativa(self):
+        s1 = rat.Fraccio(1, 2)
+        s2 = rat.Fraccio(-2, 3)
+        self.assertFraccio(s1 / s2, -3, 4)
