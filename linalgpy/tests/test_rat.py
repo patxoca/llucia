@@ -197,3 +197,23 @@ class TestAritmetica(TestRacionals):
         s1 = rat.Fraccio(1, 2)
         s2 = rat.Fraccio(-2, 3)
         self.assertFraccio(s1 / s2, -3, 4)
+
+    # canvi de signe
+
+    def test_canvi_signe(self):
+        f = rat.Fraccio(1, 2)
+        self.assertFraccio(-f, -1, 2)
+
+    def test_doble_canvi_signe(self):
+        f = -rat.Fraccio(1, 2)
+        self.assertFraccio(-f, 1, 2)
+
+    # valor absolut
+
+    def test_valor_absolut_fraccio_positiva(self):
+        f = rat.Fraccio(1, 2)
+        self.assertFraccio(abs(f), 1, 2)
+
+    def test_valor_absolut_fraccio_negativa(self):
+        f = rat.Fraccio(-1, 2)
+        self.assertFraccio(abs(f), 1, 2)

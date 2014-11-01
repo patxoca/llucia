@@ -112,6 +112,16 @@ class Fraccio(object):
             self.den = -self.den
         return self
 
+    def __abs__(self):
+        res = self.__class__(self)
+        res.num = abs(res.num)
+        return res
+
+    def __neg__(self):
+        res = self.__class__(self)
+        res.num = -res.num
+        return res
+
     def __nonzero__(self):
         return self.num != 0
 
