@@ -26,10 +26,21 @@ class array(object):
                     item = dtype(item) # el converteix a fracció
                 except ValueError:
                     # error de conversió
-                    raise ValueError("Tipus no suportat per element de la matriu: %r" % (item, ))
+                    raise ValueError(
+                        "Tipus no suportat per element de la matriu: %r" % (item, )
+                    )
                 res_fila.append(item)
             res.append(res_fila)
         self._matriu = res
+
+    @classmethod
+    def buida(cls, n, m=None, dtype=Fraccio):
+        if m is None:
+            m = n
+        matriu = [[None] * m for i in xrange(n)]
+        res = cls(matriu, dtype=lambda x:x)
+        res._dtype = dtype
+        return res
 
     @classmethod
     def zeros(cls, n, m=None, dtype=Fraccio):
@@ -136,7 +147,7 @@ class array(object):
                 if m[j][i]:
                     factor = m[j][i] / m[i][i]
                     for k in xrange(i, p): # recorre la fila horitzontalment
-                        m[j][k] = m[j][k] - factor * m[i][k]
+                        m[j][k] -= factor * m[i][k]
         if diagonal:
             if not self._matriu[n - 1][n - 1]:
                 return 0, None
@@ -145,7 +156,7 @@ class array(object):
                 for j in xrange(i - 1, -1, -1):
                     factor = m[j][i] / m[i][i]
                     for k in xrange(i, p):
-                        m[j][k] = m[j][k] - factor * m[i][k]
+                        m[j][k] -= factor * m[i][k]
         self.simplificar()
         return signe, m
 
@@ -164,12 +175,12 @@ class array(object):
                 m = array(m, dtype=self.dtype)
         if self.num_columnes != m.num_files:
             raise ValueError("Nombre de columnes i files no coincideix")
-        res = self.zeros(self.num_files, m.num_columnes, self.dtype)
+        res = self.buida(self.num_files, m.num_columnes, self.dtype)
         for i in xrange(self.num_files):
             for j in xrange(m.num_columnes):
                 r = self.dtype(0)
                 for k in xrange(self.num_columnes):
-                    r = r + self._matriu[i][k] * m._matriu[k][j]
+                    r += self._matriu[i][k] * m._matriu[k][j]
                 res._matriu[i][j] = r
         res.simplificar()
         return res
@@ -198,7 +209,7 @@ class array(object):
 
     @property
     def T(self):
-        res = self.zeros(self.num_columnes, self.num_files, self._dtype)
+        res = self.buida(self.num_columnes, self.num_files, self._dtype)
         for i, fila in enumerate(self._matriu):
             for j, item in enumerate(fila):
                 res._matriu[j][i] = self._dtype(item)
