@@ -49,13 +49,38 @@ class Fraccio(object):
 
     __radd__ = __add__
 
+    def __iadd__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
+        self.num = self.num * f.den + self.den * f.num
+        self.den = self.den * f.den
+        return self
+
     def __sub__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
         res = Fraccio(
             self.num * f.den - self.den * f.num,
             self.den * f.den
             )
         #res.simplificar()
         return res
+
+    def __rsub__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
+        res = Fraccio(
+            f.num * self.den - f.den * self.num,
+            self.den * f.den
+            )
+        return res
+
+    def __isub__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
+        self.num = self.num * f.den - self.den * f.num
+        self.den = self.den * f.den
+        return self
 
     def __mul__(self, f):
         if isinstance(f, self._tipus_int):
@@ -69,13 +94,45 @@ class Fraccio(object):
 
     __rmul__ = __mul__
 
+    def __imul__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
+        self.num = self.num * f.num
+        self.den = self.den * f.den
+        return self
+
     def __div__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
+        if not f:
+            raise ZeroDivisionError()
         res = Fraccio(
             self.num * f.den,
             self.den * f.num
         )
         #res.simplificar()
         return res
+
+    def __rdiv__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
+        if not f:
+            raise ZeroDivisionError()
+        res = Fraccio(
+            self.den * f.num,
+            self.num * f.den
+        )
+        #res.simplificar()
+        return res
+
+    def __idiv__(self, f):
+        if isinstance(f, self._tipus_int):
+            f = self.__class__(f)
+        if not f:
+            raise ZeroDivisionError()
+        self.num = self.num * f.den
+        self.den = self.den * f.num
+        return self
 
     def __nonzero__(self):
         return self.num != 0
