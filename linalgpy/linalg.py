@@ -3,8 +3,7 @@
 
 import itertools
 
-
-
+from rat import Fraccio
 
 
 class array(object):
@@ -92,6 +91,11 @@ class array(object):
                 raise ValueError("Inconsistencia en el nombre de columnes")
         return matriu
 
+    def simplificar(self):
+        for fila in self._matriu:
+            for item in fila:
+                item.simplificar()
+
     def esten(self, m):
         if self.num_files != m.num_files:
             raise ValueError("Nombre de files no coincideix")
@@ -142,6 +146,7 @@ class array(object):
                     factor = m[j][i] / m[i][i]
                     for k in xrange(i, p):
                         m[j][k] = m[j][k] - factor * m[i][k]
+        self.simplificar()
         return signe, m
 
     def dot(self, m):
@@ -166,6 +171,7 @@ class array(object):
                 for k in xrange(self.num_columnes):
                     r = r + self._matriu[i][k] * m._matriu[k][j]
                 res._matriu[i][j] = r
+        res.simplificar()
         return res
 
     def det(self):
@@ -186,7 +192,9 @@ class array(object):
         signe, matriu = m._pseudogauss(diagonal=True)
         if not matriu:
             return None
-        return m.submatriu(0, self.num_files - 1, self.num_columnes, self.num_columnes * 2 - 1)
+        res = m.submatriu(0, self.num_files - 1, self.num_columnes, self.num_columnes * 2 - 1)
+        res.simplificar()
+        return res
 
     @property
     def T(self):

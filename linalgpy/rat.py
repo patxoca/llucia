@@ -44,7 +44,7 @@ class Fraccio(object):
             self.num * f.den + self.den * f.num,
             self.den * f.den
             )
-        res.simplificar()
+        #res.simplificar()
         return res
 
     __radd__ = __add__
@@ -54,7 +54,7 @@ class Fraccio(object):
             self.num * f.den - self.den * f.num,
             self.den * f.den
             )
-        res.simplificar()
+        #res.simplificar()
         return res
 
     def __mul__(self, f):
@@ -64,7 +64,7 @@ class Fraccio(object):
             self.num * f.num,
             self.den * f.den
         )
-        res.simplificar()
+        #res.simplificar()
         return res
 
     __rmul__ = __mul__
@@ -74,7 +74,7 @@ class Fraccio(object):
             self.num * f.den,
             self.den * f.num
         )
-        res.simplificar()
+        #res.simplificar()
         return res
 
     def __nonzero__(self):
