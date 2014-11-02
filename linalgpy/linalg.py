@@ -129,7 +129,9 @@ class array(object):
             res.append(res_fila)
         return array(res, self.dtype)
 
-    def _pseudogauss(self, diagonal=False):
+    def _pseudogauss(self, diagonal=False, normalitzar=False):
+        """
+        """
         n = self.num_files
         p = self.num_columnes
         signe = 1
@@ -148,15 +150,24 @@ class array(object):
                     factor = m[j][i] / m[i][i]
                     for k in xrange(i, p): # recorre la fila horitzontalment
                         m[j][k] -= factor * m[i][k]
+        if not m[n - 1][n - 1]:
+            return 0, None
         if diagonal:
-            if not self._matriu[n - 1][n - 1]:
-                return 0, None
             # zeros en el triangle superior
             for i in xrange(n - 1, 0, -1):
                 for j in xrange(i - 1, -1, -1):
                     factor = m[j][i] / m[i][i]
                     for k in xrange(i, p):
                         m[j][k] -= factor * m[i][k]
+            if normalitzar:
+                for i in xrange(n):
+                    # cal crear un copia, sinó m[i][i] /= factor no
+                    # dona el resultat correcte ja que els dos
+                    # referencien al mateix objecte
+                    factor = self.dtype(m[i][i])
+                    for j in range(n, p):
+                        m[i][j] /= factor
+                    m[i][i] /= factor
         self.simplificar()
         return signe, m
 
