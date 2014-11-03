@@ -195,6 +195,14 @@ class TestInversa(TestArray):
         r = a.inv()
         self.assertArrayEqual(a, m)
 
+    def test_error_matriu_esquerra_no_normalitzada(self):
+        m = [[1, 2],
+             [3, 4]]
+        e = [[-2,         1],
+             [F(3, 2), F(-1, 2)]]
+        a = linalg.array(m)
+        self.assertArrayEqual(a.inv(), e)
+
 
 class TestDeterminant(TestArray):
 

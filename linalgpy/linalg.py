@@ -211,7 +211,7 @@ class array(object):
     def inv(self):
         m = self.clona()
         m.esten(self.identitat(self.num_files))
-        signe, matriu = m._pseudogauss(diagonal=True)
+        signe, matriu = m._pseudogauss(diagonal=True, normalitzar=True)
         if not matriu:
             return None
         res = m.submatriu(0, self.num_files - 1, self.num_columnes, self.num_columnes * 2 - 1)
