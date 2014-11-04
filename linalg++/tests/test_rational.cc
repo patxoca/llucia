@@ -272,7 +272,7 @@ TEST(RationalArithmeticTest, TestAutomultiplicacioEnter) {
 	EXPECT_EQ(res.getDenominator(), 2);
 }
 
-TEST(RationalArithmeticTest, test_automultiplicacio_fraccio) {
+TEST(RationalArithmeticTest, TestAutomultiplicacioFraccio) {
 	Fraccio res = Fraccio(1, 2);
 
 	res *= Fraccio(2, 3);
