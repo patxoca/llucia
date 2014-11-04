@@ -138,8 +138,6 @@ public:
 
   //-----------------------------------------------------------------------
   // Set the numerator.
-  // NOTE: Do not call this followed by setDenominator--fraction is
-  // reduced.
   //-----------------------------------------------------------------------
   void setNumerator( TYPE const & value ) {
 	  numerator = value;
@@ -147,11 +145,6 @@ public:
 
   //-----------------------------------------------------------------------
   // Set the denominator.
-  // NOTE: Do not call this followed by setNumerator--fraction is
-  // reduced.  Example:
-  //    Rational< int > value( 1, 3 );
-  //    value.setNumerator( 3 )    // <- Rational will be 1/1
-  //    value.setDenominator( 8 ); // <- Rational will not be 1/8, not 3/8
   //-----------------------------------------------------------------------
   void setDenominator ( TYPE const & value ) {
 	  denominator = value;
