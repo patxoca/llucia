@@ -26,8 +26,6 @@
 #ifndef _RATIONAL_H_
 #define _RATIONAL_H_
 
-#include <cfloat>   // For 'DBL_MAX'.
-#include <cmath>    // For 'abs' on floating point.
 #include <cstdlib>  // For 'abs' on integer.
 #include <ostream>  // For 'std::ostream'.
 #include <limits>
@@ -59,7 +57,7 @@
 //  Problems can occur when adding or subtracting, as the values must be
 //  multiplied up before adding can be done.
 //=============================================================================
-template< class TYPE = int, class FLOAT_TYPE = double >
+template< class TYPE = int>
   class Rational
   {
     protected:
@@ -120,29 +118,6 @@ template< class TYPE = int, class FLOAT_TYPE = double >
 
       } // reduce
 
-      //-----------------------------------------------------------------------
-      // Return the largest value that can be hold by the type.
-      //-----------------------------------------------------------------------
-      TYPE typeMax() const
-      {
-        TYPE value;
-        TYPE lastValue;
-
-        lastValue = 0;
-        value     = 0xFF; // <- Type is at least 8-bit.
-        while ( ( lastValue != value )
-             && ( value > 0 ) )
-        {
-          lastValue = value;
-          value |= ( value << 1 );
-        }
-
-        if ( value < 0 )
-          value = lastValue;
-
-        return value;
-      }
-
     public:
 
       //=======================================================================
@@ -181,35 +156,6 @@ template< class TYPE = int, class FLOAT_TYPE = double >
       }
 
       //-----------------------------------------------------------------------
-      // General assignment operator.
-      //-----------------------------------------------------------------------
-      template< class INPUT_TYPE >
-        Rational const & operator =
-        (
-          INPUT_TYPE const & value
-        )
-        {
-          // An integer type?
-          if ( std::numeric_limits< INPUT_TYPE >::is_integer )
-          {
-            // Try and use the integer type.
-            *this = static_cast< TYPE >( value );
-          }
-          else
-          // Some kind of floating point?
-          if ( std::numeric_limits< INPUT_TYPE >::is_specialized )
-          {
-            // Try and cast to a floating point.
-            *this = static_cast< FLOAT_TYPE >( value );
-          }
-          else
-            // Must be a class.  Try and convert.
-            *this = value;
-
-          return *this;
-        }
-
-      //-----------------------------------------------------------------------
       // Set rational to whole integer-type number.
       //-----------------------------------------------------------------------
       Rational const & operator =
@@ -237,89 +183,6 @@ template< class TYPE = int, class FLOAT_TYPE = double >
 
         return *this;
       }
-
-      //-----------------------------------------------------------------------
-      // Uses:
-      //   Change any real number into a rational number.  Often an
-      // approximation.
-      //
-      // Credits:
-      //   David Eppstein / UC Irvine / 8 Aug 1993
-      //   Arno Formella, May 2008
-      //   Andrew Que (this implementation)
-      //
-      // Limits:
-      //   This function is really only good for small numbers.
-      // Approximations of irrational numbers are not all that useful.
-      //
-      //-----------------------------------------------------------------------
-      Rational const & operator =
-      (
-        // Floating point value to convert to rational.
-        FLOAT_TYPE value
-      )
-      {
-        TYPE matrix[ 2 ][ 2 ];
-
-        // Set to NaN.
-        numerator   = 0;
-        denominator = 0;
-
-        // Initialize matrix.
-        matrix[ 0 ][ 0 ] = 1;
-        matrix[ 0 ][ 1 ] = 0;
-        matrix[ 1 ][ 0 ] = 0;
-        matrix[ 1 ][ 1 ] = 1;
-
-        FLOAT_TYPE initialValue = value;
-        FLOAT_TYPE lastError = DBL_MAX;
-        FLOAT_TYPE error;
-        TYPE accumulator;
-
-        // Loop until number is either exactly represented, or we run out of precision.
-        do
-        {
-          TYPE hold;
-
-          // Get the integer part of 'value'.
-          accumulator = static_cast< TYPE >( value );
-
-          // Compute new numerator.
-          hold = ( matrix[ 0 ][ 0 ] * accumulator ) + matrix[ 0 ][ 1 ];
-          matrix[ 0 ][ 1 ] = matrix[ 0 ][ 0 ];
-          matrix[ 0 ][ 0 ] = hold;
-
-          // Compute new denominator.
-          hold = ( matrix[ 1 ][ 0 ] * accumulator ) + matrix[ 1 ][ 1 ];
-          matrix[ 1 ][ 1 ] = matrix[ 1 ][ 0 ];
-          matrix[ 1 ][ 0 ] = hold;
-
-          // Check for divide by zero condition.
-          if ( value != accumulator )
-            value = 1.0 / ( value - accumulator );
-
-          // See how much error exists between our guess and the actual
-          // value.
-          error  = matrix[ 0 ][ 0 ];
-          error /= matrix[ 1 ][ 0 ];
-          error  = initialValue - error;
-          error  = fabs( error );
-
-          // If the error is better then the last error, use this value.
-          if ( error < lastError )
-          {
-            lastError = error;
-            numerator   = matrix[ 0 ][ 0 ];
-            denominator = matrix[ 1 ][ 0 ];
-          }
-
-        }
-        while ( ( value != accumulator )
-             && ( error <= lastError ) );
-
-        return *this;
-
-      } // operator=
 
       //=======================================================================
       // Multiplication.
@@ -775,26 +638,6 @@ template< class TYPE = int, class FLOAT_TYPE = double >
       {
       }
 
-      template< class INPUT_TYPE >
-        Rational
-        (
-          INPUT_TYPE const & value
-        )
-        {
-          if ( std::numeric_limits< INPUT_TYPE >::is_integer )
-          {
-            numerator   = static_cast< TYPE >( value );
-            denominator = 1;
-          }
-          else
-          if ( std::numeric_limits< INPUT_TYPE >::is_specialized )
-          {
-            *this = static_cast< FLOAT_TYPE >( value );
-          }
-          else
-            *this = value;
-        }
-
       //-----------------------------------------------------------------------
       // Constructor two integers, numerator and denominator.
       //-----------------------------------------------------------------------
@@ -852,28 +695,16 @@ template< class TYPE = int, class FLOAT_TYPE = double >
         return denominator;
       }
 
-      //-----------------------------------------------------------------------
-      // Return rational as a floating-point number.
-      //-----------------------------------------------------------------------
-      FLOAT_TYPE getAsDouble() const
-      {
-        FLOAT_TYPE result;
-
-        result  = numerator;
-        result /= denominator;
-
-        return result;
-      }
   };
 
 //-----------------------------------------------------------------------------
 // Negative operator for a rational number.
 //-----------------------------------------------------------------------------
-template< class TYPE, class FLOAT_TYPE >
-  Rational< TYPE, FLOAT_TYPE > operator -
+template< class TYPE >
+  Rational< TYPE > operator -
   (
     // Rational number to make negative.
-    Rational< TYPE, FLOAT_TYPE > const & value
+    Rational< TYPE > const & value
   )
   {
     return Rational< TYPE >( -value.getNumerator(), value.getDenominator() );
@@ -882,10 +713,10 @@ template< class TYPE, class FLOAT_TYPE >
 //-----------------------------------------------------------------------------
 // Valor absolut per un racional
 //-----------------------------------------------------------------------------
-template< class TYPE, class FLOAT_TYPE >
-  Rational< TYPE, FLOAT_TYPE > abs
+template< class TYPE >
+  Rational< TYPE > abs
   (
-    Rational< TYPE, FLOAT_TYPE > const & value
+    Rational< TYPE > const & value
   )
   {
       return Rational< TYPE >( abs(value.getNumerator()), abs(value.getDenominator()) );
@@ -894,14 +725,14 @@ template< class TYPE, class FLOAT_TYPE >
 //-----------------------------------------------------------------------------
 // Stream output operator for rational number--turns rational into a string.
 //-----------------------------------------------------------------------------
-template< class TYPE, class FLOAT_TYPE >
+template< class TYPE >
   std::ostream & operator <<
   (
     // Stream in which to place string.
     std::ostream & stream,
 
     // Rational value to turn into string.
-    Rational< TYPE, FLOAT_TYPE > const & value
+    Rational< TYPE > const & value
   )
   {
     // Get numerator and denominator from parameter.
