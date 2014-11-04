@@ -355,6 +355,24 @@ TEST(RationalArithmeticTest, TestDivisioFraccioNegativa) {
 	EXPECT_EQ(res.getDenominator(), 4);
 }
 
+TEST(RationalArithmeticTest, TestAutodivisioEnterNegatiu) {
+	Fraccio res = Fraccio(1, 2);
+
+	res /= -3;
+
+	EXPECT_EQ(res.getNumerator(), -1);
+	EXPECT_EQ(res.getDenominator(), 6);
+}
+
+TEST(RationalArithmeticTest, TestAutodivisioFraccioNegativa) {
+	Fraccio res = Fraccio(1, 2);
+
+	res /= Fraccio(-2, 3);
+
+	EXPECT_EQ(res.getNumerator(), -3);
+	EXPECT_EQ(res.getDenominator(), 4);
+}
+
 //======================================================================
 // canvi de signe
 

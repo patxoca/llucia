@@ -202,9 +202,8 @@ public:
   // Multiply self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator *= ( Rational const & value ) {
-	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
-	  *this = *this * value;
-
+	  numerator *= value.numerator;
+	  denominator *= value.denominator;
 	  return *this;
   }
 
@@ -212,9 +211,7 @@ public:
   // Multiply self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator *= ( TYPE const & value ) {
-	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
-	  *this = *this * value;
-
+	  numerator *= value;
 	  return *this;
   }
 
@@ -243,9 +240,13 @@ public:
   // Divide self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator /= ( Rational const & value ) {
-	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
-	  *this = *this / value;
-
+	  if (value.numerator < 0) {
+		  numerator *= -value.denominator;
+		  denominator *= -value.numerator;
+	  } else {
+		  numerator *= value.denominator;
+		  denominator *= value.numerator;
+	  }
 	  return *this;
   }
 
@@ -253,9 +254,12 @@ public:
   // Divide self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator /= ( TYPE const & value ) {
-	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
-	  *this = *this / value;
-
+	  if (value < 0) {
+		  numerator = -numerator;
+		  denominator *= -value;
+	  } else {
+		  denominator *= value;
+	  }
 	  return *this;
   }
 
@@ -293,7 +297,20 @@ public:
   // Add self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator += ( Rational const & value ) {
-	  *this = *this + value;
+	  TYPE newNumerator   = numerator;
+	  TYPE newDenominator = denominator;
+	  TYPE otherNumerator = value.numerator;
+
+	  if ( denominator != value.denominator ) {
+          newNumerator   *= value.denominator;
+          newDenominator *= value.denominator;
+          otherNumerator *= denominator;
+	  }
+
+	  newNumerator += otherNumerator;
+
+	  numerator = newNumerator;
+	  denominator = newDenominator;
 
 	  return *this;
   }
@@ -302,7 +319,7 @@ public:
   // Add self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator += ( TYPE const & value ) {
-	  *this = *this + value;
+	  numerator += value * denominator;
 
 	  return *this;
   }
@@ -344,7 +361,20 @@ public:
   // Subtract self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator -= ( Rational const & value ) {
-	  *this = *this - value;
+	  TYPE newNumerator   = numerator;
+	  TYPE newDenominator = denominator;
+	  TYPE otherNumerator = value.numerator;
+
+	  if ( denominator != value.denominator ) {
+          newNumerator   *= value.denominator;
+          newDenominator *= value.denominator;
+          otherNumerator *= denominator;
+	  }
+
+	  newNumerator -= otherNumerator;
+
+	  numerator =newNumerator;
+	  denominator = newDenominator;
 
 	  return *this;
   }
@@ -353,7 +383,7 @@ public:
   // Subtract self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator -= ( TYPE const & value ) {
-	  *this = *this - value;
+	  numerator -= value * denominator;
 
 	  return *this;
   }
