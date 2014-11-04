@@ -880,6 +880,18 @@ template< class TYPE, class FLOAT_TYPE >
   }
 
 //-----------------------------------------------------------------------------
+// Valor absolut per un racional
+//-----------------------------------------------------------------------------
+template< class TYPE, class FLOAT_TYPE >
+  Rational< TYPE, FLOAT_TYPE > abs
+  (
+    Rational< TYPE, FLOAT_TYPE > const & value
+  )
+  {
+      return Rational< TYPE >( abs(value.getNumerator()), abs(value.getDenominator()) );
+  }
+
+//-----------------------------------------------------------------------------
 // Stream output operator for rational number--turns rational into a string.
 //-----------------------------------------------------------------------------
 template< class TYPE, class FLOAT_TYPE >
