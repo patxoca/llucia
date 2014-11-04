@@ -68,6 +68,10 @@
 //  el numerador. Açò últim és necessari per garantir la correció de la suma i
 //  la resta. Aquestes comprovacions s'han mogut al constructor.
 //
+//    En cas de modificar el codi els mètodes que reben una fracció poden
+//  assumir que el signe està en el numerador i han de garantir que en el
+//  resutat que produeixen el signe també està en el numerador.
+//
 //    Pel que fa a la simplificació pròpiament dita cal fer-la manualment quan
 //  es consideri adient, per exemple al acabar un càlcul complex. Cal tindre
 //  en compte però que si no es simplifica, depenent dels valors i les
