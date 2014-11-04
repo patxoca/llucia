@@ -57,12 +57,36 @@
 //    This class has no overflow check, and is limited by the template type.
 //  Problems can occur when adding or subtracting, as the values must be
 //  multiplied up before adding can be done.
+//
+//    La versió original simplificava (reduce()) la fracció resultant de cada
+//  operació. Açò suposa un cost computacional molt elevat. Per accelerar els
+//  càlculs s'ha eliminat l'autosimplificació.
+//
+//    La simplificació, a més d'eliminar els factors comuns entre el numerador
+//  i el denominador, normalitzava certes fraccions (0/n -> 0/1, n/0 -> 0/0)
+//  i, sobretot, garantía que en les fraccions negatives el signe aparegués en
+//  el numerador. Açò últim és necessari per garantir la correció de la suma i
+//  la resta. Aquestes comprovacions s'han mogut al constructor.
+//
+//    Pel que fa a la simplificació pròpiament dita cal fer-la manualment quan
+//  es consideri adient, per exemple al acabar un càlcul complex. Cal tindre
+//  en compte però que si no es simplifica, depenent dels valors i les
+//  operacions, es poden produir desbordaments, obtenint resultat errònis.
+//
+//    Com cas especial, al fer E/S amb fraccions utilitzant l'operador << la
+//  fraccio es mostra simplificada. Com que la E/S és costosa de per sí aquest
+//  overhead es considera acceptable.
+//
 //=============================================================================
 template< class TYPE = int>
 	class Rational {
-  protected:
+
+protected:
+
   TYPE numerator;
   TYPE denominator;
+
+public:
 
   //-----------------------------------------------------------------------
   // Use:
@@ -108,8 +132,6 @@ template< class TYPE = int>
 
   } // reduce
 
-  public:
-
   //=======================================================================
   // Set functions.
   //=======================================================================
@@ -121,7 +143,6 @@ template< class TYPE = int>
   //-----------------------------------------------------------------------
   void setNumerator( TYPE const & value ) {
 	  numerator = value;
-	  reduce();
   }
 
   //-----------------------------------------------------------------------
@@ -134,7 +155,6 @@ template< class TYPE = int>
   //-----------------------------------------------------------------------
   void setDenominator ( TYPE const & value ) {
 	  denominator = value;
-	  reduce();
   }
 
   //-----------------------------------------------------------------------
@@ -153,7 +173,6 @@ template< class TYPE = int>
   Rational const & operator = ( Rational const & value ) {
 	  numerator   = value.numerator;
 	  denominator = value.denominator;
-	  reduce();
 
 	  return *this;
   }
@@ -183,6 +202,7 @@ template< class TYPE = int>
   // Multiply self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator *= ( Rational const & value ) {
+	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
 	  *this = *this * value;
 
 	  return *this;
@@ -192,6 +212,7 @@ template< class TYPE = int>
   // Multiply self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator *= ( TYPE const & value ) {
+	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
 	  *this = *this * value;
 
 	  return *this;
@@ -222,6 +243,7 @@ template< class TYPE = int>
   // Divide self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator /= ( Rational const & value ) {
+	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
 	  *this = *this / value;
 
 	  return *this;
@@ -231,6 +253,7 @@ template< class TYPE = int>
   // Divide self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator /= ( TYPE const & value ) {
+	  // OPTIMIZE: evitar delegar en * que crea objecte temporal
 	  *this = *this / value;
 
 	  return *this;
@@ -343,8 +366,7 @@ template< class TYPE = int>
   // Equality operator test between self and rational.
   //-----------------------------------------------------------------------
   bool operator == ( Rational const & value ) const {
-	  return ( ( numerator == value.numerator )
-			   && ( denominator == value.denominator ) );
+	  return ( numerator * value.denominator == denominator * value.numerator );
   }
 
   //-----------------------------------------------------------------------
@@ -358,8 +380,7 @@ template< class TYPE = int>
   // Equality operator test between self and integer-type.
   //-----------------------------------------------------------------------
   bool operator == ( TYPE const & value ) const {
-	  return ( ( numerator == value )
-			   && ( denominator == 1 ) );
+	  return ( numerator == value * denominator );
   }
 
   //-----------------------------------------------------------------------
@@ -479,9 +500,22 @@ template< class TYPE = int>
   // Constructor two integers, numerator and denominator.
   //-----------------------------------------------------------------------
   Rational ( TYPE const & numeratorParameter, TYPE const & denominatorParameter )
-  : numerator( numeratorParameter ), denominator( denominatorParameter )
   {
-	  reduce();
+	  if (denominatorParameter == 0) {
+		  numerator = 0;
+		  denominator = 0;
+	  } else {
+		  if (numeratorParameter == 0) {
+			  numerator = 0;
+			  denominator = 1;
+		  } else if (denominatorParameter < 0) {
+			  numerator = -numeratorParameter;
+			  denominator = -denominatorParameter;
+		  } else {
+			  numerator = numeratorParameter;
+			  denominator = denominatorParameter;
+		  }
+	  }
   }
 
   //-----------------------------------------------------------------------
@@ -495,8 +529,7 @@ template< class TYPE = int>
   // Empty constructor.
   //-----------------------------------------------------------------------
   Rational()
-  :
-  numerator( 0 ), denominator( 1 ) {}
+  : numerator( 0 ), denominator( 1 ) {}
 
   //=======================================================================
   // Get functions.
@@ -539,9 +572,15 @@ Rational< TYPE > abs ( Rational< TYPE > const & value ) {
 //-----------------------------------------------------------------------------
 template< class TYPE >
 std::ostream & operator << ( std::ostream & stream, Rational< TYPE > const & value ) {
-    // Get numerator and denominator from parameter.
-    TYPE numerator   = value.getNumerator();
-    TYPE denominator = value.getDenominator();
+	Rational< TYPE > value2 = Rational< TYPE >(value);
+    TYPE numerator;
+    TYPE denominator;
+
+	// Simplifiquem una copia de la fraccio. L'E/S és lenta de per sí, ens
+	// podem permetre la sobrecàrrega de simplificar.
+	value2.reduce();
+    numerator   = value2.getNumerator();
+    denominator = value2.getDenominator();
 
     if ( 0 == denominator )
 		// Divide-by-zero error
@@ -560,7 +599,7 @@ std::ostream & operator << ( std::ostream & stream, Rational< TYPE > const & val
 		if ( remainder < 0 )
 			remainder = -remainder;
 
-		stream << whole << " " << remainder << "/" << denominator;
+		stream << whole << "_" << remainder << "/" << denominator;
 	} else
 		// Just a fraction.
 		stream << numerator << "/" << denominator;

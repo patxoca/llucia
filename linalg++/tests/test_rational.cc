@@ -39,10 +39,24 @@ TEST(RationalConstructorTest, UnEnter) {
 	EXPECT_EQ(1, f.getDenominator());
 }
 
-TEST(RationalConstructorTest, DosEnters) {
+TEST(RationalConstructorTest, DosEntersPositius) {
 	Fraccio f(2, 3);
 
 	EXPECT_EQ(2, f.getNumerator());
+	EXPECT_EQ(3, f.getDenominator());
+}
+
+TEST(RationalConstructorTest, DosEntersNumeradorNegatiu) {
+	Fraccio f(-2, 3);
+
+	EXPECT_EQ(-2, f.getNumerator());
+	EXPECT_EQ(3, f.getDenominator());
+}
+
+TEST(RationalConstructorTest, DosEntersDenominadorNegatiu) {
+	Fraccio f(2, -3);
+
+	EXPECT_EQ(-2, f.getNumerator());
 	EXPECT_EQ(3, f.getDenominator());
 }
 
@@ -69,8 +83,7 @@ TEST(RationalConstructorTest, RacionalClona) {
 // | (_| | |  | | |_| | | | | |  __/ |_| | (_| (_| |
 //  \__,_|_|  |_|\__|_| |_| |_|\___|\__|_|\___\__,_|
 
-//######################################################################
-//
+//======================================================================
 // suma
 
 TEST(RationalArithmeticTest, SumaEnterZero) {
@@ -111,6 +124,14 @@ TEST(RationalArithmeticTest, SumaFraccio) {
 	EXPECT_EQ(res.getDenominator(), 6);
 }
 
+TEST(RationalArithmeticTest, SumaFraccioDenominadorNegatiu) {
+	Fraccio f(1, 2);
+	Fraccio res = f + Fraccio(2, -3);
+
+	EXPECT_EQ(res.getNumerator(), -1);
+	EXPECT_EQ(res.getDenominator(), 6);
+}
+
 TEST(RationalArithmeticTest, AutosumaEnter) {
 	Fraccio f(1, 2);
 
@@ -129,8 +150,7 @@ TEST(RationalArithmeticTest, AutosumaFraccio) {
 	EXPECT_EQ(f.getDenominator(), 6);
 }
 
-//######################################################################
-//
+//======================================================================
 // resta
 
 TEST(RationalArithmeticTest, RestaEnterZero) {
@@ -187,8 +207,7 @@ TEST(RationalArithmeticTest, AutorestaFraccio) {
 	EXPECT_EQ(res.getDenominator(), 6);
 }
 
-//######################################################################
-//
+//======================================================================
 // multiplicacio
 
 TEST(RationalArithmeticTest, TestMultiplicacioEnterZero) {
@@ -204,6 +223,7 @@ TEST(RationalArithmeticTest, TestMultiplicacioFraccioZero) {
 	Fraccio res;
 
 	res = Fraccio(1, 2) * Fraccio(0);
+
 	EXPECT_EQ(res.getNumerator(), 0);
 	EXPECT_EQ(res.getDenominator(), 1);
 }
@@ -239,8 +259,8 @@ TEST(RationalArithmeticTest, TestMultiplicacioFraccio) {
 
 	res = Fraccio(1, 2) * Fraccio(2, 3);
 
-	EXPECT_EQ(res.getNumerator(), 1);
-	EXPECT_EQ(res.getDenominator(), 3);
+	EXPECT_EQ(res.getNumerator(), 2);
+	EXPECT_EQ(res.getDenominator(), 6);
 }
 
 TEST(RationalArithmeticTest, TestAutomultiplicacioEnter) {
@@ -257,12 +277,11 @@ TEST(RationalArithmeticTest, test_automultiplicacio_fraccio) {
 
 	res *= Fraccio(2, 3);
 
-	EXPECT_EQ(res.getNumerator(), 1);
-	EXPECT_EQ(res.getDenominator(), 3);
+	EXPECT_EQ(res.getNumerator(), 2);
+	EXPECT_EQ(res.getDenominator(), 6);
 }
 
-//######################################################################
-//
+//======================================================================
 // diviso
 
 // TEST(RationalArithmeticTest, TestDivisioEnterZeroDisparaExcepcio) {
@@ -336,8 +355,7 @@ TEST(RationalArithmeticTest, TestDivisioFraccioNegativa) {
 	EXPECT_EQ(res.getDenominator(), 4);
 }
 
-//######################################################################
-//
+//======================================================================
 // canvi de signe
 
 TEST(RationalArithmeticTest, TestCanviSigne) {
@@ -367,8 +385,7 @@ TEST(RationalArithmeticTest, TestDobleCanviSigneDenominador) {
 	EXPECT_EQ(res.getDenominator(), 2);
 }
 
-//######################################################################
-//
+//======================================================================
 // valor absolut
 
 TEST(RationalArithmeticTest, TestValorAbsolutFraccioPositiva) {
