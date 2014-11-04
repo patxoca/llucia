@@ -1,8 +1,13 @@
-CC=G++
-CPPFLAGS = -O2 -Wall
+EXECUTABLES = prova
+
+CXX = g++
+CXXFLAGS = -O2 -Wall
+
 
 .PHONY: all
-all: prova
+all: $(EXECUTABLES)
+
+prova: prova.cc rational.h matrix.h
 
 .PHONY: tests
 tests:
@@ -12,3 +17,8 @@ tests:
 clean:
 	rm -f *~ *.o
 	make -C tests clean
+
+.PHONY: allclean
+allclean: clean
+	rm -f $(EXECUTABLES)
+	make -C tests allclean
