@@ -3,7 +3,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define PROVA 0
 
 Combinator::Combinator(int n, int m) {
 	nombre_elements = n;
@@ -51,35 +50,4 @@ const int * Combinator::next() {
 	} else {
 		return NULL;
 	}
-}
-
-#if PROVA
-#define NOMBRE_ELEMENTS 6
-#define MIDA_MOSTRA 3
-#else
-#define NOMBRE_ELEMENTS 127
-#define MIDA_MOSTRA 7
-#endif
-
-int main(int argc, char **argv) {
-	Combinator c(NOMBRE_ELEMENTS, MIDA_MOSTRA);
-	clock_t t0, tf;
-	long k = 0;
-
-	t0 = clock();
-	for (const int *i=c.first(); i != NULL; i = c.next()) {
-		k += 1;
-		// for (Vector::const_iterator j = i->begin(); j != i-> end(); ++j) {
-		// 	std::cout << *j;
-		// }
-		// std::cout << std::endl;
-#if PROVA
-		for (int j = 0; j < MIDA_MOSTRA; j++) {
-			std::cout << i[j] << " ";
-		}
-		std::cout << std::endl;
-#endif
-	}
-	tf = clock();
-	std::cout << (tf - t0) / (double)CLOCKS_PER_SEC << "segons\n";
 }
