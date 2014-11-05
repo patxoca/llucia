@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#define PROVA 0
+
 Combinator::Combinator(int n, int m) {
 	nombre_elements = n;
 	mida_mostra = m;
@@ -28,17 +30,21 @@ const int * Combinator::first() {
 
 const int * Combinator::next() {
 	int i;
+	int mm = mida_mostra;
+	int ne = nombre_elements;
+	int *idx = indices;
+	int v;
 
 	if (!primer && !exhaurit) {
-		for (i=mida_mostra-1; i>=0 && indices[i]==i+nombre_elements-mida_mostra; i--) {
+		for (i=mm-1; i>=0 && idx[i]==i+ne-mm; i--) {
 		}
 		if (i < 0) {
 			exhaurit = true;
 			return NULL;
 		} else {
-			indices[i]++;
-			for (int j=i+1; j < mida_mostra; j++) {
-				indices[j] = indices[j - 1] + 1;
+			v = ++idx[i];
+			for (int j=i+1; j < mm; j++) {
+				idx[j] = ++v;
 			}
 			return indices;
 		}
@@ -47,8 +53,13 @@ const int * Combinator::next() {
 	}
 }
 
+#if PROVA
+#define NOMBRE_ELEMENTS 6
+#define MIDA_MOSTRA 3
+#else
 #define NOMBRE_ELEMENTS 127
 #define MIDA_MOSTRA 7
+#endif
 
 int main(int argc, char **argv) {
 	Combinator c(NOMBRE_ELEMENTS, MIDA_MOSTRA);
@@ -62,6 +73,12 @@ int main(int argc, char **argv) {
 		// 	std::cout << *j;
 		// }
 		// std::cout << std::endl;
+#if PROVA
+		for (int j = 0; j < MIDA_MOSTRA; j++) {
+			std::cout << i[j] << " ";
+		}
+		std::cout << std::endl;
+#endif
 	}
 	tf = clock();
 	std::cout << (tf - t0) / (double)CLOCKS_PER_SEC << "segons\n";
