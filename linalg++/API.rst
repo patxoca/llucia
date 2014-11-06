@@ -3,14 +3,14 @@ rational.h
 
 Definir tipus::
 
-        typedef Rational<E, F>    NomNouTipus;
+        typedef Rational<T>    NomNouTipus;
 
-E és un tipus enter (per defecte int) i F real (per defecte double). E
-s'utilitza pel numerador/denominador i F per conversions a/des de
-"real"::
+``T`` és un tipus enter (per defecte int) utilitzat pel
+numerador i wl denominador::
 
         typedef Rational<int>  FraccioEnter;
         typedef Rational<long> FraccioEnterLlarg;
+
 
 Constructors
 ------------
@@ -27,24 +27,24 @@ Constructors
 Mètodes
 -------
 
-- setNumerator(T):   assigna numerador i simplifica
+- setNumerator(T):   assigna numerador
 
-- setDenominator(T): assigna denominador i simplifica
+- setDenominator(T): assigna denominador
 
 - getNumerator():    retorna el numerador
 
 - getDenominator():  retorna el denominador
 
-- getAsDouble():     retorna la fracció convertida a real
+- reduce():          simplifica la fracció insitu
+
 
 Operadors
 ---------
 
-- = (assignació): accepta un valor de tipus T, F (no recomanat) o
-  Rational. Compte amb l'assignació de números reals.
+- = (assignació): accepta un valor de tipus T o Rational.
 
 - +, -, *, /: Rational sumat/restat/multiplicat/dividit amb/per T o
-  Rational. Compte, açò no funcionarà::
+  Rational. Compte, açò no funciona::
 
         typedef Rational<long> Fraccio;
         ...
@@ -53,9 +53,9 @@ Operadors
 
         res = 1 + f;
 
-    Ja que el tipus enter no te definit l'operador per Rational. Cal
-    fer la suma al revés o convertir el valor enter explícitament a
-    Fraccio::
+    Ja que el tipus enter no te definit l'operador per operar amb
+    Rational. Cal fer l'operació al revés (si és possible) o convertir
+    el valor enter explícitament a Fraccio::
 
         typedef Rational<long> Fraccio;
 
@@ -70,9 +70,7 @@ Operadors
 - +=, -=, *=, /=: Rational sumat/restat/multiplicat/dividit in-situ
   amb/per T o Rational
 
-- ==, !=, >, <, >=, <= : compara amb T o Rational. Assumeix que la
-  fracció està simplificada (cosa que hauria d'ocorrer automàticament)
-  al operar.
+- ==, !=, >, <, >=, <= : compara amb T o Rational.
 
 - - (canvi de signe): Rational
 
@@ -81,10 +79,31 @@ Operadors
   el numerador és més gran que el denominador imprimeix un número
   mixte.
 
+
 Funcions
 --------
 
 - abs: valor absolut de la fracció
+
+
+Notes
+-----
+
+La simplificació, a més d'eliminar els factors comuns entre el
+numerador i el denominador, normalitza certes fraccions (0/n -> 0/1,
+n/0 -> 0/0) i, sobretot, garanteix que en les fraccions negatives el
+signe aparegui en el numerador. Açò últim és necessari per garantir la
+correció de la suma i la resta.
+
+Pel que fa a la simplificació pròpiament dita cal fer-la manualment
+quan es consideri adient, per exemple al acabar un càlcul complex. Cal
+tindre en compte però que si no es simplifica, depenent dels valors i
+les operacions, es poden produir desbordaments, obtenint resultat
+errònis.
+
+Com cas especial, al fer E/S amb fraccions utilitzant l'operador << la
+fraccio es mostra simplificada. Com que la E/S és costosa de per sí
+aquest overhead es considera acceptable.
 
 
 matrix.h
