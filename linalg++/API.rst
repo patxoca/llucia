@@ -3,15 +3,11 @@ rational.h
 
 Definir tipus::
 
-     .. code-block:: c++
-
         typedef Rational<E, F>    NomNouTipus;
 
 E és un tipus enter (per defecte int) i F real (per defecte double). E
 s'utilitza pel numerador/denominador i F per conversions a/des de
 "real"::
-
-     .. code-block:: c++
 
         typedef Rational<int>  FraccioEnter;
         typedef Rational<long> FraccioEnterLlarg;
@@ -50,8 +46,6 @@ Operadors
 - +, -, *, /: Rational sumat/restat/multiplicat/dividit amb/per T o
   Rational. Compte, açò no funcionarà::
 
-     .. code-block:: c++
-
         typedef Rational<long> Fraccio;
         ...
         Fraccio f(1, 2);
@@ -62,8 +56,6 @@ Operadors
     Ja que el tipus enter no te definit l'operador per Rational. Cal
     fer la suma al revés o convertir el valor enter explícitament a
     Fraccio::
-
-     .. code-block:: c++
 
         typedef Rational<long> Fraccio;
 
@@ -99,8 +91,6 @@ matrix.h
 ========
 
 Definir tipus::
-
-     .. code-block:: c++
 
         typedef Matrix<T>    NomNouTipus;
 
