@@ -1,18 +1,22 @@
-TESTS = test_rational
+# $Id:$
 
+SRCS = $(wildcard *.cc)
+HEADERS = $(wildcard *.h)
+OBJECTS = $(patsubst %.cc,%.o,$(SRCS))
+
+LINK.o = $(LINK.cc)
 CXX = g++
 CXXFLAGS = -Wall -pthread
 LDLIBS = -lgtest -lpthread
 
-TESTS_OBJS = main.o $(addsuffix .o, $(TESTS))
+TESTS_OBJS = $(OBJECTS) ../combinator.o ../utils.o
 
 
-all: tests
+.PHONY: runtests
+runtests: tests
 	./tests
 
-test_rational.o: test_rational.cc ../rational.h
-
-tests: $(TESTS_OBJS)
+tests: depend $(TESTS_OBJS)
 	$(CXX) -o tests $(TESTS_OBJS) $(LDLIBS)
 
 .PHONY: clean
@@ -22,3 +26,12 @@ clean:
 .PHONY: allclean
 allclean: clean
 	rm -f tests
+
+.PHONY: depend
+depend: .depend
+
+.depend: $(SRCS) $(HEADERS)
+	rm -f ./.depend
+	$(CXX) $(CXXFLAGS) -MM $(SRCS) > ./.depend
+
+include .depend

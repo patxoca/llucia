@@ -1,17 +1,24 @@
-EXECUTABLES = prova
+# $Id:$
 
+EXECUTABLES = prova
+SRCS = $(wildcard *.cc)
+HEADERS = $(wildcard *.h)
+OBJECTS = $(patsubst %.cc,%.o,$(SRCS))
+
+LINK.o = $(LINK.cc)
 CXX = g++
 CXXFLAGS = -O2 -Wall
 
 
-.PHONY: all
-all: $(EXECUTABLES)
 
-prova: prova.cc rational.h matrix.h
+.PHONY: all
+all: depend $(EXECUTABLES)
+
+prova: $(OBJECTS)
 
 .PHONY: tests
-tests:
-	(cd tests && make)
+tests: $(OBJECTES)
+	(cd tests && make runtests)
 
 .PHONY: clean
 clean:
@@ -20,5 +27,14 @@ clean:
 
 .PHONY: allclean
 allclean: clean
-	rm -f $(EXECUTABLES)
+	rm -f $(EXECUTABLES) .depend
 	make -C tests allclean
+
+.PHONY: depend
+depend: .depend
+
+.depend: $(SRCS) $(HEADERS)
+	rm -f ./.depend
+	$(CXX) $(CXXFLAGS) -MM $(SRCS) > ./.depend
+
+include .depend
