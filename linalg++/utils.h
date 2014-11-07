@@ -5,5 +5,5 @@
 #include "tipus.h"
 
 
-Coalicio enter_a_coalicio(Enter valor, int dimensio = DIMENSIO);
-std::vector<Coalicio> generar_coalicions(int dimensio = DIMENSIO);
+Coalicio enter_a_coalicio(Enter valor, int dimensio);
+std::vector<Coalicio> generar_coalicions(int dimensio);

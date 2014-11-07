@@ -19,7 +19,7 @@ std::vector<Coalicio> generar_coalicions(int dimensio) {
 	std::vector<Coalicio> c = std::vector<Coalicio>(nombre_coalicions);
 
 	for (int i = 1; i <= nombre_coalicions; i++) {
-		c[i - 1] = enter_a_coalicio(i);
+		c[i - 1] = enter_a_coalicio(i, dimensio);
 	}
 	return c;
 }
