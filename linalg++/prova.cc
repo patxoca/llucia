@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	clock_t t0, tf;
 	int k = 0;
 
-	coalicions = generar_coalicions();
+	coalicions = generar_coalicions(DIMENSIO);
 	combinador = new Combinator(coalicions.size(), DIMENSIO);
 	t0 = clock();
 	for (const int *c = combinador->first(); c != NULL; c = combinador->next()) {
