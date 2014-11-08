@@ -7,14 +7,14 @@
 
 #include <vector>
 
-#include "matrix.h"
+#include "array.h"
 #include "rational.h"
 
 
 typedef unsigned int       Enter;
 typedef std::vector<Enter> Coalicio;
 typedef Rational<Enter>    Fraccio;
-typedef Matrix<Fraccio> Matriu;
+typedef Array<Fraccio>     Matriu;
 
 
 #define DIMENSIO 6
