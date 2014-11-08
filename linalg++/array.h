@@ -61,6 +61,7 @@ public:
 	int get_num_cols();
 
 	T get(int row, int col);
+	void put(int row, int col, T value);
 
 	// àlgebra lineal
 
@@ -203,6 +204,11 @@ Array<T>::~Array() {
 template <class T>
 T Array<T>::get(int r, int c) {
 	return data[r][c];
+}
+
+template <class T>
+void Array<T>::put(int row, int col, T value) {
+	data[row][col] = value;
 }
 
 template <class T>
