@@ -222,26 +222,6 @@ int Array<T>::get_num_cols() {
 }
 
 
-/*
- *             _            _
- *  _ __  _ __(_)_   ____ _| |_
- * | '_ \| '__| \ \ / / _` | __|
- * | |_) | |  | |\ V / (_| | |_
- * | .__/|_|  |_| \_/ \__,_|\__|
- * |_|
- */
-
-template <class T>
-T **Array<T>::allocate(int nrows, int ncols) {
-	T **result;
-
-	result = new T*[nrows];
-	for (int i = 0; i < nrows; i++) {
-		result[i] = new T[ncols];
-	}
-	return result;
-}
-
 template <class T>
 int Array<T>::gauss(GaussAction action) {
 	int rows = num_rows;
@@ -321,5 +301,26 @@ T Array<T>::det() {
 	}
 	return res * sign;
 }
+
+/*
+ *             _            _
+ *  _ __  _ __(_)_   ____ _| |_
+ * | '_ \| '__| \ \ / / _` | __|
+ * | |_) | |  | |\ V / (_| | |_
+ * | .__/|_|  |_| \_/ \__,_|\__|
+ * |_|
+ */
+
+template <class T>
+T **Array<T>::allocate(int nrows, int ncols) {
+	T **result;
+
+	result = new T*[nrows];
+	for (int i = 0; i < nrows; i++) {
+		result[i] = new T[ncols];
+	}
+	return result;
+}
+
 
 #endif /* _ARRAY_H_ */
