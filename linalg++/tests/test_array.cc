@@ -251,6 +251,38 @@ TEST(ArrayInvertTest, invert) {
 	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
+TEST(ArrayInvertTest, is_left_inverse) {
+	Tipus a[3][3] = {{1, 2, 3},
+					 {0, 1, 4},
+					 {5, 6, 0}};
+	Tipus e[3][3] = {{1, 0, 0},
+					 {0, 1, 0},
+					 {0, 0, 1}};
+	Matriu m(3, 3, (Tipus*)a);
+	Matriu n(m);
+	Matriu r;
+
+	r = m.dot(n.inv());
+
+	EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}
+
+TEST(ArrayInvertTest, is_right_inverse) {
+	Tipus a[3][3] = {{1, 2, 3},
+					 {0, 1, 4},
+					 {5, 6, 0}};
+	Tipus e[3][3] = {{1, 0, 0},
+					 {0, 1, 0},
+					 {0, 0, 1}};
+	Matriu m(3, 3, (Tipus*)a);
+	Matriu n(m);
+	Matriu r;
+
+	r = n.dot(m.inv());
+
+	EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}
+
 TEST(ArrayInvertTest, singular_array_throws_exception) {
 	Tipus a[3][3] = {{1, 2, 3},
 					 {4, 5, 6},
