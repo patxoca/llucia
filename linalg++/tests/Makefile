@@ -14,7 +14,7 @@ TESTS_OBJS = $(OBJECTS) ../combinator.o ../utils.o
 
 .PHONY: runtests
 runtests: tests
-	./tests
+	./tests --gtest_filter=*
 
 tests: depend $(TESTS_OBJS)
 	$(CXX) -o tests $(TESTS_OBJS) $(LDLIBS)
