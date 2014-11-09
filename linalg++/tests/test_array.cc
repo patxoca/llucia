@@ -370,3 +370,36 @@ TEST(ArrayDotTest, product_does_not_modifies_operands) {
 	EXPECT_ARRAY_EQ(m1, (Tipus*)a1);
 	EXPECT_ARRAY_EQ(m2, (Tipus*)a2);
 }
+
+// transposta
+
+TEST(ArrayTranposeTest, transpose_square_array) {
+	Tipus a[2][2] = {{1, 2},
+					 {3, 4}};
+	Tipus e[2][2] = {{1, 3},
+					 {2, 4}};
+	Matriu m(2, 2, (Tipus*)a);
+	Matriu r;
+
+	r = m.t();
+
+	EXPECT_EQ(2, r.get_num_rows());
+	EXPECT_EQ(2, r.get_num_cols());
+	EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}
+
+TEST(ArrayTranposeTest, transpose_rectangular_array) {
+	Tipus a[2][3] = {{1, 2, 3},
+					 {4, 5, 6}};
+	Tipus e[3][2] = {{1, 4},
+					 {2, 5},
+					 {3, 6}};
+	Matriu m(2, 3, (Tipus*)a);
+	Matriu r;
+
+	r = m.t();
+
+	EXPECT_EQ(3, r.get_num_rows());
+	EXPECT_EQ(2, r.get_num_cols());
+	EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}

@@ -88,6 +88,9 @@ public:
 	// producte de matrius
 	Array<T> dot(const Array<T> a) const;
 
+	// transposta de la matriu
+	Array<T> t() const;
+
 };
 
 /*
@@ -401,6 +404,17 @@ Array<T> Array<T>::dot(const Array<T> a) const {
 				tmp += data[i][k] * a.data[k][j];
 			}
 			m.data[i][j] = tmp;
+		}
+	}
+	return m;
+}
+
+template <class T>
+Array<T> Array<T>::t() const {
+	Array<T> m(num_cols, num_rows);
+	for (int i = 0; i < num_rows; i++) {
+		for (int j = 0; j < num_cols; j++) {
+			m.data[j][i] = data[i][j];
 		}
 	}
 	return m;
