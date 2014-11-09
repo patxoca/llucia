@@ -120,7 +120,7 @@ TEST(ArrayConstructorTest, identity) {
 	Tipus e[3][3] = {{1, 0, 0},
 					 {0, 1, 0},
 					 {0, 0, 1}};
-	Matriu m(3);
+	Matriu m = Matriu::identity(3);
 
 	EXPECT_EQ(3, m.get_num_rows());
 	EXPECT_EQ(3, m.get_num_cols());

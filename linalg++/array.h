@@ -61,10 +61,10 @@ public:
 	// matriu creada concatenant dos matrius
 	Array(const Array a1, const Array a2);
 
-	// identitat
-	Array(int dim);
-
 	~Array();
+
+	// identitat
+	static Array<T> identity(int dim);
 
 	// operadors
 	Array<T> & operator = (const Array<T> & a);
@@ -223,24 +223,19 @@ Array<T>::Array(const Array a1, const Array a2) {
 }
 
 template <class T>
-Array<T>::Array(int dim) {
+Array<T> Array<T>::identity(int dim) {
+	Array<T> m(dim, dim);
+	int i;
 	T *dst;
+	T **d;
 
-	num_rows = dim;
-	num_cols = dim;
-	data = allocate(dim, dim);
-
-	{
-		int i;
-		T **d;
-
-		for (i = 0, d = data; i < dim; i++, d++) {
-			dst = *d;
-			for (int j = 0; j < dim; j++) {
-				*dst++ = (i == j) ? 1 : 0;
-			}
+	for (i = 0, d = m.data; i < dim; i++, d++) {
+		dst = *d;
+		for (int j = 0; j < dim; j++) {
+			*dst++ = (i == j) ? 1 : 0;
 		}
 	}
+	return m;
 }
 
 template <class T>
@@ -375,7 +370,7 @@ T Array<T>::det() {
 
 template <class T>
 Array<T> Array<T>::inv() {
-	Array<T> m(*this, Array(num_rows));
+	Array<T> m(*this, Array<T>::identity(num_rows));
 	int sign;
 
 	sign = m.gauss(NORMALIZE);
