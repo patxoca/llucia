@@ -5,6 +5,7 @@
 #ifndef _ARRAY_H_
 #define _ARRAY_H_
 
+#include <cstddef> /* NULL */
 #include <vector>
 
 
@@ -15,6 +16,7 @@ template< class T=int > class Array {
 	T   **data;
 
 	T **allocate(int nrows, int ncols);
+	void deallocate();
 
 public:
 	typedef enum {
@@ -38,6 +40,12 @@ public:
 public:
 	// constructors
 
+	// matriu buida
+	Array();
+
+	// copia de matriu
+	Array(const Array<T> & a);
+
 	// matriu rows x cols inicialitzada amb zeros
 	Array(int rows, int cols);
 
@@ -54,6 +62,11 @@ public:
 	Array(int dim);
 
 	~Array();
+
+	// operadors
+
+	//Array & operator = (const Array & a);
+	Array<T> & operator = (const Array<T> & a);
 
 	// accessors
 
@@ -77,6 +90,35 @@ public:
  * |_|_| |_| |_| .__/|_|\___|_| |_| |_|\___|_| |_|\__\__,_|\___|_|\___/
  *             |_|
  */
+
+template <class T>
+Array<T>::Array() {
+	num_rows = 0;
+	num_cols = 0;
+	data = NULL;
+}
+
+template <class T>
+Array<T>::Array(const Array<T> & a) {
+	T *dst, *src;
+
+	num_rows = a.num_rows;
+	num_cols = a.num_cols;
+	data = allocate(num_rows, num_cols);
+
+	{
+		int i;
+		T **d, **s;
+
+		for (i = 0, d = data, s = a.data; i < num_rows; i++, d++, s++) {
+			dst = *d;
+			src = *s;
+			for (int j = 0; j < num_cols; j++) {
+				*dst++ = *src++;
+			}
+		}
+	}
+}
 
 template <class T>
 Array<T>::Array(int rows, int cols) {
@@ -202,6 +244,30 @@ Array<T>::~Array() {
 }
 
 template <class T>
+Array<T> & Array<T>::operator = (const Array<T> & a) {
+	if (this != &a) {
+		deallocate();
+		num_rows = a.num_rows;
+		num_cols = a.num_cols;
+		data = allocate(num_rows, num_cols);
+		{
+			int i;
+			T **d, **s;
+			T *dst, *src;
+
+			for (i = 0, d = data, s = a.data; i < num_rows; i++, d++, s++) {
+				src = *s;
+				dst = *d;
+				for (int j = 0; j < num_cols; j++) {
+					*dst++ = *src++;
+				}
+			}
+		}
+	}
+	return *this;
+}
+
+template <class T>
 T Array<T>::get(int r, int c) {
 	return data[r][c];
 }
@@ -322,5 +388,15 @@ T **Array<T>::allocate(int nrows, int ncols) {
 	return result;
 }
 
+template <class T>
+void Array<T>::deallocate() {
+	if (data != NULL) {
+		for (int i = 0; i < num_rows; i++) {
+			delete [] data[i];
+		}
+		delete [] data;
+		data = NULL;
+	}
+}
 
 #endif /* _ARRAY_H_ */

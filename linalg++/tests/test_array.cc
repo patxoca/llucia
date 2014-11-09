@@ -12,6 +12,13 @@ typedef Array<Tipus>   Matriu;
 
 // Constructors
 
+TEST(ArrayConstructorTest, empty_array) {
+	Matriu m;
+
+	EXPECT_EQ(m.get_num_rows(), 0);
+	EXPECT_EQ(m.get_num_cols(), 0);
+}
+
 TEST(ArrayConstructorTest, fill_array) {
 	Matriu m(3, 5);
 
@@ -22,6 +29,33 @@ TEST(ArrayConstructorTest, fill_array) {
 			EXPECT_EQ(m.get(i, j), 0);
 		}
 	}
+}
+
+TEST(ArrayConstructorTest, copy_constructor_copies_ok) {
+	Tipus e[3][5] = {{ 1, -2,  3, -4,  5},
+					 {-1,  2, -3,  4, -5},
+					 { 6, -6,  7, -7,  8}};
+	Matriu m1(3, 5, (Tipus *)e);
+	Matriu m2(m1);
+
+	EXPECT_EQ(3, m2.get_num_rows());
+	EXPECT_EQ(5, m2.get_num_cols());
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 5; j++) {
+			EXPECT_EQ(m2.get(i, j), e[i][j]);
+		}
+	}
+}
+
+TEST(ArrayConstructorTest, copy_constructor_creates_duplicated) {
+	Tipus e[3][5] = {{ 1, -2,  3, -4,  5},
+					 {-1,  2, -3,  4, -5},
+					 { 6, -6,  7, -7,  8}};
+	Matriu m1(3, 5, (Tipus *)e);
+	Matriu m2(m1);
+
+	m1.put(1, 1, 42);
+	EXPECT_EQ(m2.get(1, 1), 2);
 }
 
 TEST(ArrayConstructorTest, copy_from_c_array) {
@@ -97,6 +131,37 @@ TEST(ArrayConstructorTest, identity) {
 	}
 }
 
+// operadors
+
+TEST(ArrayOperatorTest, assignation_copies_ok) {
+	Tipus a[2][3] = {{ 1,  5,  7},
+					 {-2, -7, -5}};
+	Matriu m(2, 3, (Tipus*)a);
+	Matriu r;
+
+	r = m;
+
+	EXPECT_EQ(2, r.get_num_rows());
+	EXPECT_EQ(3, r.get_num_cols());
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 3; j++) {
+			EXPECT_EQ(r.get(i, j), a[i][j]);
+		}
+	}
+
+}
+
+TEST(ArrayOperatorTest, assignation_creates_copy) {
+	Tipus a[2][3] = {{ 1,  5,  7},
+					 {-2, -7, -5}};
+	Matriu m(2, 3, (Tipus*)a);
+	Matriu r;
+
+	r = m;
+
+	m.put(0, 1, 42);
+	EXPECT_EQ(r.get(0, 1), 5);
+}
 
 // Gauss
 
