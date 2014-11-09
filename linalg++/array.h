@@ -85,6 +85,9 @@ public:
 	// possibilitar l'encadenament d'operacions.
 	Array<T> inv();
 
+	// producte de matrius
+	Array<T> dot(const Array<T> a) const;
+
 };
 
 /*
@@ -383,6 +386,24 @@ Array<T> Array<T>::inv() {
 		}
 	}
 	return *this;
+}
+
+template <class T>
+Array<T> Array<T>::dot(const Array<T> a) const {
+	if (num_cols != a.num_rows) {
+		throw ArrayException();
+	}
+	Array<T> m(num_rows, a.num_cols);
+	for (int i = 0; i < num_rows; i++) {
+		for (int j = 0; j < a.num_cols; j++) {
+			T tmp = static_cast<T>(0);
+			for (int k = 0; k < num_cols; k++) {
+				tmp += data[i][k] * a.data[k][j];
+			}
+			m.data[i][j] = tmp;
+		}
+	}
+	return m;
 }
 
 /*

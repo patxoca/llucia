@@ -10,6 +10,14 @@ typedef Rational<int>  Tipus;
 typedef Array<Tipus>   Matriu;
 
 
+static void EXPECT_ARRAY_EQ(Matriu m, Tipus *a) {
+	for (int i = 0; i < m.get_num_rows(); i++) {
+		for (int j = 0; j < m.get_num_cols(); j++) {
+			EXPECT_EQ(m.get(i, j), *a++);
+		}
+	}
+}
+
 // Constructors
 
 TEST(ArrayConstructorTest, empty_array) {
@@ -313,4 +321,52 @@ TEST(ArrayInvertTest, test_error_matriu_esquerra_no_normalitzada) {
 			EXPECT_EQ(m.get(i, j), e[i][j]);
 		}
 	}
+}
+
+// producte
+
+TEST(ArrayDotTest, product_ok) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[3][2] = {{ 7,  8},
+					  { 9, 10},
+					  {11, 12}};
+	Tipus e[2][2] = {{ 58,  64},
+					 {139, 154}};
+	Matriu m1(2, 3, (Tipus*)a1);
+	Matriu m2(3, 2, (Tipus*)a2);
+	Matriu r;
+
+	r = m1.dot(m2);
+
+	EXPECT_EQ(2, r.get_num_rows());
+	EXPECT_EQ(2, r.get_num_cols());
+	EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}
+
+TEST(ArrayDotTest, incompatible_arrays_throws_exception) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[2][2] = {{ 7,  8},
+					  { 9, 10}};
+	Matriu m1(2, 3, (Tipus*)a1);
+	Matriu m2(2, 2, (Tipus*)a2);
+
+	ASSERT_THROW(m1.dot(m2), ArrayException);
+}
+
+TEST(ArrayDotTest, product_does_not_modifies_operands) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[3][2] = {{ 7,  8},
+					  { 9, 10},
+					  {11, 12}};
+	Matriu m1(2, 3, (Tipus*)a1);
+	Matriu m2(3, 2, (Tipus*)a2);
+	Matriu r;
+
+	r = m1.dot(m2);
+
+	EXPECT_ARRAY_EQ(m1, (Tipus*)a1);
+	EXPECT_ARRAY_EQ(m2, (Tipus*)a2);
 }
