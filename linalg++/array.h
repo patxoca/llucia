@@ -5,9 +5,12 @@
 #ifndef _ARRAY_H_
 #define _ARRAY_H_
 
+#include <exception>
 #include <cstddef> /* NULL */
 #include <vector>
 
+struct ArrayException : public std::exception {
+};
 
 template< class T=int > class Array {
 
@@ -64,8 +67,6 @@ public:
 	~Array();
 
 	// operadors
-
-	//Array & operator = (const Array & a);
 	Array<T> & operator = (const Array<T> & a);
 
 	// accessors
@@ -79,6 +80,10 @@ public:
 	// àlgebra lineal
 
 	T det();
+
+	// calcula la inversa de la matriu in situ. Retorna la matriu per
+	// possibilitar l'encadenament d'operacions.
+	Array<T> inv();
 
 };
 
@@ -366,6 +371,23 @@ T Array<T>::det() {
 		res *= data[i][i];
 	}
 	return res * sign;
+}
+
+template <class T>
+Array<T> Array<T>::inv() {
+	Array<T> m(*this, Array(num_rows));
+	int sign;
+
+	sign = m.gauss(NORMALIZE);
+	if (sign == 0) {
+		throw ArrayException();
+	}
+	for (int i = 0; i < num_rows; i++) {
+		for (int j = num_cols; j < 2 * num_cols; j++) {
+			data[i][j - num_cols] = m.data[i][j];
+		}
+	}
+	return *this;
 }
 
 /*

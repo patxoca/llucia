@@ -269,3 +269,48 @@ TEST(TestDeterminantTest, test_determinant_zero) {
 
 	EXPECT_EQ(m.det(), 0);
 }
+
+// inversa
+
+TEST(ArrayInvertTest, invert) {
+	Tipus a[3][3] = {{1, 2, 3},
+					 {0, 1, 4},
+					 {5, 6, 0}};
+	Tipus e[3][3] = {{-24,  18,  5},
+					 { 20, -15, -4},
+					 { -5,   4,  1}};
+	Matriu m(3, 3, (Tipus*)a);
+
+	m.inv();
+
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			EXPECT_EQ(m.get(i, j), e[i][j]);
+		}
+	}
+}
+
+TEST(ArrayInvertTest, singular_array_throws_exception) {
+	Tipus a[3][3] = {{1, 2, 3},
+					 {4, 5, 6},
+					 {3, 3, 3}};
+	Matriu m(3, 3, (Tipus*)a);
+
+	ASSERT_THROW(m.inv(), ArrayException);
+}
+
+TEST(ArrayInvertTest, test_error_matriu_esquerra_no_normalitzada) {
+	Tipus a[2][2] = {{1, 2},
+					 {3, 4}};
+	Tipus e[2][2] = {{   -2,           1},
+					 {Tipus(3, 2), Tipus(-1, 2)}};
+	Matriu m(2, 2, (Tipus*)a);
+
+	m.inv();
+
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+			EXPECT_EQ(m.get(i, j), e[i][j]);
+		}
+	}
+}
