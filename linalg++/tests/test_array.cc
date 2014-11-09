@@ -209,7 +209,7 @@ TEST(ArrayGaussTest, row_swap) {
 	}
 }
 
-TEST(ArrayGaussTest, test_zeros_a_la_ultima_fila) {
+TEST(ArrayGaussTest, test_zeros_last_row) {
 	Tipus a[3][4] = {{1, -2,  -6,  12},
 					 {2,  4,  12, -17},
 					 {1, -4, -12,  22}};
@@ -220,7 +220,7 @@ TEST(ArrayGaussTest, test_zeros_a_la_ultima_fila) {
 	EXPECT_EQ(sign, 0);
 }
 
-TEST(ArrayGaussTest, test_diagonalitzar) {
+TEST(ArrayGaussTest, test_diagonalize) {
 	Tipus a[3][4] = {{ 0,  2,  1, -8},
 					 { 1, -2, -3,  0},
 					 {-1,  1,  2,  3}};
@@ -239,7 +239,7 @@ TEST(ArrayGaussTest, test_diagonalitzar) {
 	}
 }
 
-TEST(ArrayGaussTest, test_normalitzar) {
+TEST(ArrayGaussTest, test_normalitze) {
 	Tipus a[3][4] = {{ 0,  2,  1, -8},
 					 { 1, -2, -3,  0},
 					 {-1,  1,  2,  3}};
@@ -260,7 +260,7 @@ TEST(ArrayGaussTest, test_normalitzar) {
 
 // determinant
 
-TEST(TestDeterminantTest, simple) {
+TEST(ArrayDeterminantTest, simple) {
 	Tipus a[3][3] = {{1, 2, 3},
 					 {0, 1, 4},
 					 {5, 6, 0}};
@@ -269,7 +269,7 @@ TEST(TestDeterminantTest, simple) {
 	EXPECT_EQ(m.det(), 1);
 }
 
-TEST(TestDeterminantTest, test_determinant_zero) {
+TEST(ArrayDeterminantTest, test_zero_determinant) {
 	Tipus a[3][3] = {{1, 2, 3},
 					 {4, 5, 6},
 					 {3, 3, 3}};
@@ -307,7 +307,7 @@ TEST(ArrayInvertTest, singular_array_throws_exception) {
 	ASSERT_THROW(m.inv(), ArrayException);
 }
 
-TEST(ArrayInvertTest, test_error_matriu_esquerra_no_normalitzada) {
+TEST(ArrayInvertTest, test_error_left_array_really_normalized) {
 	Tipus a[2][2] = {{1, 2},
 					 {3, 4}};
 	Tipus e[2][2] = {{   -2,           1},
