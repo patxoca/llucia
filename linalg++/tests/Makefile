@@ -21,7 +21,7 @@ tests: depend $(TESTS_OBJS)
 
 .PHONY: clean
 clean:
-	rm -f *~ *.o
+	rm -f *~ *.o core
 
 .PHONY: allclean
 allclean: clean

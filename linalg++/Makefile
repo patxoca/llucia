@@ -22,7 +22,7 @@ tests: $(OBJECTES)
 
 .PHONY: clean
 clean:
-	rm -f *~ *.o
+	rm -f *~ *.o core
 	make -C tests clean
 
 .PHONY: allclean
