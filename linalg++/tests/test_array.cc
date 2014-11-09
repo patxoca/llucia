@@ -28,15 +28,14 @@ TEST(ArrayConstructorTest, empty_array) {
 }
 
 TEST(ArrayConstructorTest, fill_array) {
+	Tipus e[3][5] = {{ 0, 0, 0, 0, 0},
+					 { 0, 0, 0, 0, 0},
+					 { 0, 0, 0, 0, 0}};
 	Matriu m(3, 5);
 
 	EXPECT_EQ(3, m.get_num_rows());
 	EXPECT_EQ(5, m.get_num_cols());
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 5; j++) {
-			EXPECT_EQ(m.get(i, j), 0);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayConstructorTest, copy_constructor_copies_ok) {
@@ -48,11 +47,7 @@ TEST(ArrayConstructorTest, copy_constructor_copies_ok) {
 
 	EXPECT_EQ(3, m2.get_num_rows());
 	EXPECT_EQ(5, m2.get_num_cols());
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 5; j++) {
-			EXPECT_EQ(m2.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m2, (Tipus*)e);
 }
 
 TEST(ArrayConstructorTest, copy_constructor_creates_duplicated) {
@@ -74,11 +69,7 @@ TEST(ArrayConstructorTest, copy_from_c_array) {
 
 	EXPECT_EQ(3, m.get_num_rows());
 	EXPECT_EQ(5, m.get_num_cols());
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 5; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayConstructorTest, copy_from_vector_vector) {
@@ -93,12 +84,7 @@ TEST(ArrayConstructorTest, copy_from_vector_vector) {
 
 	EXPECT_EQ(3, m.get_num_rows());
 	EXPECT_EQ(5, m.get_num_cols());
-	for (int i = 0; i < 3; i++) {
-		std::vector<Tipus> fila = v[i];
-		for (int j = 0; j < 5; j++) {
-			EXPECT_EQ(m.get(i, j), fila[j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayConstructorTest, copy_from_two_array) {
@@ -117,11 +103,7 @@ TEST(ArrayConstructorTest, copy_from_two_array) {
 
 	EXPECT_EQ(3, m.get_num_rows());
 	EXPECT_EQ(5, m.get_num_cols());
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 5; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayConstructorTest, identity) {
@@ -132,11 +114,7 @@ TEST(ArrayConstructorTest, identity) {
 
 	EXPECT_EQ(3, m.get_num_rows());
 	EXPECT_EQ(3, m.get_num_cols());
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 // operadors
@@ -151,12 +129,7 @@ TEST(ArrayOperatorTest, assignation_copies_ok) {
 
 	EXPECT_EQ(2, r.get_num_rows());
 	EXPECT_EQ(3, r.get_num_cols());
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 3; j++) {
-			EXPECT_EQ(r.get(i, j), a[i][j]);
-		}
-	}
-
+	EXPECT_ARRAY_EQ(r, (Tipus*)a);
 }
 
 TEST(ArrayOperatorTest, assignation_creates_copy) {
@@ -183,11 +156,7 @@ TEST(ArrayGaussTest, simple) {
 
 	sign = m.gauss(m.TRIANGULARIZE);
 	EXPECT_EQ(sign, 1);
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 3; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayGaussTest, row_swap) {
@@ -202,11 +171,7 @@ TEST(ArrayGaussTest, row_swap) {
 
 	sign = m.gauss(m.TRIANGULARIZE);
 	EXPECT_EQ(sign, -1);
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 4; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayGaussTest, test_zeros_last_row) {
@@ -232,11 +197,7 @@ TEST(ArrayGaussTest, test_diagonalize) {
 
 	sign = m.gauss(m.DIAGONALIZE);
 	EXPECT_EQ(sign, -1);
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 4; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayGaussTest, test_normalitze) {
@@ -251,11 +212,7 @@ TEST(ArrayGaussTest, test_normalitze) {
 
 	sign = m.gauss(m.NORMALIZE);
 	EXPECT_EQ(sign, -1);
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 4; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 // determinant
@@ -291,11 +248,7 @@ TEST(ArrayInvertTest, invert) {
 
 	m.inv();
 
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			EXPECT_EQ(m.get(i, j), e[i][j]);
-		}
-	}
+	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
 TEST(ArrayInvertTest, singular_array_throws_exception) {
