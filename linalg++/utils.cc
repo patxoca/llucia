@@ -6,12 +6,12 @@
 
 
 Coalicio enter_a_coalicio(Enter valor, int dimensio) {
-	Coalicio v = Coalicio(dimensio, 0);
+	// Coalicio v = Coalicio(dimensio, 0);
 
-	for (int i = 0; valor != 0 && i < NOMBRE_MAXIM_JUGADORS; i++, valor >>= 1) {
-		v[i] = valor & 1;
-	}
-	return v;
+	// for (int i = 0; valor != 0 && i < NOMBRE_MAXIM_JUGADORS; i++, valor >>= 1) {
+	// 	v[i] = valor & 1;
+	// }
+	// return v;
 }
 
 std::vector<Coalicio> generar_coalicions(int dimensio) {
