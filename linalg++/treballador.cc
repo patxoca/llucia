@@ -22,45 +22,46 @@ int main(int argc, char **argv) {
 	long num_bases = 0;
 	long num_no_det = 0;
 	Coalicio or_coalicions;
-	bool continuar = true;
 	zmq::context_t context (1);
 	zmq::socket_t socket (context, ZMQ_REQ);
 
 	std::cout << "Iniciant treballador n = " << DIMENSIO << std::endl;
 	socket.connect ("tcp://localhost:5555");
 
-	combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO);
 	t0 = clock();
-	while (continuar) {
-		// for (const int *c = combinador->first(); c != NULL; c = combinador->next()) {
+	while (true) {
 		zmq::message_t request (4);
 		zmq::message_t reply;
-		int *c;
+		int *data;
 
 		memcpy ((void *) request.data (), "GET", 3);
 		socket.send (request);
 		socket.recv (&reply);
-		c = (int*)reply.data();
+		data = (int*)reply.data();
 
-		if (c[0] == -1) {
-			continuar = false;
+		if (data[0] == -1) {
+			break;
 		}
-		or_coalicions = 0;
-		num_combinacions++;
-		for (int i = 0; i < DIMENSIO; i++) {
-			Coalicio coalicio = c[i] + 1;
-			or_coalicions |= coalicio;
-			for (int j = 0; j < DIMENSIO; j++) {
-				m.put(i, j,  coalicio & 1);
-				coalicio >>= 1;
+
+		combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO, data, MIDA_PAQUET);
+		for (const int *c = combinador->first(); c != NULL; c = combinador->next()) {
+			or_coalicions = 0;
+			num_combinacions++;
+			for (int i = 0; i < DIMENSIO; i++) {
+				Coalicio coalicio = c[i] + 1;
+				or_coalicions |= coalicio;
+				for (int j = 0; j < DIMENSIO; j++) {
+					m.put(i, j,  coalicio & 1);
+					coalicio >>= 1;
+				}
 			}
-		}
-		if (or_coalicions == COALICIO_TOTAL) {
-		    if (m.det() != 0) {
-			    num_bases++;
+			if (or_coalicions == COALICIO_TOTAL) {
+				if (m.det() != 0) {
+					num_bases++;
+				}
+			} else {
+				num_no_det++;
 			}
-		} else {
-			num_no_det++;
 		}
 	}
 	tf = clock();
