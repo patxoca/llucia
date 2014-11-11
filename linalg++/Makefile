@@ -1,20 +1,25 @@
 # $Id:$
 
-EXECUTABLES = prova
+EXECUTABLES = prova productor treballador
 SRCS = $(wildcard *.cc)
 HEADERS = $(wildcard *.h)
 OBJECTS = $(patsubst %.cc,%.o,$(SRCS))
 
 LINK.o = $(LINK.cc)
 CXX = g++
+CPPFLAGS = -I $(HOME)/.local/include
 CXXFLAGS = -O2 -Wall
-
+LDLIBS = -lzmq
+LDFLAGS = -L $(HOME)/.local/lib
 
 
 .PHONY: all
 all: depend $(EXECUTABLES)
 
-prova: $(OBJECTS)
+prova:       combinator.o  prova.o  utils.o
+productor:   combinator.o  productor.o  utils.o
+treballador: combinator.o  treballador.o  utils.o
+
 
 .PHONY: tests
 tests: $(OBJECTES)
