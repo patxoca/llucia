@@ -246,7 +246,7 @@ Array<T> Array<T>::identity(int dim) {
 
 template <class T>
 Array<T>::~Array() {
-	//delete data;
+	deallocate();
 }
 
 template <class T>
