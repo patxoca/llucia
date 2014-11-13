@@ -172,14 +172,10 @@ template <class T>
 Array<T> Array<T>::identity(int dim) {
 	Array<T> m(dim, dim);
 	int i;
-	T *dst;
-	T **d;
+	T **dst;
 
-	for (i = 0, d = m.data; i < dim; i++, d++) {
-		dst = *d;
-		for (int j = 0; j < dim; j++) {
-			*dst++ = (i == j) ? 1 : 0;
-		}
+	for (i = 0, dst = m.data; i < dim; i++, dst++) {
+		(*dst)[i] = 1;
 	}
 	return m;
 }
