@@ -7,6 +7,7 @@
 
 #include <exception>
 #include <cstddef> /* NULL */
+#include <string.h>
 
 
 struct ArrayException : public std::exception {
@@ -108,23 +109,17 @@ Array<T>::Array() {
 
 template <class T>
 Array<T>::Array(const Array<T> & a) {
-	T *dst, *src;
+	int i, size, nr;
+	T **dst, **src;
 
 	num_rows = a.num_rows;
 	num_cols = a.num_cols;
 	data = allocate(num_rows, num_cols);
 
-	{
-		int i;
-		T **d, **s;
-
-		for (i = 0, d = data, s = a.data; i < num_rows; i++, d++, s++) {
-			dst = *d;
-			src = *s;
-			for (int j = 0; j < num_cols; j++) {
-				*dst++ = *src++;
-			}
-		}
+	size = num_cols * sizeof(T);
+	nr = num_rows;
+	for (i = 0, dst = data, src = a.data; i < nr; i++, dst++, src++) {
+		memcpy(*dst, *src, size);
 	}
 }
 
@@ -138,29 +133,24 @@ Array<T>::Array(int rows, int cols) {
 template <class T>
 Array<T>::Array(int rows, int cols, const T *value) {
 	const T *src;
-	T *dst;
+	T **dst;
+	int i, size;
 
 	num_rows = rows;
 	num_cols = cols;
 	data = allocate(rows, cols);
 
 	src = value;
-	{
-		int i;
-		T **d;
-
-		for (i = 0, d = data; i < rows; i++, d++) {
-			dst = *d;
-			for (int j = 0; j < cols; j++) {
-				*dst++ = *src++;
-			}
-		}
+	size = cols * sizeof(T);
+	for (i = 0, dst = data; i < rows; i++, dst++, src += cols) {
+		memcpy(*dst, src, size);
 	}
 }
 
 template <class T>
 Array<T>::Array(const Array a1, const Array a2) {
-	T *dst, *src;
+	int i, nr, nc1, size1, size2;
+	T **dst, **src1, **src2;
 
 	// @TODO: alex 2014-11-07 20:33:04: cal garanti que a1 i a2 tinguin el
 	// mateix nombre de files.
@@ -168,22 +158,13 @@ Array<T>::Array(const Array a1, const Array a2) {
 	num_cols = a1.num_cols + a2.num_cols;
 	data = allocate(num_rows, num_cols);
 
-	{
-		int i;
-		T **d;
-		T **s1, **s2;
-
-		for (i = 0, d = data, s1 = a1.data, s2 = a2.data; i < num_rows; i++, d++, s1++, s2++) {
-			dst = *d;
-			src = *s1;
-			for (int j = 0; j < a1.num_cols; j++) {
-				*dst++ = *src++;
-			}
-			src = *s2;
-			for (int j = 0; j < a2.num_cols; j++) {
-				*dst++ = *src++;
-			}
-		}
+	nr = num_rows;
+	nc1 = a1.num_cols;
+	size1 = a1.num_cols * sizeof(T);
+	size2 = a2.num_cols * sizeof(T);
+	for (i = 0, dst = data, src1 = a1.data, src2 = a2.data; i < nr; i++, dst++, src1++, src2++) {
+		memcpy(*dst, *src1, size1);
+		memcpy(*dst + nc1, *src2, size2);
 	}
 }
 
@@ -211,8 +192,9 @@ Array<T>::~Array() {
 template <class T>
 Array<T> & Array<T>::operator = (const Array<T> & a) {
 	int i, j;
-	T **d, **s;
-	T *dst, *src;
+	T **dst, **src;
+	int size;
+	int nr;
 
 	if (this != &a) {
 		if ((num_rows != a.num_rows) || (num_cols != a.num_cols)) {
@@ -221,12 +203,10 @@ Array<T> & Array<T>::operator = (const Array<T> & a) {
 			num_cols = a.num_cols;
 			data = allocate(num_rows, num_cols);
 		}
-		for (i = 0, d = data, s = a.data; i < num_rows; i++, d++, s++) {
-			src = *s;
-			dst = *d;
-			for (j = 0; j < num_cols; j++) {
-				*dst++ = *src++;
-			}
+		size = num_cols * sizeof(T);
+		nr = num_rows;
+		for (i = 0, dst = data, src = a.data; i < nr; i++, dst++, src++) {
+			memcpy(*dst, *src, size);
 		}
 	}
 	return *this;
