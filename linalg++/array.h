@@ -251,22 +251,22 @@ Array<T>::~Array() {
 
 template <class T>
 Array<T> & Array<T>::operator = (const Array<T> & a) {
-	if (this != &a) {
-		deallocate();
-		num_rows = a.num_rows;
-		num_cols = a.num_cols;
-		data = allocate(num_rows, num_cols);
-		{
-			int i;
-			T **d, **s;
-			T *dst, *src;
+	int i, j;
+	T **d, **s;
+	T *dst, *src;
 
-			for (i = 0, d = data, s = a.data; i < num_rows; i++, d++, s++) {
-				src = *s;
-				dst = *d;
-				for (int j = 0; j < num_cols; j++) {
-					*dst++ = *src++;
-				}
+	if (this != &a) {
+		if ((num_rows != a.num_rows) || (num_cols != a.num_cols)) {
+			deallocate();
+			num_rows = a.num_rows;
+			num_cols = a.num_cols;
+			data = allocate(num_rows, num_cols);
+		}
+		for (i = 0, d = data, s = a.data; i < num_rows; i++, d++, s++) {
+			src = *s;
+			dst = *d;
+			for (j = 0; j < num_cols; j++) {
+				*dst++ = *src++;
 			}
 		}
 	}
