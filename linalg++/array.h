@@ -7,7 +7,7 @@
 
 #include <exception>
 #include <cstddef> /* NULL */
-#include <vector>
+
 
 struct ArrayException : public std::exception {
 };
@@ -54,9 +54,6 @@ public:
 
 	// matriu rows x cols inicialitzada a partir d'un array C
 	Array(int rows, int cols, const T *value);
-
-	// matriu inicialitza a partir d'un vector de vectors
-	Array(std::vector< std::vector< T > > value);
 
 	// matriu creada concatenant dos matrius
 	Array(const Array a1, const Array a2);
@@ -170,30 +167,6 @@ Array<T>::Array(int rows, int cols, const T *value) {
 			dst = *d;
 			for (int j = 0; j < cols; j++) {
 				*dst++ = *src++;
-			}
-		}
-	}
-}
-
-template <class T>
-Array<T>::Array(std::vector< std::vector< T > > value) {
-	T *dst;
-
-	// @TODO: alex 2014-11-07 19:46:42: açò assumeix que value te dades i que
-	// els vectors fila son tots de la mateixa fila. Cal garantir-ho.
-	num_rows = value.size();
-	num_cols = value[0].size();
-	data = allocate(num_rows, num_cols);
-
-	{
-		int i;
-		T **d;
-
-		for (i = 0, d = data; i < num_rows; i++, d++) {
-			dst = *d;
-			std::vector<T> fila = value[i];
-			for (int j = 0; j < num_cols; j++) {
-				*dst++ = fila[j];
 			}
 		}
 	}

@@ -72,21 +72,6 @@ TEST(ArrayConstructorTest, copy_from_c_array) {
 	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
-TEST(ArrayConstructorTest, copy_from_vector_vector) {
-	Tipus e[3][5] = {{ 1, -2,  3, -4,  5},
-					 {-1,  2, -3,  4, -5},
-					 { 6, -6,  7, -7,  8}};
-	std::vector< std::vector< Tipus > > v(3);
-	v[0] = std::vector<Tipus>(e[0], e[0] + 5);
-	v[1] = std::vector<Tipus>(e[1], e[1] + 5);
-	v[2] = std::vector<Tipus>(e[2], e[2] + 5);
-	Matriu m(v);
-
-	EXPECT_EQ(3, m.get_num_rows());
-	EXPECT_EQ(5, m.get_num_cols());
-	EXPECT_ARRAY_EQ(m, (Tipus*)e);
-}
-
 TEST(ArrayConstructorTest, copy_from_two_array) {
 	Tipus e[3][5] = {{ 1, -2,  3, -4,  5},
 					 {-1,  2, -3,  4, -5},
