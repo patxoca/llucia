@@ -130,23 +130,9 @@ Array<T>::Array(const Array<T> & a) {
 
 template <class T>
 Array<T>::Array(int rows, int cols) {
-	T *dst;
-
 	num_rows = rows;
 	num_cols = cols;
 	data = allocate(rows, cols);
-
-	{
-		int i;
-		T **d;
-
-		for (i = 0, d = data; i < rows; i++, d++) {
-			dst = *d;
-			for (int j = 0; j < cols; j++) {
-				*dst++ = static_cast<T>(0);
-			}
-		}
-	}
 }
 
 template <class T>
