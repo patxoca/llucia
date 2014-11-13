@@ -7,6 +7,8 @@
 #include <zmq.hpp>
 
 #include "combinator.h"
+#include "config.h"
+#include "missatge.h"
 #include "rational.h"
 #include "tipus.h"
 #include "utils.h"
@@ -16,34 +18,44 @@ int main(int argc, char **argv) {
 	std::vector<Coalicio> coalicions;
 	Combinator *combinador;
 	Matriu m(DIMENSIO, DIMENSIO);
-	Fraccio resultat;
 	clock_t t0, tf;
 	long num_combinacions = 0;
 	long num_bases = 0;
 	long num_no_det = 0;
 	Coalicio or_coalicions;
+	int idtreballador = -1;
+	int idpaquet;
+	int size;
+	int buffer[DIMENSIO];
 	zmq::context_t context (1);
 	zmq::socket_t socket (context, ZMQ_REQ);
 
 	std::cout << "Iniciant treballador n = " << DIMENSIO << std::endl;
-	socket.connect ("tcp://localhost:5555");
+	socket.connect (CFG_PRODUCTOR);
 
+	msg_request_register(socket, &idtreballador);
+	if (idtreballador == -1) {
+		std::cout << "Treballador rebutjar" << std::endl;
+		return 0;
+	}
 	t0 = clock();
 	while (true) {
 		zmq::message_t request (4);
 		zmq::message_t reply;
-		int *data;
 
-		memcpy ((void *) request.data (), "GET", 3);
-		socket.send (request);
-		socket.recv (&reply);
-		data = (int*)reply.data();
+		msg_request_get(socket, idtreballador, -1, &idpaquet, &size, buffer);
 
-		if (data[0] == -1) {
+		if (idpaquet == -1) {
+			std::cout << "Rebut paquet de finalització" << std::endl;
 			break;
 		}
+		// std::cout << "Processant paquet " << idpaquet << std::endl;
+		// for (int i = 0; i < size; i++) {
+		// 	std::cout << buffer[i] << " ";
+		// }
+		// std::cout << std::endl;
 
-		combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO, data, MIDA_PAQUET);
+		combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO, buffer, MIDA_PAQUET);
 		for (const int *c = combinador->first(); c != NULL; c = combinador->next()) {
 			or_coalicions = 0;
 			num_combinacions++;
@@ -65,6 +77,7 @@ int main(int argc, char **argv) {
 		}
 	}
 	tf = clock();
+	msg_request_unregister(socket, idtreballador);
 
 	std::cout << "Num combinacions: " << num_combinacions << std::endl;
 	std::cout << "Num bases:        " << num_bases << std::endl;
