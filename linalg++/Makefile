@@ -16,9 +16,9 @@ LDFLAGS = -L $(HOME)/.local/lib
 .PHONY: all
 all: depend $(EXECUTABLES)
 
-prova:       combinator.o  prova.o  utils.o
-productor:   combinator.o  missatge.o productor.o  utils.o
-treballador: combinator.o  missatge.o treballador.o  utils.o
+prova:       combinator.o  prova.o
+productor:   combinator.o  missatge.o productor.o
+treballador: combinator.o  missatge.o treballador.o
 
 
 .PHONY: tests

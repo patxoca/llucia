@@ -11,7 +11,6 @@
 #include "missatge.h"
 #include "rational.h"
 #include "tipus.h"
-#include "utils.h"
 
 
 int main(int argc, char **argv) {

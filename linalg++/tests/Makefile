@@ -9,7 +9,7 @@ CXX = g++
 CXXFLAGS = -Wall -pthread
 LDLIBS = -lgtest -lpthread
 
-TESTS_OBJS = $(OBJECTS) ../combinator.o ../utils.o
+TESTS_OBJS = $(OBJECTS) ../combinator.o
 
 
 .PHONY: runtests
