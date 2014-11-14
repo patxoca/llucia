@@ -9,14 +9,14 @@ LINK.o = $(LINK.cc)
 CXX = g++
 CPPFLAGS = -I $(HOME)/.local/include
 CXXFLAGS = -O2 -Wall
-LDLIBS = -lzmq
+LDLIBS = -lzmq -lboost_program_options
 LDFLAGS = -L $(HOME)/.local/lib
 
 
 .PHONY: all
 all: depend $(EXECUTABLES)
 
-prova:       combinator.o  prova.o
+prova:       cmdline.o combinator.o  prova.o
 productor:   combinator.o  missatge.o productor.o
 treballador: combinator.o  missatge.o treballador.o
 

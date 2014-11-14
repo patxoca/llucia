@@ -5,6 +5,7 @@
 #include <iostream>
 #include <time.h>
 
+#include "cmdline.h"
 #include "combinator.h"
 #include "rational.h"
 #include "tipus.h"
@@ -20,6 +21,12 @@ int main(int argc, char **argv) {
 	long num_bases = 0;
 	long num_no_det = 0;
 	Coalicio or_coalicions;
+	options_t opcions;
+
+
+	if (parse_cmd_line(argc, argv, opcions)) {
+		return 0;
+	}
 
 	std::cout << "Iniciant càlcul n = " << DIMENSIO << std::endl;
 
