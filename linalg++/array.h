@@ -82,6 +82,7 @@ public:
 	// calcula la inversa de la matriu in situ. Retorna la matriu per
 	// possibilitar l'encadenament d'operacions.
 	Array<T> inv();
+	Array<T> inv(Array<T> & tmp);
 
 	// producte de matrius
 	Array<T> dot(const Array<T> a) const;
@@ -311,16 +312,33 @@ T Array<T>::det() {
 
 template <class T>
 Array<T> Array<T>::inv() {
-	Array<T> m(*this, Array<T>::identity(num_rows));
+	Array<T> m(num_rows, 2 * num_cols);
+	return inv(m);
+}
+
+template <class T>
+Array<T> Array<T>::inv(Array<T> & tmp) {
 	int sign;
 
-	sign = m.gauss(NORMALIZE);
+	if (num_rows != num_cols) {
+		throw ArrayException();
+	}
+	if ((tmp.num_rows != num_rows) || (tmp.num_cols != 2 * num_cols)) {
+		throw ArrayException();
+	}
+	for (int i = 0; i < num_rows; i++) {
+		for (int j = 0; j < num_cols; j++) {
+			tmp.data[i][j] = data[i][j];
+			tmp.data[i][j + num_cols] = (i == j) ? 1 : 0;
+		}
+	}
+	sign = tmp.gauss(NORMALIZE);
 	if (sign == 0) {
 		throw ArrayException();
 	}
 	for (int i = 0; i < num_rows; i++) {
 		for (int j = num_cols; j < 2 * num_cols; j++) {
-			data[i][j - num_cols] = m.data[i][j];
+			data[i][j - num_cols] = tmp.data[i][j];
 		}
 	}
 	return *this;
