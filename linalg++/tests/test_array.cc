@@ -72,25 +72,6 @@ TEST(ArrayConstructorTest, copy_from_c_array) {
 	EXPECT_ARRAY_EQ(m, (Tipus*)e);
 }
 
-TEST(ArrayConstructorTest, copy_from_two_array) {
-	Tipus e[3][5] = {{ 1, -2,  3, -4,  5},
-					 {-1,  2, -3,  4, -5},
-					 { 6, -6,  7, -7,  8}};
-	Tipus e1[3][3] = {{ 1, -2,  3},
-					  {-1,  2, -3},
-					  { 6, -6,  7}};
-	Tipus e2[3][2] = {{-4,  5},
-					  { 4, -5},
-					  {-7,  8}};
-	Matriu a1(3, 3, (Tipus*)e1);
-	Matriu a2(3, 2, (Tipus*)e2);
-	Matriu m(a1, a2);
-
-	EXPECT_EQ(3, m.get_num_rows());
-	EXPECT_EQ(5, m.get_num_cols());
-	EXPECT_ARRAY_EQ(m, (Tipus*)e);
-}
-
 TEST(ArrayConstructorTest, identity) {
 	Tipus e[3][3] = {{1, 0, 0},
 					 {0, 1, 0},

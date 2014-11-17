@@ -56,9 +56,6 @@ public:
 	// matriu rows x cols inicialitzada a partir d'un array C
 	Array(int rows, int cols, const T *value);
 
-	// matriu creada concatenant dos matrius
-	Array(const Array a1, const Array a2);
-
 	~Array();
 
 	// identitat
@@ -145,27 +142,6 @@ Array<T>::Array(int rows, int cols, const T *value) {
 	size = cols * sizeof(T);
 	for (i = 0, dst = data; i < rows; i++, dst++, src += cols) {
 		memcpy(*dst, src, size);
-	}
-}
-
-template <class T>
-Array<T>::Array(const Array a1, const Array a2) {
-	int i, nr, nc1, size1, size2;
-	T **dst, **src1, **src2;
-
-	// @TODO: alex 2014-11-07 20:33:04: cal garanti que a1 i a2 tinguin el
-	// mateix nombre de files.
-	num_rows = a1.num_rows;
-	num_cols = a1.num_cols + a2.num_cols;
-	data = allocate(num_rows, num_cols);
-
-	nr = num_rows;
-	nc1 = a1.num_cols;
-	size1 = a1.num_cols * sizeof(T);
-	size2 = a2.num_cols * sizeof(T);
-	for (i = 0, dst = data, src1 = a1.data, src2 = a2.data; i < nr; i++, dst++, src1++, src2++) {
-		memcpy(*dst, *src1, size1);
-		memcpy(*dst + nc1, *src2, size2);
 	}
 }
 
