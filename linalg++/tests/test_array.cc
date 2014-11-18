@@ -27,17 +27,6 @@ TEST(ArrayConstructorTest, empty_array) {
 	EXPECT_EQ(m.get_num_cols(), 0);
 }
 
-TEST(ArrayConstructorTest, fill_array) {
-	Tipus e[3][5] = {{ 0, 0, 0, 0, 0},
-					 { 0, 0, 0, 0, 0},
-					 { 0, 0, 0, 0, 0}};
-	Matriu m(3, 5);
-
-	EXPECT_EQ(3, m.get_num_rows());
-	EXPECT_EQ(5, m.get_num_cols());
-	EXPECT_ARRAY_EQ(m, (Tipus*)e);
-}
-
 TEST(ArrayConstructorTest, copy_constructor_copies_ok) {
 	Tipus e[3][5] = {{ 1, -2,  3, -4,  5},
 					 {-1,  2, -3,  4, -5},

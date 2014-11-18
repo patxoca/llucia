@@ -143,15 +143,9 @@ Array<T>::Array(const Array<T> & a) {
 
 template <class T>
 Array<T>::Array(int rows, int cols) {
-	T *p;
-	int num_items = rows * cols;
-
 	num_rows = rows;
 	num_cols = cols;
-	p = data = allocate(rows, cols);
-	while(num_items--) {
-		*p++ = static_cast<T>(0);
-	}
+	data = allocate(rows, cols);
 }
 
 template <class T>
@@ -168,12 +162,13 @@ Array<T>::Array(int rows, int cols, const T *value) {
 template <class T>
 Array<T> Array<T>::identity(int dim) {
 	Array<T> m(dim, dim);
-	int i, delta;
+	int i, j;
 	T *dst;
 
-	delta = dim + 1;
-	for (i = 0, dst = m.data; i < dim; i++, dst += delta) {
-		*dst = 1;
+	for (i = 0, dst = m.data; i < dim; i++) {
+		for (j = 0; j < dim; j++, dst++) {
+			*dst = (i == j) ? 1 : 0;
+		}
 	}
 	return m;
 }
