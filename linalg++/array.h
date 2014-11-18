@@ -86,6 +86,21 @@ public:
 	// identitat
 	static Array<T> identity(int dim);
 
+	// Inicialitza una matriu binaria: donada una llista d'enters, un per
+	// fila, inicialitza la matriu amb els bits dels enters:
+	//
+	// Array<int> m(3, 3);
+	// unsigned int c = {1, 2, 3};
+	// m.binary_array((unsigned int *)c);
+	// std::count << m;
+	//  1 0 0
+	//  0 1 0
+	//  1 1 0
+	//
+	// Nota: els bits es coloquen dins la matriu en ordre invers (menys
+	// significatiu a l'esquerra).
+	void binary_array(const unsigned int *a);
+
 	// operadors
 	Array<T> & operator = (const Array<T> & a);
 
@@ -171,6 +186,23 @@ Array<T> Array<T>::identity(int dim) {
 		}
 	}
 	return m;
+}
+
+template <class T>
+void Array<T>::binary_array(const unsigned int *a) {
+	T *dst = data;
+	int i, j;
+	int nr = num_rows;
+	int nc = num_cols;
+	unsigned int v;
+
+	for (i = 0; i < nr; i++) {
+		v = *a++;
+		for (j = 0; j < nc; j++) {
+			*dst++ = v & 1;
+			v >>= 1;
+		}
+	}
 }
 
 template <class T>
