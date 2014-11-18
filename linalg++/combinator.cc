@@ -10,19 +10,19 @@ Combinator::Combinator(int n, int m) {
     mida_bloc = -1;
 	exhaurit = (nombre_elements < mida_mostra);
 	primer = true;
-	indices  = (int*)malloc(m * sizeof(int));
+	indices  = (Combination*)malloc(m * sizeof(Combination));
 	for (int i = 0; i < m; i++) {
 		indices[i] = i + 1;
 	}
 }
 
-Combinator::Combinator(int n, int m, const int *seed, int block_size) {
+Combinator::Combinator(int n, int m, const Combination *seed, int block_size) {
 	nombre_elements = n;
 	mida_mostra = m;
     mida_bloc = block_size;
 	exhaurit = (nombre_elements < mida_mostra);
 	primer = true;
-	indices  = (int*)malloc(m * sizeof(int));
+	indices  = (Combination*)malloc(m * sizeof(Combination));
 	for (int i = 0; i < m; i++) {
 		indices[i] = seed[i];
 	}
@@ -32,7 +32,7 @@ Combinator::~Combinator() {
 	free(indices);
 }
 
-const int * Combinator::first() {
+const Combination * Combinator::first() {
 	if (!primer || exhaurit) {
 		return NULL; // throw
 	}
@@ -40,12 +40,12 @@ const int * Combinator::first() {
 	return indices;
 }
 
-const int * Combinator::next(int block_size) {
+const Combination * Combinator::next(int block_size) {
 	int i;
 	int mm = mida_mostra;
 	int ne = nombre_elements;
-    int llindar = ne - mm + 1; // evita recalcular-ho cada iteració
-	int *idx = indices;
+    unsigned int llindar = ne - mm + 1; // evita recalcular-ho cada iteració
+	Combination *idx = indices;
 	int v;
 
     if (mida_bloc > 0) {

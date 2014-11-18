@@ -2,20 +2,22 @@
 #define COMBINATOR_H
 
 
+typedef unsigned int  Combination;
+
 class Combinator {
 	bool  exhaurit;
 	bool  primer;
 	int   nombre_elements;
 	int   mida_mostra;
 	int   mida_bloc;
-	int  *indices;
+	Combination  *indices;
 
 public:
 	Combinator(int n, int m);
-	Combinator(int n, int m, const int *seed, int block_size);
+	Combinator(int n, int m, const Combination *seed, int block_size);
 	~Combinator();
-	const int * first();
-	const int * next(int block_size = 1);
+	const Combination *first();
+	const Combination *next(int block_size = 1);
 };
 
 #endif /* COMBINATOR_H */
