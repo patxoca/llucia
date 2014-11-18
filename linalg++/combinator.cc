@@ -44,6 +44,7 @@ const int * Combinator::next(int block_size) {
 	int i;
 	int mm = mida_mostra;
 	int ne = nombre_elements;
+    int llindar = ne - mm + 1; // evita recalcular-ho cada iteració
 	int *idx = indices;
 	int v;
 
@@ -55,7 +56,7 @@ const int * Combinator::next(int block_size) {
     }
 	if (!primer && !exhaurit) {
         while (block_size--) {
-            for (i=mm-1; i>=0 && idx[i]==i+ne-mm+1; i--) {
+            for (i=mm-1; i>=0 && idx[i]==i+llindar; i--) {
             }
             if (i < 0) {
                 exhaurit = true;
