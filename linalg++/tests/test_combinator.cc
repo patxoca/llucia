@@ -21,12 +21,12 @@ static void EXPECT_COMBINATOR_EQ(Combinator & comb, int *e, int size, int batch 
 
 TEST(CombinatorTest, one_by_one) {
 	Combinator comb(4, 2);
-	int e[][2] = {{0, 1},
-				  {0, 2},
-				  {0, 3},
-				  {1, 2},
+	int e[][2] = {{1, 2},
 				  {1, 3},
+				  {1, 4},
 				  {2, 3},
+				  {2, 4},
+				  {3, 4},
 				  {-1, -1}};
 
 	EXPECT_COMBINATOR_EQ(comb, (int*)&e, 2);
@@ -41,23 +41,23 @@ TEST(CombinatorTest, n_less_than_m_gives_no_combinations) {
 
 TEST(CombinatorTest, batch_combinator) {
 	Combinator comb(4, 2);
-	int e[][2] = {{0, 1},
-				  // {0, 2}, ignored
-				  // {0, 3}, ignored
-				  {1, 2},
+	int e[][2] = {{1, 2},
 				  // {1, 3}, ignored
-				  // {2, 3}, ignored
+				  // {1, 4}, ignored
+				  {2, 3},
+				  // {2, 4}, ignored
+				  // {3, 4}, ignored
 				  {-1, -1}};
 
 	EXPECT_COMBINATOR_EQ(comb, (int*)&e, 2, 3);
 }
 
 TEST(CombinatorTest, seeded_combinator) {
-	int seed[] = {0, 3};
+	int seed[] = {1, 4};
 	Combinator comb(4, 2, (int*)seed, 3);
-	int e[][2] = {{0, 3},
-				  {1, 2},
-				  {1, 3},
+	int e[][2] = {{1, 4},
+				  {2, 3},
+				  {2, 4},
 				  {-1, -1}};
 
 	EXPECT_COMBINATOR_EQ(comb, (int*)&e, 2);

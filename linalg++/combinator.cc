@@ -12,7 +12,7 @@ Combinator::Combinator(int n, int m) {
 	primer = true;
 	indices  = (int*)malloc(m * sizeof(int));
 	for (int i = 0; i < m; i++) {
-		indices[i] = i;
+		indices[i] = i + 1;
 	}
 }
 
@@ -55,7 +55,7 @@ const int * Combinator::next(int block_size) {
     }
 	if (!primer && !exhaurit) {
         while (block_size--) {
-            for (i=mm-1; i>=0 && idx[i]==i+ne-mm; i--) {
+            for (i=mm-1; i>=0 && idx[i]==i+ne-mm+1; i--) {
             }
             if (i < 0) {
                 exhaurit = true;
