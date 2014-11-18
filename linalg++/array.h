@@ -251,9 +251,10 @@ int Array<T>::gauss(GaussAction action) {
 	for (int i = rows - 1; i > 0; i--) {   // index del pivot
 		for (int j = i - 1; j >= 0; j--) { // indes de la fila on es fa zero
 			T factor = m[j][i] / m[i][i];
-			for (int k = i; k < cols; k++) {
+			for (int k = rows; k < cols; k++) {
 				m[j][k] -= factor * m[i][k];
 			}
+			m[j][i] = 0;
 		}
 	}
 
