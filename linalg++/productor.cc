@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 	zmq::message_t zrequest;
 	zmq::context_t context(1);
 	zmq::socket_t socket(context, ZMQ_REP);
-	request_t *request;
+	request_type_t *request;
 
     socket.bind (CFG_PRODUCTOR);
 
@@ -37,8 +37,8 @@ int main(int argc, char **argv) {
 	t0 = clock();
 	while (continuar) {
 		socket.recv(&zrequest);
-		request = (request_t*)(zrequest.data());
-		switch (request->message) {
+		request = (request_type_t*)(zrequest.data());
+		switch (*request) {
 		case RQ_ABORT:
 			// canviar generador
             avortat = true;

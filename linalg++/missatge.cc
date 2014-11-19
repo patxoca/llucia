@@ -7,6 +7,11 @@
 #include "missatge.h"
 
 
+typedef struct {
+	request_type_t message;
+	int            worker_id;
+} request_t;
+
 typedef struct : request_t {
 	int   last_packet_id;
 } request_get_t;

@@ -58,11 +58,6 @@ typedef enum {
 	RP_REJECT,
 } response_type_t;
 
-typedef struct {
-	request_type_t message;
-	int            worker_id;
-} request_t;
-
 
 
 bool msg_request_abort(zmq::socket_t & socket, int worker_id);
