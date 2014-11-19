@@ -59,14 +59,10 @@ int main(int argc, char **argv) {
 			or_coalicions = 0;
 			num_combinacions++;
 			for (int i = 0; i < DIMENSIO; i++) {
-				Coalicio coalicio = c[i] + 1;
-				or_coalicions |= coalicio;
-				for (int j = 0; j < DIMENSIO; j++) {
-					m.put(i, j,  coalicio & 1);
-					coalicio >>= 1;
-				}
+				or_coalicions |= c[i];
 			}
 			if (or_coalicions == COALICIO_TOTAL) {
+				m.binary_array(c);
 				if (m.det() != 0) {
 					num_bases++;
 				}
