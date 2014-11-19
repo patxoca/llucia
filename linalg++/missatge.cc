@@ -2,8 +2,6 @@
 
 // $Id:$
 
-#include <zmq.hpp>
-
 #include "missatge.h"
 
 
@@ -34,8 +32,12 @@ typedef struct : response_t {
 
 
 
+Requester::Requester(zmq::socket_t *s) {
+	socket = s;
+	worker_id = -1;
+}
 
-bool msg_request_abort(zmq::socket_t & socket, int worker_id) {
+bool Requester::abort() {
 	zmq::message_t message(sizeof(request_t));
 	zmq::message_t reply;
 	request_t      request;
@@ -44,17 +46,17 @@ bool msg_request_abort(zmq::socket_t & socket, int worker_id) {
 	request.worker_id = worker_id;
 
 	memcpy((void*)message.data(), &request, sizeof(request));
-	if (!socket.send(message)) {
+	if (!socket->send(message)) {
 		// error imagino
 	}
-	if (!socket.recv(&reply)) {
+	if (!socket->recv(&reply)) {
 		// error ?
 	}
 	// la resposta hauria de ser ACK, no importa realment
 	return true;
 }
 
-bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, int *packet_id, int *size, Combination *buffer) {
+bool Requester::get(int last_packet_id, int *packet_id, int *size, Combination *buffer) {
 	zmq::message_t   message(sizeof(request_get_t));
 	zmq::message_t   reply;
 	request_get_t    request;
@@ -65,13 +67,12 @@ bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, 
 	request.last_packet_id = last_packet_id;
 
 	memcpy((void*)message.data(), &request, sizeof(request));
-	if (!socket.send(message)) {
+	if (!socket->send(message)) {
 		// error imagino
 	}
-	if (!socket.recv(&reply)) {
+	if (!socket->recv(&reply)) {
 		// error ?
 	}
-	// la resposta hauria de ser ACK, no importa realment
 	response = (response_data_t*)reply.data();
 	if (response->message != RP_DATA) {
 		// error!!
@@ -83,7 +84,7 @@ bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, 
 	return true;
 }
 
-bool msg_request_register(zmq::socket_t & socket, int *worker_id) {
+bool Requester::register_(int *wid) {
 	zmq::message_t         message(sizeof(request_t));
 	zmq::message_t         reply;
 	request_t              request;
@@ -93,23 +94,23 @@ bool msg_request_register(zmq::socket_t & socket, int *worker_id) {
 	request.worker_id = -1;
 
 	memcpy((void*)message.data(), &request, sizeof(request));
-	if (!socket.send(message)) {
+	if (!socket->send(message)) {
 		// error imagino
 	}
-	if (!socket.recv(&reply)) {
+	if (!socket->recv(&reply)) {
 		// error ?
 	}
 	// la resposta hauria de ser ACK, no importa realment
 	response = (response_registered_t*)reply.data();
 	if (response->message != RP_REGISTERED) {
-		*worker_id = -1;
+		*wid = -1;
 	} else {
-		*worker_id = response->worker_id;
+		worker_id = *wid = response->worker_id;
 	}
 	return true;
 }
 
-bool msg_request_unregister(zmq::socket_t & socket, int worker_id) {
+bool Requester::unregister() {
 	zmq::message_t  message(sizeof(request_t));
 	zmq::message_t  reply;
 	request_t       request;
@@ -118,29 +119,33 @@ bool msg_request_unregister(zmq::socket_t & socket, int worker_id) {
 	request.worker_id = worker_id;
 
 	memcpy((void*)message.data(), &request, sizeof(request));
-	if (!socket.send(message)) {
+	if (!socket->send(message)) {
 		// error imagino
 	}
-	if (!socket.recv(&reply)) {
+	if (!socket->recv(&reply)) {
 		// error ?
 	}
 	// la resposta hauria de ser ACK, no importa realment
 	return true;
 }
 
-bool msg_reply_ack(zmq::socket_t & socket) {
+Responder::Responder(zmq::socket_t *s) {
+	socket = s;
+}
+
+bool Responder::ack() {
 	zmq::message_t message(sizeof(response_t));
 	response_t     response;
 
 	response.message = RP_ACK;
 	memcpy((void*)message.data(), &response, sizeof(response));
-	if (!socket.send(message)) {
+	if (!socket->send(message)) {
 		// error?
 	}
 	return true;
 }
 
-bool msg_reply_data(zmq::socket_t & socket, int packet_id, int size, const Combination *data) {
+bool Responder::data(int packet_id, int size, const Combination *data) {
 	zmq::message_t   message(sizeof(response_data_t));
 	response_data_t  response;
 
@@ -148,22 +153,22 @@ bool msg_reply_data(zmq::socket_t & socket, int packet_id, int size, const Combi
 	response.packet_id = packet_id;
 	response.size = size;
 	assert(size <= DIMENSIO);
-	memcpy(&response.packet, data, size * (sizeof(int)));
+	memcpy(&response.packet, data, size * (sizeof(Combination)));
 	memcpy((void*)message.data(), &response, sizeof(response));
-	if (!socket.send(message)) {
+	if (!socket->send(message)) {
 		// error?
 	}
 	return true;
 }
 
-bool msg_reply_registered(zmq::socket_t & socket, int worker_id) {
+bool Responder::registered(int worker_id) {
 	zmq::message_t         message(sizeof(response_registered_t));
 	response_registered_t  response;
 
 	response.message = RP_REGISTERED;
 	response.worker_id = worker_id;
 	memcpy((void*)message.data(), &response, sizeof(response));
-	if (!socket.send(message)) {
+	if (!socket->send(message)) {
 		// error?
 	}
 	return true;

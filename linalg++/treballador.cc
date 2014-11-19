@@ -28,11 +28,12 @@ int main(int argc, char **argv) {
 	Combination buffer[DIMENSIO];
 	zmq::context_t context (1);
 	zmq::socket_t socket (context, ZMQ_REQ);
+	Requester req(&socket);
 
 	std::cout << "Iniciant treballador n = " << DIMENSIO << std::endl;
 	socket.connect (CFG_PRODUCTOR);
 
-	msg_request_register(socket, &idtreballador);
+	req.register_(&idtreballador);
 	if (idtreballador == -1) {
 		std::cout << "Treballador rebutjar" << std::endl;
 		return 0;
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
 		zmq::message_t request (4);
 		zmq::message_t reply;
 
-		msg_request_get(socket, idtreballador, -1, &idpaquet, &size, buffer);
+		req.get(-1, &idpaquet, &size, buffer);
 
 		if (idpaquet == -1) {
 			std::cout << "Rebut paquet de finalització" << std::endl;
@@ -72,7 +73,7 @@ int main(int argc, char **argv) {
 		}
 	}
 	tf = clock();
-	msg_request_unregister(socket, idtreballador);
+	req.unregister();
 
 	std::cout << "Num combinacions: " << num_combinacions << std::endl;
 	std::cout << "Num bases:        " << num_bases << std::endl;

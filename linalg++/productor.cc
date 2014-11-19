@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
 	zmq::context_t context(1);
 	zmq::socket_t socket(context, ZMQ_REP);
 	request_type_t *request;
+	Responder rep(&socket);
 
     socket.bind (CFG_PRODUCTOR);
 
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
 		case RQ_ABORT:
 			// canviar generador
             avortat = true;
-            msg_reply_ack(socket);
+            rep.ack();
 			break;
 
 		case RQ_GET:
@@ -68,18 +69,18 @@ int main(int argc, char **argv) {
                 }
             }
             std::cout << "Enviant paquet " << idpaquet << std::endl;
-            msg_reply_data(socket, idpaquet, DIMENSIO, dades);
+            rep.data(idpaquet, DIMENSIO, dades);
 			break;
 
 		case RQ_REG:
 			num_treballadors++;
-			msg_reply_registered(socket, num_treballadors);
+			rep.registered(num_treballadors);
 			break;
 
 		case RQ_UNREG:
 			if (num_treballadors > 0) {
 				num_treballadors--;
-				msg_reply_ack(socket);
+				rep.ack();
 			}
 			if (!num_treballadors) {
 				continuar = false;

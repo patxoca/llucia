@@ -5,7 +5,7 @@
 #ifndef _MISSATGE_H_
 #define _MISSATGE_H_
 
-
+#include <zmq.hpp>
 #include "combinator.h"
 #include "tipus.h"
 
@@ -59,15 +59,30 @@ typedef enum {
 } response_type_t;
 
 
+class Requester {
+	zmq::socket_t *socket;
+	int worker_id;
 
-bool msg_request_abort(zmq::socket_t & socket, int worker_id);
-bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, int *packet_id, int *size, Combination *buffer);
-bool msg_request_register(zmq::socket_t & socket, int *worker_id);
-bool msg_request_unregister(zmq::socket_t & socket, int worker_id);
+  public:
 
+	Requester(zmq::socket_t *socket);
 
-bool msg_reply_ack(zmq::socket_t & socket);
-bool msg_reply_data(zmq::socket_t & socket, int packet_id, int size, const Combination *data);
-bool msg_reply_registered(zmq::socket_t & socket, int worker_id);
+	bool abort();
+	bool get(int last_packet_id, int *packet_id, int *size, Combination *buffer);
+	bool register_(int *worker_id);
+	bool unregister();
+};
+
+class Responder {
+	zmq::socket_t *socket;
+
+  public:
+
+	Responder(zmq::socket_t *socket);
+
+	bool ack();
+	bool data(int packet_id, int size, const Combination *data);
+	bool registered(int worker_id);
+};
 
 #endif /* _MISSATGE_H_ */
