@@ -26,12 +26,9 @@ int main(int argc, char **argv) {
 	int idpaquet;
 	int size;
 	Combination buffer[DIMENSIO];
-	zmq::context_t context (1);
-	zmq::socket_t socket (context, ZMQ_REQ);
-	Requester req(&socket);
+	Requester req(CFG_PRODUCTOR);
 
 	std::cout << "Iniciant treballador n = " << DIMENSIO << std::endl;
-	socket.connect (CFG_PRODUCTOR);
 
 	req.register_(&idtreballador);
 	if (idtreballador == -1) {

@@ -30,10 +30,19 @@ typedef struct : response_t {
 	int   worker_id;         // ID del treballador, -1 si rebutjat
 } response_registered_t;
 
+/*
+ *                                 _
+ *  _ __ ___  __ _ _   _  ___  ___| |_ ___ _ __
+ * | '__/ _ \/ _` | | | |/ _ \/ __| __/ _ \ '__|
+ * | | |  __/ (_| | |_| |  __/\__ \ ||  __/ |
+ * |_|  \___|\__, |\__,_|\___||___/\__\___|_|
+ *              |_|
+ */
 
-
-Requester::Requester(zmq::socket_t *s) {
-	socket = s;
+Requester::Requester(const char *address) {
+	context = new zmq::context_t(1);
+	socket = new zmq::socket_t(*context, ZMQ_REQ);
+	socket->connect(address);
 	worker_id = -1;
 }
 
@@ -129,8 +138,25 @@ bool Requester::unregister() {
 	return true;
 }
 
-Responder::Responder(zmq::socket_t *s) {
-	socket = s;
+/*
+ *                                      _
+ *  _ __ ___  ___ _ __   ___  _ __   __| | ___ _ __
+ * | '__/ _ \/ __| '_ \ / _ \| '_ \ / _` |/ _ \ '__|
+ * | | |  __/\__ \ |_) | (_) | | | | (_| |  __/ |
+ * |_|  \___||___/ .__/ \___/|_| |_|\__,_|\___|_|
+ *               |_|
+*/
+
+
+Responder::Responder(const char *address) {
+	context = new zmq::context_t(1);
+	socket = new zmq::socket_t(*context, ZMQ_REP);
+	socket->bind(address);
+}
+
+request_type_t Responder::get_request_type() {
+	socket->recv(&zrequest);
+	return *(request_type_t*)(zrequest.data());
 }
 
 bool Responder::ack() {

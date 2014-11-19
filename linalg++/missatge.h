@@ -60,12 +60,13 @@ typedef enum {
 
 
 class Requester {
+	zmq::context_t *context;
 	zmq::socket_t *socket;
 	int worker_id;
 
   public:
 
-	Requester(zmq::socket_t *socket);
+	Requester(const char *address);
 
 	bool abort();
 	bool get(int last_packet_id, int *packet_id, int *size, Combination *buffer);
@@ -74,11 +75,15 @@ class Requester {
 };
 
 class Responder {
-	zmq::socket_t *socket;
+	zmq::context_t *context;
+	zmq::socket_t  *socket;
+	zmq::message_t zrequest;
 
   public:
 
-	Responder(zmq::socket_t *socket);
+	Responder(const char *address);
+
+	request_type_t get_request_type();
 
 	bool ack();
 	bool data(int packet_id, int size, const Combination *data);

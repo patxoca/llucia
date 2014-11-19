@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <time.h>
-#include <zmq.hpp>
 
 #include "combinator.h"
 #include "config.h"
@@ -24,22 +23,14 @@ int main(int argc, char **argv) {
 	bool avortat = false;
     bool primer = true;
 	bool continuar = true;
-	zmq::message_t zrequest;
-	zmq::context_t context(1);
-	zmq::socket_t socket(context, ZMQ_REP);
-	request_type_t *request;
-	Responder rep(&socket);
-
-    socket.bind (CFG_PRODUCTOR);
+	Responder rep(CFG_PRODUCTOR);
 
 	std::cout << "Iniciant productor n = " << DIMENSIO << std::endl;
 
 	combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO);
 	t0 = clock();
 	while (continuar) {
-		socket.recv(&zrequest);
-		request = (request_type_t*)(zrequest.data());
-		switch (*request) {
+		switch (rep.get_request_type()) {
 		case RQ_ABORT:
 			// canviar generador
             avortat = true;
