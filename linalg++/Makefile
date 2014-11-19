@@ -17,6 +17,7 @@ LDFLAGS = -L $(HOME)/.local/lib
 all: depend $(EXECUTABLES)
 
 prova:       cmdline.o combinator.o  prova.o
+democalcul:  democalcul.o calcul.o
 productor:   combinator.o  missatge.o productor.o
 treballador: combinator.o  missatge.o treballador.o
 
