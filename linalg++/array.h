@@ -22,6 +22,7 @@
 
 #include <exception>
 #include <cstddef> /* NULL */
+#include <cstdlib>
 #include <iostream>
 #include <string.h>
 
