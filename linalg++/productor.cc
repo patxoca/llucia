@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
                 }
             }
             std::cout << "Enviant paquet " << idpaquet << std::endl;
-            msg_reply_data(socket, idpaquet, DIMENSIO, (int*)dades);
+            msg_reply_data(socket, idpaquet, DIMENSIO, dades);
 			break;
 
 		case RQ_REG:

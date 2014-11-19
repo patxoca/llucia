@@ -6,6 +6,7 @@
 #define _MISSATGE_H_
 
 
+#include "combinator.h"
 #include "tipus.h"
 
 // Cada treballador té associat un identificador únic.
@@ -62,36 +63,16 @@ typedef struct {
 	int            worker_id;
 } request_t;
 
-typedef struct : request_t {
-	int   last_packet_id;
-} request_get_t;
-
-
-typedef struct {
-	response_type_t message;
-} response_t;
-
-typedef struct : response_t {
-	int   packet_id;         // ID del paquet, assignat pel productor, -1 pels
-							 // paquets de finalització
-	int   size;              // nombre d'elements en el paquet
-	int   packet[DIMENSIO];  // paquet
-} response_data_t;
-
-typedef struct : response_t {
-	int   worker_id;         // ID del treballador, -1 si rebutjat
-} response_registered_t;
-
 
 
 bool msg_request_abort(zmq::socket_t & socket, int worker_id);
-bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, int *packet_id, int *size, int *buffer);
+bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, int *packet_id, int *size, Combination *buffer);
 bool msg_request_register(zmq::socket_t & socket, int *worker_id);
 bool msg_request_unregister(zmq::socket_t & socket, int worker_id);
 
 
 bool msg_reply_ack(zmq::socket_t & socket);
-bool msg_reply_data(zmq::socket_t & socket, int packet_id, int size, const int *data);
+bool msg_reply_data(zmq::socket_t & socket, int packet_id, int size, const Combination *data);
 bool msg_reply_registered(zmq::socket_t & socket, int worker_id);
 
 #endif /* _MISSATGE_H_ */

@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 		zmq::message_t request (4);
 		zmq::message_t reply;
 
-		msg_request_get(socket, idtreballador, -1, &idpaquet, &size, (int*)buffer);
+		msg_request_get(socket, idtreballador, -1, &idpaquet, &size, buffer);
 
 		if (idpaquet == -1) {
 			std::cout << "Rebut paquet de finalització" << std::endl;

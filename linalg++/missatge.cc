@@ -7,6 +7,29 @@
 #include "missatge.h"
 
 
+typedef struct : request_t {
+	int   last_packet_id;
+} request_get_t;
+
+
+typedef struct {
+	response_type_t message;
+} response_t;
+
+typedef struct : response_t {
+	int   packet_id;         // ID del paquet, assignat pel productor, -1 pels
+							 // paquets de finalització
+	int   size;              // nombre d'elements en el paquet
+	int   packet[DIMENSIO];  // paquet
+} response_data_t;
+
+typedef struct : response_t {
+	int   worker_id;         // ID del treballador, -1 si rebutjat
+} response_registered_t;
+
+
+
+
 bool msg_request_abort(zmq::socket_t & socket, int worker_id) {
 	zmq::message_t message(sizeof(request_t));
 	zmq::message_t reply;
@@ -26,7 +49,7 @@ bool msg_request_abort(zmq::socket_t & socket, int worker_id) {
 	return true;
 }
 
-bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, int *packet_id, int *size, int *buffer) {
+bool msg_request_get(zmq::socket_t & socket, int worker_id, int last_packet_id, int *packet_id, int *size, Combination *buffer) {
 	zmq::message_t   message(sizeof(request_get_t));
 	zmq::message_t   reply;
 	request_get_t    request;
@@ -85,7 +108,6 @@ bool msg_request_unregister(zmq::socket_t & socket, int worker_id) {
 	zmq::message_t  message(sizeof(request_t));
 	zmq::message_t  reply;
 	request_t       request;
-	response_t     *response;
 
 	request.message = RQ_UNREG;
 	request.worker_id = worker_id;
@@ -113,7 +135,7 @@ bool msg_reply_ack(zmq::socket_t & socket) {
 	return true;
 }
 
-bool msg_reply_data(zmq::socket_t & socket, int packet_id, int size, const int *data) {
+bool msg_reply_data(zmq::socket_t & socket, int packet_id, int size, const Combination *data) {
 	zmq::message_t   message(sizeof(response_data_t));
 	response_data_t  response;
 
