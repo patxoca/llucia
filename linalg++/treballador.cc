@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 	int idtreballador = -1;
 	int idpaquet;
 	int size;
-	int buffer[DIMENSIO];
+	Combination buffer[DIMENSIO];
 	zmq::context_t context (1);
 	zmq::socket_t socket (context, ZMQ_REQ);
 
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 		zmq::message_t request (4);
 		zmq::message_t reply;
 
-		msg_request_get(socket, idtreballador, -1, &idpaquet, &size, buffer);
+		msg_request_get(socket, idtreballador, -1, &idpaquet, &size, (int*)buffer);
 
 		if (idpaquet == -1) {
 			std::cout << "Rebut paquet de finalització" << std::endl;
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 		// std::cout << std::endl;
 
 		combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO, buffer, MIDA_PAQUET);
-		for (const int *c = combinador->first(); c != NULL; c = combinador->next()) {
+		for (const Combination *c = combinador->first(); c != NULL; c = combinador->next()) {
 			or_coalicions = 0;
 			num_combinacions++;
 			for (int i = 0; i < DIMENSIO; i++) {

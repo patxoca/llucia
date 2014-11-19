@@ -47,11 +47,11 @@ int main(int argc, char **argv) {
 
 		case RQ_GET:
 			// generar paquet
-            int        idpaquet;
-            const int *dades;
+            int idpaquet;
+            const Combination *dades;
             if (avortat) {
                 idpaquet = -1;
-                dades = (int*)&PAQUET_FINALITZACIO;
+                dades = (Combination*)PAQUET_FINALITZACIO;
             } else {
                 if (primer) {
                     dades = combinador->first();
@@ -61,14 +61,14 @@ int main(int argc, char **argv) {
                 }
                 if (dades == NULL) {
                     idpaquet = -1;
-                    dades = (int*)&PAQUET_FINALITZACIO;
+                    dades = (Combination*)PAQUET_FINALITZACIO;
                     avortat = true;
                 } else {
                     idpaquet = ++num_paquets;
                 }
             }
             std::cout << "Enviant paquet " << idpaquet << std::endl;
-            msg_reply_data(socket, idpaquet, DIMENSIO, dades);
+            msg_reply_data(socket, idpaquet, DIMENSIO, (int*)dades);
 			break;
 
 		case RQ_REG:
