@@ -5,6 +5,7 @@
 #include <iostream>
 #include <time.h>
 
+#include "cmdline.h"
 #include "combinator.h"
 #include "config.h"
 #include "missatge.h"
@@ -12,7 +13,7 @@
 
 #define MIDA_COMBINACIO  (DIMENSIO * sizeof(int))
 
-const int PAQUET_FINALITZACIO[DIMENSIO] = {-1};
+const Combination PAQUET_FINALITZACIO[DIMENSIO] = {-1};
 
 
 int main(int argc, char **argv) {
@@ -24,6 +25,11 @@ int main(int argc, char **argv) {
     bool primer = true;
 	bool continuar = true;
 	Responder rep(CFG_PRODUCTOR);
+	producer_options_t opcions;
+
+	if (parse_producer_cmd_line(argc, argv, opcions)) {
+		return 0;
+	}
 
 	std::cout << "Iniciant productor n = " << DIMENSIO << std::endl;
 

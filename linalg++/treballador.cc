@@ -6,6 +6,7 @@
 #include <time.h>
 #include <zmq.hpp>
 
+#include "cmdline.h"
 #include "combinator.h"
 #include "config.h"
 #include "missatge.h"
@@ -17,6 +18,8 @@ int main(int argc, char **argv) {
 	std::vector<Coalicio> coalicions;
 	Combinator *combinador;
 	Matriu m(DIMENSIO, DIMENSIO);
+	Matriu clon(DIMENSIO, DIMENSIO);
+	Matriu tmpinv(DIMENSIO, 2*DIMENSIO);
 	clock_t t0, tf;
 	long num_combinacions = 0;
 	long num_bases = 0;
@@ -27,6 +30,11 @@ int main(int argc, char **argv) {
 	int size;
 	Combination buffer[DIMENSIO];
 	Requester req(CFG_PRODUCTOR);
+	worker_options_t opcions;
+
+	if (parse_worker_cmd_line(argc, argv, opcions)) {
+		return 0;
+	}
 
 	std::cout << "Iniciant treballador n = " << DIMENSIO << std::endl;
 
@@ -61,8 +69,10 @@ int main(int argc, char **argv) {
 			}
 			if (or_coalicions == COALICIO_TOTAL) {
 				m.binary_array(c);
+				clon = m;
 				if (m.det() != 0) {
 					num_bases++;
+					clon.inv(tmpinv);
 				}
 			} else {
 				num_no_det++;

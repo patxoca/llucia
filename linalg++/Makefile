@@ -18,8 +18,8 @@ all: depend $(EXECUTABLES)
 
 prova:       cmdline.o combinator.o  prova.o
 democalcul:  democalcul.o calcul.o
-productor:   combinator.o  missatge.o productor.o
-treballador: combinator.o  missatge.o treballador.o
+productor:   cmdline.o combinator.o  missatge.o productor.o
+treballador: cmdline.o combinator.o  missatge.o treballador.o
 
 
 .PHONY: tests
