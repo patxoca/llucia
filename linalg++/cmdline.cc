@@ -11,28 +11,48 @@
 
 namespace po = boost::program_options;
 
+WorkerOptions::WorkerOptions() {
+	full_address = "";
+}
 
-int parse_worker_cmd_line(int argc, char *argv[], worker_options_t & opts) {
+const char *WorkerOptions::get_full_address() {
+	if (full_address == "") {
+		std::ostringstream str;
+		str << "tcp://" << producer_address << ":" << producer_port;
+		full_address = str.str();
+	}
+	return full_address.c_str();
+}
+
+int WorkerOptions::get_num_workers() {
+	return num_workers;
+}
+
+int WorkerOptions::parse_cmd_line(int argc, char *argv[]) {
 	po::options_description generic("Generic options");
 	po::options_description config("Configuration");
-	po::options_description hidden("Hidden options");
 	po::options_description cmdline_options;
 	po::options_description config_file_options;
-	po::options_description visible_options("Allowed options");
 	po::variables_map vm;
 	std::string config_file;
 
 	generic.add_options()
 		("help,h", "mostra aquest missatge d'ajuda")
 		("version,v", "mostra versió del programa")
+		("config-file,c",
+		 po::value<std::string>(&config_file)->default_value("worker.ini"),
+		 "arxiu de configuracio")
 		;
 	config.add_options()
-		("config-file,c",
-		 po::value<std::string>(&config_file)->default_value("foo.ini"),
-		 "arxiu de configuracio")
+		("producer-ip,i",
+		 po::value<std::string>(&producer_address)->default_value("127.0.0.1"),
+		 "IP del productor")
+		("producer-port,p",
+		 po::value<int>(&producer_port)->default_value(31415),
+		 "port del productor")
 		("num-workers,n",
-		 po::value<int>(&opts.num_workers)->default_value(-1),
-		 "nombre de treballadors, -1 automàtic")
+		 po::value<int>(&num_workers)->default_value(0),
+		 "nombre de treballadors, automàtic")
 		;
 
 	cmdline_options.add(generic).add(config);
@@ -44,6 +64,11 @@ int parse_worker_cmd_line(int argc, char *argv[], worker_options_t & opts) {
 		);
 	po::notify(vm);
 
+	if (vm.count("help")) {
+		std::cout << cmdline_options << std::endl;
+		return 1;
+	}
+
 	std::ifstream ifs(config_file.c_str());
 	if (!ifs) {
 		std::cout << "can not open config file: " << config_file << std::endl;
@@ -53,14 +78,29 @@ int parse_worker_cmd_line(int argc, char *argv[], worker_options_t & opts) {
 		notify(vm);
 	}
 
-	if (vm.count("help")) {
-		std::cout << visible_options << std::endl;
-		return 1;
-	}
 	return 0;
 }
 
-int parse_producer_cmd_line(int argc, char *argv[], producer_options_t & opts) {
+ProducerOptions::ProducerOptions() {
+	full_address = "";
+}
+
+const char *ProducerOptions::get_full_address() {
+	if (full_address == "") {
+		std::ostringstream str;
+		str << "tcp://*:" << producer_port;
+		full_address = str.str();
+		// full_address = (char*)malloc(str.str().length() + 1);
+		// memcpy(full_address, str.str().c_str(), str.str().length() + 1);
+	}
+	return full_address.c_str();
+}
+
+const char *ProducerOptions::get_data_file_path() {
+	return data_file.c_str();
+}
+
+int ProducerOptions::parse_cmd_line(int argc, char *argv[]) {
 	po::options_description generic("Generic options");
 	po::options_description config("Configuration");
 	po::options_description hidden("Hidden options");
@@ -74,15 +114,18 @@ int parse_producer_cmd_line(int argc, char *argv[], producer_options_t & opts) {
 	generic.add_options()
 		("help,h", "mostra aquest missatge d'ajuda")
 		("version,v", "mostra versió del programa")
+		("config-file,c",
+		 po::value<std::string>(&config_file)->default_value("producer.ini"),
+		 "arxiu de configuracio")
 		;
 	config.add_options()
-		("config-file,c",
-		 po::value<std::string>(&config_file)->default_value("foo.ini"),
-		 "arxiu de configuracio")
+		("producer-port,p",
+		 po::value<int>(&producer_port)->default_value(31415),
+		 "port del productor")
 		;
 	hidden.add_options()
 		("game-file,g",
-		 po::value<std::string>(&opts.data_file)->default_value("game.txt"),
+		 po::value<std::string>(&data_file)->default_value("game.txt"),
 		 "arxiu de dades")
 		;
 
@@ -98,6 +141,11 @@ int parse_producer_cmd_line(int argc, char *argv[], producer_options_t & opts) {
 		);
 	po::notify(vm);
 
+	if (vm.count("help")) {
+		std::cout << visible_options << std::endl;
+		return 1;
+	}
+
 	std::ifstream ifs(config_file.c_str());
 	if (!ifs) {
 		std::cout << "can not open config file: " << config_file << std::endl;
@@ -107,9 +155,5 @@ int parse_producer_cmd_line(int argc, char *argv[], producer_options_t & opts) {
 		notify(vm);
 	}
 
-	if (vm.count("help")) {
-		std::cout << visible_options << std::endl;
-		return 1;
-	}
 	return 0;
 }

@@ -7,7 +7,6 @@
 
 #include "cmdline.h"
 #include "combinator.h"
-#include "config.h"
 #include "missatge.h"
 #include "tipus.h"
 
@@ -24,14 +23,16 @@ int main(int argc, char **argv) {
 	bool avortat = false;
     bool primer = true;
 	bool continuar = true;
-	Responder rep(CFG_PRODUCTOR);
-	producer_options_t opcions;
+	ProducerOptions opcions;
 
-	if (parse_producer_cmd_line(argc, argv, opcions)) {
+	if (opcions.parse_cmd_line(argc, argv)) {
 		return 0;
 	}
 
 	std::cout << "Iniciant productor n = " << DIMENSIO << std::endl;
+	std::cout << "Escoltant en " << opcions.get_full_address() << std::endl;
+
+	Responder rep(opcions.get_full_address());
 
 	combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO);
 	t0 = clock();

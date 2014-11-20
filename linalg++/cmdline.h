@@ -7,19 +7,38 @@
 
 #include <string>
 
-typedef struct {
+
+class WorkerOptions {
+	std::string full_address;
 	int         num_workers;
 	std::string producer_address;
 	int         producer_port;
-} worker_options_t;
 
-typedef struct {
+  public:
+
+	WorkerOptions();
+
+	int parse_cmd_line(int argc, char *argv[]);
+	const char *get_full_address();
+	int get_num_workers();
+};
+
+
+class ProducerOptions {
+	std::string full_address;
 	std::string data_file;
-} producer_options_t;
+	int         producer_port;
+
+  public:
+
+	ProducerOptions();
+
+	int parse_cmd_line(int argc, char *argv[]);
+	const char *get_full_address();
+	const char *get_data_file_path();
+};
 
 
-int parse_worker_cmd_line(int argc, char *argv[], worker_options_t & options);
-int parse_producer_cmd_line(int argc, char *argv[], producer_options_t & options);
 
 
 #endif /* _CMDLINE_H_ */

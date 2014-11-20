@@ -8,7 +8,6 @@
 
 #include "cmdline.h"
 #include "combinator.h"
-#include "config.h"
 #include "missatge.h"
 #include "rational.h"
 #include "tipus.h"
@@ -29,14 +28,17 @@ int main(int argc, char **argv) {
 	int idpaquet;
 	int size;
 	Combination buffer[DIMENSIO];
-	Requester req(CFG_PRODUCTOR);
-	worker_options_t opcions;
+	Requester req;
+	WorkerOptions opcions;
 
-	if (parse_worker_cmd_line(argc, argv, opcions)) {
+	if (opcions.parse_cmd_line(argc, argv)) {
 		return 0;
 	}
 
 	std::cout << "Iniciant treballador n = " << DIMENSIO << std::endl;
+	std::cout << "Connectant amb productor en " << opcions.get_full_address() << std::endl;
+
+	req = Requester(opcions.get_full_address());
 
 	req.register_(&idtreballador);
 	if (idtreballador == -1) {
