@@ -66,6 +66,7 @@ class Requester {
 
   public:
 
+	Requester();
 	Requester(const char *address);
 
 	bool abort();
@@ -81,6 +82,7 @@ class Responder {
 
   public:
 
+	Responder();
 	Responder(const char *address);
 
 	request_type_t get_request_type();

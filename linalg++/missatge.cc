@@ -39,6 +39,12 @@ typedef struct : response_t {
  *              |_|
  */
 
+Requester::Requester() {
+	context = NULL;
+	socket = NULL;
+	worker_id = -1;
+}
+
 Requester::Requester(const char *address) {
 	context = new zmq::context_t(1);
 	socket = new zmq::socket_t(*context, ZMQ_REQ);
@@ -147,6 +153,11 @@ bool Requester::unregister() {
  *               |_|
 */
 
+
+Responder::Responder() {
+	context = NULL;
+	socket = NULL;
+}
 
 Responder::Responder(const char *address) {
 	context = new zmq::context_t(1);
