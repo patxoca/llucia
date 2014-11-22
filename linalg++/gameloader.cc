@@ -2,15 +2,17 @@
 
 // $Id:$
 
+#include <fstream>
+#include <set>
+#include <string>
+#include <vector>
+
 //#include <boost/config/warning_disable.hpp>
+#include <boost/foreach.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
-
-#include <fstream>
-#include <string>
-#include <vector>
 
 #include "gameloader.h"
 #include "tipus.h"
@@ -84,6 +86,7 @@ struct game_parser : qi::grammar<Iterator, Game(), ascii::space_type> {
 };
 
 static void parse_game_file(const char *path, Game &game);
+static void validate_game(Game &game);
 static unsigned int recode_coalition(Coalicio c, int dimension);
 
 
@@ -94,54 +97,40 @@ GameLoader::GameLoader() {
 
 void GameLoader::load(const char *path) {
 	Game game;
-	bool *seen;
 
 	parse_game_file(path, game);
+	validate_game(game);
 
-	if (game.dimension <= 0) {
-		boost::format fmt("Dimensió no vàlida: %i");
-		throw GameLoaderException(fmt % game.dimension);
-	}
 	dimension = game.dimension;
 	nombre_coalicions = (1 << dimension) - 1;
-	if (nombre_coalicions != game.values.size()) {
-		boost::format fmt("Discrepància en nombre de coalicions: esperat %i, trobat %i");
-		throw GameLoaderException(fmt % nombre_coalicions % game.values.size());
-	}
 	values = new Fraccio[nombre_coalicions + 1];
-	seen = new bool[nombre_coalicions + 1];
-	for (unsigned int i = 0; i < nombre_coalicions; i++) {
-		seen[i] = false;
-	}
 	for(unsigned int i = 0; i < nombre_coalicions; i++) {
 		Value v = game.values[i];
 		Coalicio coalition = recode_coalition(v.coalition, dimension);
-		if (seen[coalition]) {
-			boost::format fmt("Coalicio duplicada: %i");
-			throw GameLoaderException(fmt % v.coalition);
-		}
-		seen[coalition] = true;
 		values[coalition] = Fraccio(v.numerator, v.denominator);
-	}
-	delete[] seen;
-
-	std::cout << "Dimensio: " << dimension << std::endl;
-	std::cout << "Valors: " << std::endl;
-	for (unsigned int i = 1; i <= nombre_coalicions; i++) {
-		std::cout << "  " << i << " = " << values[i] << std::endl;
 	}
 }
 
-unsigned int GameLoader::get_dimension() {
+unsigned int GameLoader::get_dimension() const {
 	return dimension;
 }
 
-unsigned int GameLoader::get_num_coalitions() {
+unsigned int GameLoader::get_num_coalitions() const {
 	return nombre_coalicions;
 }
 
-const Fraccio *GameLoader::get_values() {
+const Fraccio *GameLoader::get_values() const {
 	return values;
+}
+
+std::ostream & operator << (std::ostream & stream, GameLoader const & game) {
+	const Fraccio *values = game.get_values();
+	stream << "Dimensio: " << game.get_dimension() << std::endl;
+	stream << "Valors:   " << std::endl;
+	for (unsigned int i = 1; i <= game.get_num_coalitions(); i++) {
+		stream << "  " << i << " = " << values[i] << std::endl;
+	}
+	return stream;
 }
 
 static void parse_game_file(const char *path, Game &game) {
@@ -156,15 +145,7 @@ static void parse_game_file(const char *path, Game &game) {
 		joc.read(&contents[0], contents.size());
 		joc.close();
 
-		if (qi::phrase_parse(contents.begin(), contents.end(), parser, ascii::space, game)) {
-			std::cout << "Dimension = " << game.dimension << std::endl;
-			std::cout << "Valors\n  ";
-			for(unsigned int i = 0; i < game.values.size(); i++) {
-				Value v = game.values[i];
-				std::cout << "(" << v.coalition << ", " << v.numerator << "/" << v.denominator << ")";
-			}
-			std::cout << std::endl;
-		} else {
+		if (!qi::phrase_parse(contents.begin(), contents.end(), parser, ascii::space, game)) {
 			throw GameLoaderException("Error analitzant l'arxiu");
 		}
 	} else {
@@ -173,6 +154,31 @@ static void parse_game_file(const char *path, Game &game) {
 	}
 }
 
+static void validate_game(Game &game) {
+	unsigned int nombre_coalicions;
+	std::set<Coalicio> seen;
+
+	if (game.dimension <= 0) {
+		boost::format fmt("Dimensió no vàlida: %i");
+		throw GameLoaderException(fmt % game.dimension);
+	}
+	nombre_coalicions = (1 << game.dimension) - 1;
+	if (nombre_coalicions != game.values.size()) {
+		boost::format fmt("Discrepància en nombre de coalicions: esperat %i, trobat %i");
+		throw GameLoaderException(fmt % nombre_coalicions % game.values.size());
+	}
+	BOOST_FOREACH(Value v, game.values) {
+		if (v.coalition <= 0) {
+			boost::format fmt("Coalició no vàlida: %i");
+			throw GameLoaderException(fmt % v.coalition);
+		}
+		if (seen.count(v.coalition)) {
+			boost::format fmt("Coalició duplicada: %i");
+			throw GameLoaderException(fmt % v.coalition);
+		}
+		seen.insert(v.coalition);
+	}
+}
 // transforma la coalicio 123 (enter) en el enter 7, en binari 00111
 
 static unsigned int recode_coalition(Coalicio coalition, int dimension) {
@@ -180,10 +186,6 @@ static unsigned int recode_coalition(Coalicio coalition, int dimension) {
 	Coalicio c = coalition;
 	int mask;
 
-	if (coalition <= 0) {
-		boost::format fmt("Coalició no vàlida: %i");
-		throw GameLoaderException(fmt % coalition);
-	}
 	while (c > 0) {
 		int r = c % 10;
 		if (r == 0) {

@@ -7,6 +7,7 @@
 
 #include <exception>
 #include <boost/format.hpp>
+#include <ostream>
 
 #include "tipus.h"
 
@@ -30,9 +31,12 @@ class GameLoader {
 
 	void load(const char *path);
 
-	unsigned int get_dimension();
-	unsigned int get_num_coalitions();
-	const Fraccio *get_values();
+	unsigned int get_dimension() const;
+	unsigned int get_num_coalitions() const;
+	const Fraccio *get_values() const;
 };
+
+std::ostream & operator << (std::ostream & stream, GameLoader const & game);
+
 
 #endif /* _GAME_LOADER_H_ */
