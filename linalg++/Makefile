@@ -16,7 +16,7 @@ LDFLAGS = -L $(HOME)/.local/lib
 .PHONY: all
 all: depend $(EXECUTABLES)
 
-prova:       cmdline.o combinator.o  prova.o
+prova:       cmdline.o combinator.o gameloader.o prova.o
 democalcul:  democalcul.o calcul.o
 productor:   cmdline.o combinator.o  missatge.o productor.o
 treballador: cmdline.o combinator.o  missatge.o treballador.o
