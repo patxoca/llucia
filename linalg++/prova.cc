@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "combinator.h"
+#include "gameloader.h"
 #include "rational.h"
 #include "tipus.h"
 
@@ -13,24 +14,34 @@
 int main(int argc, char **argv) {
 	std::vector<Coalicio> coalicions;
 	Combinator *combinador;
-	Matriu m(DIMENSIO, DIMENSIO);
-	Matriu clon(DIMENSIO, DIMENSIO);
-	Matriu tmpinv(DIMENSIO, 2*DIMENSIO);
 	Fraccio resultat;
 	clock_t t0, tf;
 	long num_combinacions = 0;
 	long num_bases = 0;
 	long num_no_det = 0;
 	Coalicio or_coalicions;
+	GameLoader game;
+	int dimension;
 
-	std::cout << "Iniciant càlcul n = " << DIMENSIO << std::endl;
 
-	combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO);
+	try {
+		game.load("joc6.txt");
+	} catch (GameLoaderException &e) {
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
+
+	dimension = game.get_dimension();
+	std::cout << "Iniciant càlcul n = " << dimension << std::endl;
+	combinador = new Combinator(game.get_num_coalitions(), dimension);
+	Matriu m(dimension, dimension);
+	Matriu clon(dimension, dimension);
+	Matriu tmpinv(dimension, 2*dimension);
 	t0 = clock();
 	for (const Combination *c = combinador->first(); c != NULL; c = combinador->next()) {
 		or_coalicions = 0;
 		num_combinacions++;
-		for (int i = 0; i < DIMENSIO; i++) {
+		for (int i = 0; i < dimension; i++) {
 			or_coalicions |= c[i];
 		}
 		if (or_coalicions == COALICIO_TOTAL) {

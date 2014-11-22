@@ -31,6 +31,7 @@ class GameLoader {
 	void load(const char *path);
 
 	unsigned int get_dimension();
+	unsigned int get_num_coalitions();
 	const Fraccio *get_values();
 };
 

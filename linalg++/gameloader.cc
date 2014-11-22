@@ -136,6 +136,10 @@ unsigned int GameLoader::get_dimension() {
 	return dimension;
 }
 
+unsigned int GameLoader::get_num_coalitions() {
+	return nombre_coalicions;
+}
+
 const Fraccio *GameLoader::get_values() {
 	return values;
 }
