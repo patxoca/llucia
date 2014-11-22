@@ -20,6 +20,11 @@ typedef struct {
 } response_t;
 
 typedef struct : response_t {
+	unsigned int dimension;
+	Fraccio      values;  // array amb 2^dimensio items
+} response_game_t;
+
+typedef struct : response_t {
 	int   packet_id;         // ID del paquet, assignat pel productor, -1 pels
 							 // paquets de finalització
 	int   size;              // nombre d'elements en el paquet
@@ -68,6 +73,34 @@ bool Requester::abort() {
 		// error ?
 	}
 	// la resposta hauria de ser ACK, no importa realment
+	return true;
+}
+
+bool Requester::game(unsigned int *dimension, Fraccio **values) {
+	zmq::message_t  message(sizeof(request_t));
+	zmq::message_t  reply;
+	request_t       request;
+	unsigned int    nc;
+	response_game_t *response;
+
+	request.message = RQ_GAME;
+	request.worker_id = worker_id;
+
+	memcpy((void*)message.data(), &request, sizeof(request));
+	if (!socket->send(message)) {
+		// error imagino
+	}
+	if (!socket->recv(&reply)) {
+		// error ?
+	}
+	response = (response_game_t*)reply.data();
+	if (response->message != RP_GAME) {
+		// error!!
+	}
+	*dimension = response->dimension;
+	nc = 1 << *dimension; // 1 + nombre coalicions
+	*values = new Fraccio[nc];
+	memcpy(*values, &response->values, nc * sizeof(Fraccio));
 	return true;
 }
 
@@ -192,6 +225,23 @@ bool Responder::data(int packet_id, int size, const Combination *data) {
 	assert(size <= DIMENSIO);
 	memcpy(&response.packet, data, size * (sizeof(Combination)));
 	memcpy((void*)message.data(), &response, sizeof(response));
+	if (!socket->send(message)) {
+		// error?
+	}
+	return true;
+}
+
+bool Responder::game(unsigned int dimension, const Fraccio *values) {
+	int nc = (1 << dimension);
+	int response_size = sizeof(response_game_t) + nc * sizeof(Fraccio);
+	zmq::message_t   message(response_size);
+	response_game_t *response = (response_game_t*)malloc(response_size);
+
+	response->message = RP_GAME;
+	response->dimension = dimension;
+	memcpy(&response->values, values, nc * sizeof(Fraccio));
+	memcpy((void*)message.data(), response, response_size);
+	free(response);
 	if (!socket->send(message)) {
 		// error?
 	}

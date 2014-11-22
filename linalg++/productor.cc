@@ -7,6 +7,7 @@
 
 #include "cmdline.h"
 #include "combinator.h"
+#include "gameloader.h"
 #include "missatge.h"
 #include "tipus.h"
 
@@ -24,10 +25,14 @@ int main(int argc, char **argv) {
     bool primer = true;
 	bool continuar = true;
 	ProducerOptions opcions;
+	GameLoader game;
 
 	if (opcions.parse_cmd_line(argc, argv)) {
 		return 0;
 	}
+
+	std::cout << "Carregant joc " << opcions.get_data_file_path() << std::endl;
+	game.load(opcions.get_data_file_path());
 
 	std::cout << "Iniciant productor n = " << DIMENSIO << std::endl;
 	std::cout << "Escoltant en " << opcions.get_full_address() << std::endl;
@@ -42,6 +47,10 @@ int main(int argc, char **argv) {
 			// canviar generador
             avortat = true;
             rep.ack();
+			break;
+
+		case RQ_GAME:
+			rep.game(game.get_dimension(), game.get_values());
 			break;
 
 		case RQ_GET:
@@ -66,7 +75,7 @@ int main(int argc, char **argv) {
                     idpaquet = ++num_paquets;
                 }
             }
-            std::cout << "Enviant paquet " << idpaquet << std::endl;
+            // std::cout << "Enviant paquet " << idpaquet << std::endl;
             rep.data(idpaquet, DIMENSIO, dades);
 			break;
 

@@ -46,6 +46,7 @@
 
 typedef enum {
 	RQ_ABORT,
+	RQ_GAME,
 	RQ_GET,
 	RQ_REG,
 	RQ_UNREG
@@ -54,6 +55,7 @@ typedef enum {
 typedef enum {
 	RP_ACK,
 	RP_DATA,
+	RP_GAME,
 	RP_REGISTERED,
 	RP_REJECT,
 } response_type_t;
@@ -70,6 +72,7 @@ class Requester {
 	Requester(const char *address);
 
 	bool abort();
+	bool game(unsigned int *dimension, Fraccio **values);
 	bool get(int last_packet_id, int *packet_id, int *size, Combination *buffer);
 	bool register_(int *worker_id);
 	bool unregister();
@@ -89,6 +92,7 @@ class Responder {
 
 	bool ack();
 	bool data(int packet_id, int size, const Combination *data);
+	bool game(unsigned int dimension, const Fraccio *values);
 	bool registered(int worker_id);
 };
 

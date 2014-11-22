@@ -15,6 +15,8 @@
 
 int main(int argc, char **argv) {
 	std::vector<Coalicio> coalicions;
+	unsigned int dimensio;
+	Fraccio *valors;
 	Combinator *combinador;
 	Matriu m(DIMENSIO, DIMENSIO);
 	Matriu clon(DIMENSIO, DIMENSIO);
@@ -35,16 +37,27 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	std::cout << "Iniciant treballador n = " << DIMENSIO << std::endl;
 	std::cout << "Connectant amb productor en " << opcions.get_full_address() << std::endl;
-
 	req = Requester(opcions.get_full_address());
 
+	std::cout << "Registrant treballador\n";
 	req.register_(&idtreballador);
 	if (idtreballador == -1) {
 		std::cout << "Treballador rebutjar" << std::endl;
 		return 0;
 	}
+
+	std::cout << "Descarregant joc\n";
+	if (!req.game(&dimensio, &valors)) {
+		std::cout << "Error\n";
+		return 0;
+	}
+	std::cout << "Iniciant treballador n = " << dimensio << " Valors = ";
+	for (unsigned int i = 1, last = 1 << dimensio; i < last; i++) {
+		std::cout << valors[i] << " ";
+	}
+	std::cout << std::endl;
+
 	t0 = clock();
 	while (true) {
 		zmq::message_t request (4);
