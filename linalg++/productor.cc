@@ -12,8 +12,6 @@
 #include "tipus.h"
 
 
-const Combination PAQUET_FINALITZACIO[DIMENSIO] = {-1};
-
 
 int main(int argc, char **argv) {
 	Combinator *combinador;
@@ -26,6 +24,7 @@ int main(int argc, char **argv) {
 	bool continuar = true;
 	ProducerOptions opcions;
 	GameLoader game;
+	Combination *PAQUET_FINALITZACIO;
 
 	if (opcions.parse_cmd_line(argc, argv)) {
 		return 0;
@@ -39,6 +38,10 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 	dimensio = game.get_dimension();
+	PAQUET_FINALITZACIO = new Combination[dimensio];
+	for (int i = 0; i < dimensio; i++) {
+		PAQUET_FINALITZACIO = 0;
+	}
 
 	std::cout << "Iniciant productor n = " << dimensio << std::endl;
 	std::cout << "Escoltant en " << opcions.get_full_address() << std::endl;

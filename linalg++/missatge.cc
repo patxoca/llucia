@@ -25,10 +25,10 @@ typedef struct : response_t {
 } response_game_t;
 
 typedef struct : response_t {
-	int   packet_id;         // ID del paquet, assignat pel productor, -1 pels
+	int         packet_id;   // ID del paquet, assignat pel productor, -1 pels
 							 // paquets de finalització
-	int   size;              // nombre d'elements en el paquet
-	int   packet[DIMENSIO];  // paquet
+	int         size;        // nombre d'elements en el paquet
+	Combination packet;      // paquet amb size elements
 } response_data_t;
 
 typedef struct : response_t {
@@ -127,7 +127,7 @@ bool Requester::get(int last_packet_id, int *packet_id, int *size, Combination *
 	}
 	*packet_id = response->packet_id;
 	*size = response->size;
-	memcpy(buffer, response->packet, response->size * sizeof(int));
+	memcpy(buffer, &response->packet, response->size * sizeof(Combination));
 
 	return true;
 }
@@ -216,15 +216,17 @@ bool Responder::ack() {
 }
 
 bool Responder::data(int packet_id, int size, const Combination *data) {
-	zmq::message_t   message(sizeof(response_data_t));
-	response_data_t  response;
+	int              response_size = sizeof(response_data_t) + size * sizeof(Combination);
+	zmq::message_t   message(response_size);
+	response_data_t *response;
 
-	response.message = RP_DATA;
-	response.packet_id = packet_id;
-	response.size = size;
-	assert(size <= DIMENSIO);
-	memcpy(&response.packet, data, size * (sizeof(Combination)));
-	memcpy((void*)message.data(), &response, sizeof(response));
+	response = (response_data_t*)malloc(response_size);
+	response->message = RP_DATA;
+	response->packet_id = packet_id;
+	response->size = size;
+	memcpy(&response->packet, data, size * (sizeof(Combination)));
+	memcpy((void*)message.data(), response, response_size);
+	free(response);
 	if (!socket->send(message)) {
 		// error?
 	}

@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
 	Coalicio or_coalicions;
 	GameLoader game;
 	int dimension;
+	Coalicio COALICIO_TOTAL;
 
 
 	try {
@@ -32,6 +33,7 @@ int main(int argc, char **argv) {
 	}
 
 	dimension = game.get_dimension();
+	COALICIO_TOTAL = (1 << dimension) - 1;
 	std::cout << "Iniciant càlcul n = " << dimension << std::endl;
 	combinador = new Combinator(game.get_num_coalitions(), dimension);
 	Matriu m(dimension, dimension);

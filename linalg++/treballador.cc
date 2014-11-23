@@ -24,9 +24,10 @@ int main(int argc, char **argv) {
 	int idtreballador = -1;
 	int idpaquet;
 	int size;
-	Combination buffer[DIMENSIO];
+	Combination *buffer;
 	Requester req;
 	WorkerOptions opcions;
+	Coalicio COALICIO_TOTAL;
 
 	if (opcions.parse_cmd_line(argc, argv)) {
 		return 0;
@@ -55,7 +56,8 @@ int main(int argc, char **argv) {
 
 	std::cout << "Inicialitzant calcul." << std::endl;
 	Calcul calcul(dimensio, valors);
-
+	buffer = (Combination*)malloc(dimensio * sizeof(Combination));
+	COALICIO_TOTAL = (1 << dimensio) - 1; // 111...11
 	t0 = clock();
 	while (true) {
 		req.get(-1, &idpaquet, &size, buffer);
