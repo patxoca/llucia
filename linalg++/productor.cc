@@ -11,7 +11,6 @@
 #include "missatge.h"
 #include "tipus.h"
 
-#define MIDA_COMBINACIO  (DIMENSIO * sizeof(int))
 
 const Combination PAQUET_FINALITZACIO[DIMENSIO] = {-1};
 
@@ -19,6 +18,7 @@ const Combination PAQUET_FINALITZACIO[DIMENSIO] = {-1};
 int main(int argc, char **argv) {
 	Combinator *combinador;
 	clock_t t0, tf;
+	int dimensio;
 	long num_paquets = 0;
 	int num_treballadors = 0;
 	bool avortat = false;
@@ -32,14 +32,20 @@ int main(int argc, char **argv) {
 	}
 
 	std::cout << "Carregant joc " << opcions.get_data_file_path() << std::endl;
-	game.load(opcions.get_data_file_path());
+	try {
+		game.load(opcions.get_data_file_path());
+	} catch (GameLoaderException e) {
+		std::cout << e.what() << std::endl;
+		return 0;
+	}
+	dimensio = game.get_dimension();
 
-	std::cout << "Iniciant productor n = " << DIMENSIO << std::endl;
+	std::cout << "Iniciant productor n = " << dimensio << std::endl;
 	std::cout << "Escoltant en " << opcions.get_full_address() << std::endl;
 
 	Responder rep(opcions.get_full_address());
 
-	combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO);
+	combinador = new Combinator((1 << dimensio) - 1, dimensio);
 	t0 = clock();
 	while (continuar) {
 		switch (rep.get_request_type()) {
@@ -50,7 +56,7 @@ int main(int argc, char **argv) {
 			break;
 
 		case RQ_GAME:
-			rep.game(game.get_dimension(), game.get_values());
+			rep.game(dimensio, game.get_values());
 			break;
 
 		case RQ_GET:
@@ -76,7 +82,7 @@ int main(int argc, char **argv) {
                 }
             }
             // std::cout << "Enviant paquet " << idpaquet << std::endl;
-            rep.data(idpaquet, DIMENSIO, dades);
+            rep.data(idpaquet, dimensio, dades);
 			break;
 
 		case RQ_REG:

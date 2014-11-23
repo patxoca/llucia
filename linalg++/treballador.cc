@@ -6,24 +6,19 @@
 #include <time.h>
 #include <zmq.hpp>
 
+#include "calcul.h"
 #include "cmdline.h"
 #include "combinator.h"
 #include "missatge.h"
-#include "rational.h"
 #include "tipus.h"
 
 
 int main(int argc, char **argv) {
-	std::vector<Coalicio> coalicions;
 	unsigned int dimensio;
 	Fraccio *valors;
 	Combinator *combinador;
-	Matriu m(DIMENSIO, DIMENSIO);
-	Matriu clon(DIMENSIO, DIMENSIO);
-	Matriu tmpinv(DIMENSIO, 2*DIMENSIO);
 	clock_t t0, tf;
 	long num_combinacions = 0;
-	long num_bases = 0;
 	long num_no_det = 0;
 	Coalicio or_coalicions;
 	int idtreballador = -1;
@@ -58,47 +53,37 @@ int main(int argc, char **argv) {
 	}
 	std::cout << std::endl;
 
+	std::cout << "Inicialitzant calcul." << std::endl;
+	Calcul calcul(dimensio, valors);
+
 	t0 = clock();
 	while (true) {
-		zmq::message_t request (4);
-		zmq::message_t reply;
-
 		req.get(-1, &idpaquet, &size, buffer);
 
 		if (idpaquet == -1) {
 			std::cout << "Rebut paquet de finalització" << std::endl;
 			break;
 		}
-		// std::cout << "Processant paquet " << idpaquet << std::endl;
-		// for (int i = 0; i < size; i++) {
-		// 	std::cout << buffer[i] << " ";
-		// }
-		// std::cout << std::endl;
 
-		combinador = new Combinator(NOMBRE_COALICIONS, DIMENSIO, buffer, MIDA_PAQUET);
+		combinador = new Combinator((1 << dimensio) - 1, dimensio, buffer, MIDA_PAQUET);
 		for (const Combination *c = combinador->first(); c != NULL; c = combinador->next()) {
 			or_coalicions = 0;
 			num_combinacions++;
-			for (int i = 0; i < DIMENSIO; i++) {
+			for (unsigned int i = 0; i < dimensio; i++) {
 				or_coalicions |= c[i];
 			}
 			if (or_coalicions == COALICIO_TOTAL) {
-				m.binary_array(c);
-				clon = m;
-				if (m.det() != 0) {
-					num_bases++;
-					clon.inv(tmpinv);
-				}
+				calcul.calcular(c);
 			} else {
 				num_no_det++;
 			}
 		}
 	}
+	calcul.final_calcul();
 	tf = clock();
 	req.unregister();
 
 	std::cout << "Num combinacions: " << num_combinacions << std::endl;
-	std::cout << "Num bases:        " << num_bases << std::endl;
 	std::cout << "Num no det:       " << num_no_det << std::endl;
 	std::cout << (tf - t0) / (double)CLOCKS_PER_SEC << "segons\n";
 }
