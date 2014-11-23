@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
 
 		if (idpaquet == -1) {
 			std::cout << "Rebut paquet de finalització" << std::endl;
-			break;
+			goto abort_calculation;
 		}
 
 		combinador = new Combinator((1 << dimensio) - 1, dimensio, buffer, MIDA_PAQUET);
@@ -75,12 +75,17 @@ int main(int argc, char **argv) {
 				or_coalicions |= c[i];
 			}
 			if (or_coalicions == COALICIO_TOTAL) {
-				calcul.calcular(c);
+				try {
+					calcul.calcular(c);
+				} catch (AbortCalculationException e) {
+					goto abort_calculation;
+				}
 			} else {
 				num_no_det++;
 			}
 		}
 	}
+  abort_calculation:
 	calcul.final_calcul();
 	tf = clock();
 	req.unregister();
