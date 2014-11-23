@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 	dimensio = game.get_dimension();
 	PAQUET_FINALITZACIO = new Combination[dimensio];
 	for (int i = 0; i < dimensio; i++) {
-		PAQUET_FINALITZACIO = 0;
+		PAQUET_FINALITZACIO[i] = 0;
 	}
 
 	std::cout << "Iniciant productor n = " << dimensio << std::endl;
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
             const Combination *dades;
             if (avortat) {
                 idpaquet = -1;
-                dades = (Combination*)PAQUET_FINALITZACIO;
+                dades = PAQUET_FINALITZACIO;
             } else {
                 if (primer) {
                     dades = combinador->first();
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
                 }
                 if (dades == NULL) {
                     idpaquet = -1;
-                    dades = (Combination*)PAQUET_FINALITZACIO;
+                    dades = PAQUET_FINALITZACIO;
                     avortat = true;
                 } else {
                     idpaquet = ++num_paquets;
