@@ -60,12 +60,12 @@ Requester::Requester(const char *address) {
 bool Requester::abort() {
 	zmq::message_t message(sizeof(request_t));
 	zmq::message_t reply;
-	request_t      request;
+	request_t      *request;
 
-	request.message = RQ_ABORT;
-	request.worker_id = worker_id;
+	request = (request_t*)message.data();
+	request->message = RQ_ABORT;
+	request->worker_id = worker_id;
 
-	memcpy((void*)message.data(), &request, sizeof(request));
 	if (!socket->send(message)) {
 		// error imagino
 	}
@@ -79,14 +79,13 @@ bool Requester::abort() {
 bool Requester::game(unsigned int *dimension, Fraccio **values) {
 	zmq::message_t  message(sizeof(request_t));
 	zmq::message_t  reply;
-	request_t       request;
+	request_t       *request;
 	unsigned int    nc;
 	response_game_t *response;
 
-	request.message = RQ_GAME;
-	request.worker_id = worker_id;
-
-	memcpy((void*)message.data(), &request, sizeof(request));
+	request = (request_t*)message.data();
+	request->message = RQ_GAME;
+	request->worker_id = worker_id;
 	if (!socket->send(message)) {
 		// error imagino
 	}
@@ -107,14 +106,14 @@ bool Requester::game(unsigned int *dimension, Fraccio **values) {
 bool Requester::get(int last_packet_id, int *packet_id, int *size, Combination *buffer) {
 	zmq::message_t   message(sizeof(request_get_t));
 	zmq::message_t   reply;
-	request_get_t    request;
+	request_get_t   *request;
 	response_data_t *response;
 
-	request.message = RQ_GET;
-	request.worker_id = worker_id;
-	request.last_packet_id = last_packet_id;
+	request = (request_get_t*)message.data();
+	request->message = RQ_GET;
+	request->worker_id = worker_id;
+	request->last_packet_id = last_packet_id;
 
-	memcpy((void*)message.data(), &request, sizeof(request));
 	if (!socket->send(message)) {
 		// error imagino
 	}
@@ -135,13 +134,13 @@ bool Requester::get(int last_packet_id, int *packet_id, int *size, Combination *
 bool Requester::register_(int *wid) {
 	zmq::message_t         message(sizeof(request_t));
 	zmq::message_t         reply;
-	request_t              request;
+	request_t             *request;
 	response_registered_t *response;
 
-	request.message = RQ_REG;
-	request.worker_id = -1;
+	request = (request_t*)message.data();
+	request->message = RQ_REG;
+	request->worker_id = -1;
 
-	memcpy((void*)message.data(), &request, sizeof(request));
 	if (!socket->send(message)) {
 		// error imagino
 	}
@@ -161,12 +160,12 @@ bool Requester::register_(int *wid) {
 bool Requester::unregister() {
 	zmq::message_t  message(sizeof(request_t));
 	zmq::message_t  reply;
-	request_t       request;
+	request_t      *request;
 
-	request.message = RQ_UNREG;
-	request.worker_id = worker_id;
+	request = (request_t*)message.data();
+	request->message = RQ_UNREG;
+	request->worker_id = worker_id;
 
-	memcpy((void*)message.data(), &request, sizeof(request));
 	if (!socket->send(message)) {
 		// error imagino
 	}
@@ -205,10 +204,10 @@ request_type_t Responder::get_request_type() {
 
 bool Responder::ack() {
 	zmq::message_t message(sizeof(response_t));
-	response_t     response;
+	response_t     *response;
 
-	response.message = RP_ACK;
-	memcpy((void*)message.data(), &response, sizeof(response));
+	response = (response_t*)message.data();
+	response->message = RP_ACK;
 	if (!socket->send(message)) {
 		// error?
 	}
@@ -220,13 +219,11 @@ bool Responder::data(int packet_id, int size, const Combination *data) {
 	zmq::message_t   message(response_size);
 	response_data_t *response;
 
-	response = (response_data_t*)malloc(response_size);
+	response = (response_data_t*)message.data();
 	response->message = RP_DATA;
 	response->packet_id = packet_id;
 	response->size = size;
 	memcpy(&response->packet, data, size * (sizeof(Combination)));
-	memcpy((void*)message.data(), response, response_size);
-	free(response);
 	if (!socket->send(message)) {
 		// error?
 	}
@@ -237,13 +234,12 @@ bool Responder::game(unsigned int dimension, const Fraccio *values) {
 	int nc = (1 << dimension);
 	int response_size = sizeof(response_game_t) + nc * sizeof(Fraccio);
 	zmq::message_t   message(response_size);
-	response_game_t *response = (response_game_t*)malloc(response_size);
+	response_game_t *response;
 
+	response = (response_game_t*)message.data();
 	response->message = RP_GAME;
 	response->dimension = dimension;
 	memcpy(&response->values, values, nc * sizeof(Fraccio));
-	memcpy((void*)message.data(), response, response_size);
-	free(response);
 	if (!socket->send(message)) {
 		// error?
 	}
@@ -252,11 +248,11 @@ bool Responder::game(unsigned int dimension, const Fraccio *values) {
 
 bool Responder::registered(int worker_id) {
 	zmq::message_t         message(sizeof(response_registered_t));
-	response_registered_t  response;
+	response_registered_t *response;
 
-	response.message = RP_REGISTERED;
-	response.worker_id = worker_id;
-	memcpy((void*)message.data(), &response, sizeof(response));
+	response = (response_registered_t*)message.data();
+	response->message = RP_REGISTERED;
+	response->worker_id = worker_id;
 	if (!socket->send(message)) {
 		// error?
 	}
