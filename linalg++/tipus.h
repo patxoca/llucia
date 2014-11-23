@@ -11,9 +11,8 @@
 #include "rational.h"
 
 
-typedef unsigned int       Enter;
-typedef Enter              Coalicio; // màxim 32 o 64 jugadors
-typedef Rational<Enter>    Fraccio;
+typedef unsigned int       Coalicio; // màxim 32 o 64 jugadors
+typedef Rational<long>     Fraccio;
 typedef Array<Fraccio>     Matriu;
 
 
