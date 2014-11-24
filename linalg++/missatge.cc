@@ -50,11 +50,16 @@ Requester::Requester() {
 	worker_id = -1;
 }
 
-Requester::Requester(const char *address) {
-	context = new zmq::context_t(1);
+Requester::Requester(const char *address, zmq::context_t *ctx) {
+	context = ctx;
 	socket = new zmq::socket_t(*context, ZMQ_REQ);
 	socket->connect(address);
 	worker_id = -1;
+}
+
+Requester::~Requester() {
+	context = NULL;
+	socket = NULL;
 }
 
 bool Requester::abort() {
