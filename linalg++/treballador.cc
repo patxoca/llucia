@@ -19,7 +19,7 @@ zmq::context_t context(1);
 WorkerOptions opcions;
 
 
-void fil_calcul();
+void worker_thread();
 
 
 int main(int argc, char **argv) {
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 	std::cout << "Iniciant treballador amb " << num_workers << " workers\n";
 	fils = new boost::thread[num_workers];
 	for (int i = 0; i < num_workers; i++) {
-		fils[i] = boost::thread(fil_calcul);
+		fils[i] = boost::thread(worker_thread);
 	}
 	for (int i = 0; i < num_workers; i++) {
 		fils[i].join();
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-void fil_calcul() {
+void worker_thread() {
 	unsigned int dimensio;
 	Fraccio *valors;
 	Combinator *combinador;
