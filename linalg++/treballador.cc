@@ -6,6 +6,8 @@
 #include <time.h>
 #include <zmq.hpp>
 
+#include <boost/thread.hpp>
+
 #include "calcul.h"
 #include "cmdline.h"
 #include "combinator.h"
@@ -13,7 +15,37 @@
 #include "tipus.h"
 
 
+zmq::context_t context(1);
+WorkerOptions opcions;
+
+
+void fil_calcul();
+
+
 int main(int argc, char **argv) {
+	int num_workers;
+	boost::thread *fils;
+
+	if (opcions.parse_cmd_line(argc, argv)) {
+		return 0;
+	}
+
+	num_workers = opcions.get_num_workers();
+	std::cout << "Iniciant treballador amb " << num_workers << " workers\n";
+	fils = new boost::thread[num_workers];
+	for (int i = 0; i < num_workers; i++) {
+		fils[i] = boost::thread(fil_calcul);
+	}
+	for (int i = 0; i < num_workers; i++) {
+		fils[i].join();
+	}
+	delete[] fils;
+
+	std::cout << "Final\n";
+	return 0;
+}
+
+void fil_calcul() {
 	unsigned int dimensio;
 	Fraccio *valors;
 	Combinator *combinador;
@@ -26,27 +58,23 @@ int main(int argc, char **argv) {
 	int size;
 	Combination *buffer;
 	Requester req;
-	WorkerOptions opcions;
 	Coalicio COALICIO_TOTAL;
 
-	if (opcions.parse_cmd_line(argc, argv)) {
-		return 0;
-	}
 
 	std::cout << "Connectant amb productor en " << opcions.get_full_address() << std::endl;
-	req = Requester(opcions.get_full_address());
+	req = Requester(opcions.get_full_address(), &context);
 
 	std::cout << "Registrant treballador\n";
 	req.register_(&idtreballador);
 	if (idtreballador == -1) {
 		std::cout << "Treballador rebutjar" << std::endl;
-		return 0;
+		return;
 	}
 
 	std::cout << "Descarregant joc\n";
 	if (!req.game(&dimensio, &valors)) {
 		std::cout << "Error\n";
-		return 0;
+		return;
 	}
 	std::cout << "Iniciant treballador n = " << dimensio << " Valors = ";
 	for (unsigned int i = 1, last = 1 << dimensio; i < last; i++) {
@@ -93,4 +121,6 @@ int main(int argc, char **argv) {
 	std::cout << "Num combinacions: " << num_combinacions << std::endl;
 	std::cout << "Num no det:       " << num_no_det << std::endl;
 	std::cout << (tf - t0) / (double)CLOCKS_PER_SEC << "segons\n";
+
+	return;
 }

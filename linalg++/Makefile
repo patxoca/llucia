@@ -9,7 +9,7 @@ LINK.o = $(LINK.cc)
 CXX = g++
 CPPFLAGS = -I $(HOME)/.local/include
 CXXFLAGS = -O2 -Wall
-LDLIBS = -lzmq -lboost_program_options
+LDLIBS = -lzmq -lboost_program_options -lboost_system -lboost_thread
 LDFLAGS = -L $(HOME)/.local/lib
 
 
