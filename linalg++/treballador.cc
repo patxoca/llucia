@@ -117,6 +117,7 @@ void fil_calcul() {
 	calcul.final_calcul();
 	tf = clock();
 	req.unregister();
+	req.close();
 
 	std::cout << "Num combinacions: " << num_combinacions << std::endl;
 	std::cout << "Num no det:       " << num_no_det << std::endl;

@@ -57,9 +57,13 @@ Requester::Requester(const char *address, zmq::context_t *ctx) {
 	worker_id = -1;
 }
 
-Requester::~Requester() {
+void Requester::close() {
 	context = NULL;
-	socket = NULL;
+	if (socket != NULL) {
+		socket->close();
+		socket = NULL;
+	}
+	std::cout << "fin close\n";
 }
 
 bool Requester::abort() {

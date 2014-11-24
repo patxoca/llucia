@@ -70,7 +70,7 @@ class Requester {
 
 	Requester();
 	Requester(const char *address, zmq::context_t *ctx);
-	~Requester();
+	void close();
 
 	bool abort();
 	bool game(unsigned int *dimension, Fraccio **values);
