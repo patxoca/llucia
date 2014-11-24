@@ -4,12 +4,20 @@
 
 #include <fstream>
 #include <iostream>
+#include <unistd.h>
+
 #include <boost/program_options.hpp>
 
 #include "cmdline.h"
 
 
+
 namespace po = boost::program_options;
+
+static int get_num_cores() {
+	return sysconf( _SC_NPROCESSORS_ONLN );
+}
+
 
 WorkerOptions::WorkerOptions() {
 	full_address = "";
@@ -25,6 +33,14 @@ const char *WorkerOptions::get_full_address() {
 }
 
 int WorkerOptions::get_num_workers() {
+	int num_cores = get_num_cores();
+
+	if (num_workers == 0) {
+		return num_cores;
+	}
+	if (num_workers < 0) {
+		return num_workers + num_cores;
+	}
 	return num_workers;
 }
 
