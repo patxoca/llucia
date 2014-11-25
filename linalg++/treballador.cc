@@ -6,6 +6,7 @@
 #include <time.h>
 #include <zmq.hpp>
 
+#include <boost/chrono.hpp>
 #include <boost/thread.hpp>
 
 #include "calcul.h"
@@ -35,6 +36,7 @@ int main(int argc, char **argv) {
 
 	for (int i = 0; i < num_workers; i++) {
 		fils.add_thread(new boost::thread(worker_thread, &context, &opcions));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 	}
 	fils.join_all();
 
