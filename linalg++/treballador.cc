@@ -46,7 +46,7 @@ void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
 	unsigned int dimensio;
 	Fraccio *valors;
 	Combinator *combinador;
-	clock_t t0, tf;
+	time_t t0, tf;
 	long num_combinacions = 0;
 	long num_no_det = 0;
 	Coalicio or_coalicions;
@@ -83,7 +83,7 @@ void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
 	Calcul calcul(dimensio, valors);
 	buffer = (Combination*)malloc(dimensio * sizeof(Combination));
 	COALICIO_TOTAL = (1 << dimensio) - 1; // 111...11
-	t0 = clock();
+	t0 = time(NULL);
 	while (true) {
 		req.get(-1, &idpaquet, &size, buffer);
 
@@ -112,13 +112,13 @@ void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
 	}
   abort_calculation:
 	calcul.final_calcul();
-	tf = clock();
+	tf = time(NULL);
 	req.unregister();
 	req.close();
 
 	std::cout << "Num combinacions: " << num_combinacions << std::endl;
 	std::cout << "Num no det:       " << num_no_det << std::endl;
-	std::cout << (tf - t0) / (double)CLOCKS_PER_SEC << "segons\n";
+	std::cout << tf - t0 << "segons\n";
 
 	return;
 }

@@ -15,7 +15,7 @@
 
 int main(int argc, char **argv) {
 	Combinator *combinador;
-	clock_t t0, tf;
+	time_t t0, tf;
 	int dimensio;
 	long num_paquets = 0;
 	int num_treballadors = 0;
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 	Responder rep(opcions.get_full_address());
 
 	combinador = new Combinator((1 << dimensio) - 1, dimensio);
-	t0 = clock();
+	t0 = time(NULL);
 	while (continuar) {
 		switch (rep.get_request_type()) {
 		case RQ_ABORT:
@@ -107,8 +107,8 @@ int main(int argc, char **argv) {
 			std::cout << "Missatge desconegut" << std::endl;
 		}
 	}
-	tf = clock();
+	tf = time(NULL);
 
 	std::cout << "Num paquets: " << num_paquets << std::endl;
-	std::cout << (tf - t0) / (double)CLOCKS_PER_SEC << "segons\n";
+	std::cout << tf - t0 << "segons\n";
 }
