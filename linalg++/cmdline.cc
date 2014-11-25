@@ -15,6 +15,7 @@
 namespace po = boost::program_options;
 
 static int get_num_cores() {
+    // http://stackoverflow.com/questions/150355/
 	return sysconf( _SC_NPROCESSORS_ONLN );
 }
 
