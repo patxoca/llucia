@@ -1,0 +1,203 @@
+.. -*- mode: rst, coding: utf-8  -*-
+
+******************
+Gamifiqueitor 3000
+******************
+
+
+Qué
+===
+
+L'objectiu d'aquesta aplicació és determinar si un joc té o no core
+large.
+
+El seu input és un arxiu amb els detalls del joc i l'output és si té o
+no core large.
+
+Depenent del nombre de jugadors aquesta aplicació pot ser
+computacionalment intensiva. Per facilitar distribuir el càlcul entre
+varis ordinadors i escurçar el temps requerit s'ha implementat
+mitjançant dos programes:
+
+- el *productor* carrega l'arxiu del joc i genera lots de combinacions
+  de coalicions. Per un joc donat cal que hi hagi un únic productor.
+
+- el *treballador* es comunica amb el productor per descarregar les
+  dades del joc i els lots de combinacions. És el responsable
+  d'executar el càlcul. Poden haver tants treballadors com sigui
+  escaient.
+
+
+Format de l'arxiu del joc
+=========================
+
+L'arxiu del joc és un arxiu de text que es pot crear amb el *bloc de
+notas* de windows o qualsevol altre editor de text, fins i tot amb
+*word* si tenim la precaució de guardar-lo en format text.
+
+L'arxiu del joc ha d'especificar el nombre de jugadors i el valor
+associat a cada coalició, formalment::
+
+  configuracio ::= dimensio joc
+  dimensio     ::= "dimensio" "=" enter ";"
+  joc          ::= "joc" coalicio valor ["," coalicio valor ...] ";"
+  coalicio     ::= enter_positiu_restringit
+  valor        ::= enter | (enter "/" enter)
+
+Una coalició es representa mitjançant un enter estrictament positiu,
+format per dígits sense repetició compresos entre 1 i el valor de la
+dimensió (nombre de jugadors). Com cas especial el dígit zero es
+considera que representa al jugador 10.
+
+L'ordre en que apareixen el dígits dins una coalició és irrellevant a
+excepció del zero que en cas d'apareixer a l'esquerra serà ignorat.
+
+L'ordre en que apareixen les coalicions dins l'arxiu és irrellevant.
+
+Per millorar la legibilitat el format és flexible pel que fa a l'us de
+l'espaiat (espais en blanc, tabuladors i salts de línia), l'únic
+requeriment és finalitzar cada assignació amb un punt-i-coma. La
+configuració::
+
+  dimensio=2;
+  joc=1 1/2,2 2,12 -1;
+
+i::
+
+  dimensio = 2;
+
+  joc      = 1 1/2,   12 -1,
+             2  2
+             ;
+
+son equivalents.
+
+
+Opcions dels programes
+======================
+
+Tant l'executable del productor com el del treballador accepten
+opcions que modifiquen el seu funcionament. Depenent de les
+necessitats aquestes opcions es poden especificar des de la línia
+d'ordres o emprant un arxiu de configuració.
+
+Per obtindre la llista d'opcions disponsibles, el valor predeterminat
+per cada opció i una petita explicació es pot utilitzar l'opció
+``--help`` o la versió curta ``-h``::
+
+    $ ./productor -h
+    Allowed options:
+
+    Generic options:
+      -h [ --help ]                         mostra aquest missatge d'ajuda
+      -v [ --version ]                      mostra versió del programa
+      -c [ --config-file ] arg (=producer.ini)
+                                            arxiu de configuracio
+
+    Configuration:
+      -p [ --producer-port ] arg (=31415)   port del productor
+
+    $ ./treballador -h
+
+    Generic options:
+      -h [ --help ]                         mostra aquest missatge d'ajuda
+      -v [ --version ]                      mostra versió del programa
+      -c [ --config-file ] arg (=worker.ini)
+                                            arxiu de configuracio
+
+    Configuration:
+      -i [ --producer-ip ] arg (=127.0.0.1) IP del productor
+      -p [ --producer-port ] arg (=31415)   port del productor
+      -n [ --num-workers ] arg (=0)         nombre de treballadors, automàtic
+
+Les opcions que apareixen sota l'epígraf *generic options* només poden
+utilitzar-se (tenen sentit) des de la línia d'ordres, les que
+apareixen en *configuration* poden utiltzar-se indistintament des de
+la línia d'ordres o l'arxiu de configuració.
+
+La instrucció següent arranca un productor que escolta en el port
+12345 i opera amb el joc guardat en l'arxiu ``demojoc.txt``::
+
+  ./productor -p 12345 demojoc.txt
+
+o la versió llarga equivalent::
+
+  ./productor --producer-port=12345 demojoc.txt
+
+L'arxiu de configuració és un arxiu de text on s'especifica el nom
+llarg de l'opció seguit del valor, una per línia. Per exemple::
+
+  producer-port = 12345
+
+En cas d'especificar una opció tant en la línia d'ordres com en un
+arxiu de configuració té preferència el valor especificat en la línia
+d'ordres.
+
+
+Treballadors múltiples
+======================
+
+Per maximitzar l'aprofitament del processador el treballador pot
+iniciar múltiples fils d'execució on cada fil processa independent i
+simultàniament lots de coalicions. El nombre de fils es controla
+mitjançant l'opció ``num-workers``:
+
+- de manera predeterminada el treballador detecta el nombre de cores
+  del processador i arranca un fill per core.
+
+- especificant un valor negatiu fa que es reservi aquesta quantitat de
+  cores per altres usos.
+
+- especificant un valor positiu fa que s'utilitzi aquesta quantitat de
+  cores pel càlcul..
+
+
+Comunicació productor <-> treballador
+=====================================
+
+La comunicació entre els treballadors i el productor es realitza
+emprant el protocol TCP/IP, açò permet comunicar els programes tant si
+s'executen en el mateix ordinador com en ordinadors diferents.
+
+Per establir la connexió cal conèixer la direcció IP de l'ordinador on
+s'executarà el productor i triar un port (un valor entre 1024 i 65535)
+lliure:
+
+Les opcions que afecten la comunicació son:
+
+- ``-i``, ``--producer-ip``: només en el treballador, adreça IP del
+  productor.
+
+- ``-p``, ``--producer-port``: en el servidor permet especificar un
+  port alternatiu en cas de que el predeterminat estigui en us, en el
+  treballador indica el port en el que escolta el productor.
+
+Per defecte s'utiltza el port 31415 i la connexió es fa dins la
+mateixa màquina (IP 127.0.0.1).
+
+Si l'ordinador on s'executa el productor utilitza algun programari de
+bloqueig de tràfic (un *firewall* per exemple) cal asegurar-se de que
+no bloqueja el tràfic entrant en el port utilitzat pel productor.
+
+
+Limitacions
+===========
+
+Per les estructura de dades utilitzades internament el nombre màxim de
+jugadors està limitat a 32. El format emprat per representar les
+coalicions en l'arxiu del joc limita a 10 el nombre de jugadors. En la
+pràctica el càlcul per més de 7 jugadors és prohibitivament costós.
+
+Per limitacions en la precissió de la representació dels nombres reals
+s'ha optat per operar amb racionals. Açò ralentitza el procés però per
+contra dona resultats exactes. Per guanyar velocitat el programa no
+simplifica les fraccions, açò significa que es poden produir
+*overflows* en els càlculs. El valor pel numerador i el denominador
+està limitat aproximadament l'interval [-9223372036854775808,
+9223372036854775808], cal garantir (manualment) que els valors
+utilitzats en el joc no produeixen overflow.
+
+Detallar-ho més: on i com afecta? no pel determinant/inversa, matrius
+binaries, no crec que es desmadri molt. Només amb els càlculs on
+intervenen els valors i si no recordo mal son sumes, N * max(valors)
+seria una cota?
