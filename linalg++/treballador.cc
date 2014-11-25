@@ -15,16 +15,16 @@
 #include "tipus.h"
 
 
-zmq::context_t context(1);
-WorkerOptions opcions;
 
 
-void worker_thread();
+void worker_thread(zmq::context_t *context, WorkerOptions *opcions);
 
 
 int main(int argc, char **argv) {
+	zmq::context_t context(1);
+	WorkerOptions opcions;
 	int num_workers;
-	boost::thread *fils;
+	boost::thread_group fils;
 
 	if (opcions.parse_cmd_line(argc, argv)) {
 		return 0;
@@ -32,20 +32,17 @@ int main(int argc, char **argv) {
 
 	num_workers = opcions.get_num_workers();
 	std::cout << "Iniciant treballador amb " << num_workers << " workers\n";
-	fils = new boost::thread[num_workers];
+
 	for (int i = 0; i < num_workers; i++) {
-		fils[i] = boost::thread(worker_thread);
+		fils.add_thread(new boost::thread(worker_thread, &context, &opcions));
 	}
-	for (int i = 0; i < num_workers; i++) {
-		fils[i].join();
-	}
-	delete[] fils;
+	fils.join_all();
 
 	std::cout << "Final\n";
 	return 0;
 }
 
-void worker_thread() {
+void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
 	unsigned int dimensio;
 	Fraccio *valors;
 	Combinator *combinador;
@@ -61,8 +58,8 @@ void worker_thread() {
 	Coalicio COALICIO_TOTAL;
 
 
-	std::cout << "Connectant amb productor en " << opcions.get_full_address() << std::endl;
-	req = Requester(opcions.get_full_address(), &context);
+	std::cout << "Connectant amb productor en " << opcions->get_full_address() << std::endl;
+	req = Requester(opcions->get_full_address(), context);
 
 	std::cout << "Registrant treballador\n";
 	req.register_(&idtreballador);
