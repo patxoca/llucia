@@ -294,51 +294,74 @@ TEST(ArrayInvertTest, test_error_left_array_really_normalized) {
 
 // producte
 
-// TEST(ArrayDotTest, product_ok) {
-// 	Tipus a1[2][3] = {{1, 2, 3},
-// 					  {4, 5, 6}};
-// 	Tipus a2[3][2] = {{ 7,  8},
-// 					  { 9, 10},
-// 					  {11, 12}};
-// 	Tipus e[2][2] = {{ 58,  64},
-// 					 {139, 154}};
-// 	Matriu m1(2, 3, (Tipus*)a1);
-// 	Matriu m2(3, 2, (Tipus*)a2);
-// 	Matriu r;
+TEST(ArrayDotVTest, dotv_with_tmp_array_ok) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[3] = {7, 9, 11};
+	Tipus e[2] = {58, 139};
+	Matriu m(2, 3, (Tipus*)a1);
+	Matriu r(2, 1);
 
-// 	r = m1.dot(m2);
+	m.dot_v(a2, r);
 
-// 	EXPECT_EQ(2, r.get_num_rows());
-// 	EXPECT_EQ(2, r.get_num_cols());
-// 	EXPECT_ARRAY_EQ(r, (Tipus*)e);
-// }
+	EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}
 
-// TEST(ArrayDotTest, incompatible_arrays_throws_exception) {
-// 	Tipus a1[2][3] = {{1, 2, 3},
-// 					  {4, 5, 6}};
-// 	Tipus a2[2][2] = {{ 7,  8},
-// 					  { 9, 10}};
-// 	Matriu m1(2, 3, (Tipus*)a1);
-// 	Matriu m2(2, 2, (Tipus*)a2);
+TEST(ArrayDotVTest, dotv_with_tmp_vector_ok) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[3] = {7, 9, 11};
+	Matriu m(2, 3, (Tipus*)a1);
+    Tipus r[2];
 
-// 	ASSERT_THROW(m1.dot(m2), ArrayException);
-// }
+	m.dot_v(a2, (Tipus*)r);
 
-// TEST(ArrayDotTest, product_does_not_modifies_operands) {
-// 	Tipus a1[2][3] = {{1, 2, 3},
-// 					  {4, 5, 6}};
-// 	Tipus a2[3][2] = {{ 7,  8},
-// 					  { 9, 10},
-// 					  {11, 12}};
-// 	Matriu m1(2, 3, (Tipus*)a1);
-// 	Matriu m2(3, 2, (Tipus*)a2);
-// 	Matriu r;
+	EXPECT_EQ(static_cast<Tipus>(58), r[0]);
+	EXPECT_EQ(static_cast<Tipus>(139), r[1]);
+}
 
-// 	r = m1.dot(m2);
+TEST(ArrayDotVTest, dotv_with_incompatible_tmp_array_throws_exception) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[3] = {7, 9, 11};
+	Matriu m(2, 3, (Tipus*)a1);
+	Matriu r(1, 2);
 
-// 	EXPECT_ARRAY_EQ(m1, (Tipus*)a1);
-// 	EXPECT_ARRAY_EQ(m2, (Tipus*)a2);
-// }
+	ASSERT_THROW(m.dot_v(a2, r), ArrayException);
+}
+
+TEST(ArrayDotVTest, dotv_with_tmp_array_does_not_modifies_operands) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[3] = {7, 9, 11};
+	Matriu m(2, 3, (Tipus*)a1);
+	Matriu r(2, 1);
+
+	m.dot_v(a2, r);
+
+	EXPECT_EQ(static_cast<Tipus>(7), a2[0]);
+	EXPECT_EQ(static_cast<Tipus>(9), a2[1]);
+	EXPECT_EQ(static_cast<Tipus>(11), a2[2]);
+
+	EXPECT_ARRAY_EQ(m, (Tipus*)a1);
+}
+
+TEST(ArrayDotVTest, dotv_with_tmp_vector_does_not_modifies_operands) {
+	Tipus a1[2][3] = {{1, 2, 3},
+					  {4, 5, 6}};
+	Tipus a2[3] = {7, 9, 11};
+	Matriu m(2, 3, (Tipus*)a1);
+    Tipus r[2];
+
+	m.dot_v(a2, (Tipus*)r);
+
+	EXPECT_EQ(static_cast<Tipus>(7), a2[0]);
+	EXPECT_EQ(static_cast<Tipus>(9), a2[1]);
+	EXPECT_EQ(static_cast<Tipus>(11), a2[2]);
+
+	EXPECT_ARRAY_EQ(m, (Tipus*)a1);
+}
+
 
 // transposta
 

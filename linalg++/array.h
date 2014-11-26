@@ -122,8 +122,20 @@ public:
 	Array<T> inv();
 	Array<T> inv(Array<T> & tmp);
 
-	// producte de matrius
-	// Array<T> dot(const Array<T> a) const;
+	// producte de matriu per vector
+	//
+	// crea una nova matriu pel resultat i la retorna
+	Array<T> dot_v(const T *a) const;
+
+	// emmagatzema el resultat en el Array (classe Array) tmp. Retorna el
+	// vector tmp. Si tmp no té les dimensions correctes dispara una excepció
+	// ArrayException.
+	Array<T> dot_v(const T *a, Array<T> & tmp) const;
+
+	// emmagatzema el resultat en el vector (array C) tmp. Retorna tmp. No és
+	// possible conèixer la mida de tmp, s'assumeix que és de la mida
+	// correcta.
+	T *dot_v(const T *a, T *tmp) const;
 
 	// transposta de la matriu
 	// Array<T> t() const;
@@ -415,24 +427,6 @@ Array<T> Array<T>::inv(Array<T> & tmp) {
 }
 
 /* template <class T> */
-/* Array<T> Array<T>::dot(const Array<T> a) const { */
-/* 	if (num_cols != a.num_rows) { */
-/* 		throw ArrayException(); */
-/* 	} */
-/* 	Array<T> m(num_rows, a.num_cols); */
-/* 	for (int i = 0; i < num_rows; i++) { */
-/* 		for (int j = 0; j < a.num_cols; j++) { */
-/* 			T tmp = static_cast<T>(0); */
-/* 			for (int k = 0; k < num_cols; k++) { */
-/* 				tmp += data[i][k] * a.data[k][j]; */
-/* 			} */
-/* 			m.data[i][j] = tmp; */
-/* 		} */
-/* 	} */
-/* 	return m; */
-/* } */
-
-/* template <class T> */
 /* Array<T> Array<T>::t() const { */
 /* 	Array<T> m(num_cols, num_rows); */
 /* 	for (int i = 0; i < num_rows; i++) { */
@@ -442,6 +436,43 @@ Array<T> Array<T>::inv(Array<T> & tmp) {
 /* 	} */
 /* 	return m; */
 /* } */
+
+template<class T>
+Array<T> Array<T>::dot_v(const T *a) const {
+	Array<T> tmp(num_rows, 1);
+	return dot_v(a, tmp);
+}
+
+template<class T>
+Array<T> Array<T>::dot_v(const T *a, Array<T> & tmp) const {
+	if ((num_rows != tmp.num_rows) || (tmp.num_cols != 1)) {
+		throw ArrayException();
+	}
+
+	dot_v(a, tmp.data);
+	return tmp;
+}
+
+template<class T>
+T *Array<T>::dot_v(const T *a, T *tmp) const {
+	T *src_this = data;
+	const T *src_a;
+	T *dst = tmp;
+	T result;
+	int nr = num_rows;
+	int nc = num_cols;
+
+	for (int i = 0; i < nr; i++) {
+		result = static_cast<T>(0);
+		src_a = a;
+		for (int j = 0; j < nc; j++) {
+			result += *src_a++ * *src_this++;
+		}
+		*dst++ = result;
+	}
+	return tmp;
+}
+
 
 template<class T>
 std::ostream & operator << (std::ostream & stream, Array<T> const & value ) {
