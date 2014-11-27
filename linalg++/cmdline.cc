@@ -4,7 +4,10 @@
 
 #include <fstream>
 #include <iostream>
+#ifdef _WIN32
+#else
 #include <unistd.h>
+#endif
 
 #include <boost/program_options.hpp>
 
@@ -16,7 +19,14 @@ namespace po = boost::program_options;
 
 static int get_num_cores() {
     // http://stackoverflow.com/questions/150355/
+#ifdef _WIN32
+	SYSTEM_INFO sysinfo;
+	GetSystemInfo( &sysinfo );
+
+	return sysinfo.dwNumberOfProcessors;
+#else
 	return sysconf( _SC_NPROCESSORS_ONLN );
+#endif
 }
 
 
