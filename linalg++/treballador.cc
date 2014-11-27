@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
 
-// $Id:$
+// $Id$
 
 #include <iostream>
 #include <time.h>

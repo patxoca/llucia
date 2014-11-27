@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
 
-// $Id:$
+// $Id$
 
 #ifndef _CMDLINE_H_
 #define _CMDLINE_H_

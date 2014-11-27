@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
 
-// $Id:$
+// $Id$
 
 #ifndef TIPUS_H
 #define TIPUS_H

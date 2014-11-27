@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
 
-// $Id:$
+// $Id$
 
 #include <fstream>
 #include <set>

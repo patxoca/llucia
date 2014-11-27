@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
 
-// $Id:$
+// $Id$
 
 #ifndef _GAME_LOADER_H_
 #define _GAME_LOADER_H_

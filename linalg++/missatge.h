@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
 
-// $Id:$
+// $Id$
 
 #ifndef _MISSATGE_H_
 #define _MISSATGE_H_

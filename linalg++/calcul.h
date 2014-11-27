@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
 
-// $Id:$
+// $Id$
 
 #ifndef _CALCUL_H_
 #define _CALCUL_H_
