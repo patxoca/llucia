@@ -1,9 +1,16 @@
 # $Id:$
 
-EXECUTABLES = prova productor treballador
-SRCS = $(wildcard *.cc)
+EXECUTABLES = prova lcp lcw
+
+LCP_SRC = combinator.cc missatge.cc cmdline.cc gameloader.cc productor.cc
+LCW_SRC = calcul.cc combinator.cc missatge.cc treballador.cc cmdline.cc
+SRCS = $(LCP_SRC) $(LCW_SRC)
+
 HEADERS = $(wildcard *.h)
-OBJECTS = $(patsubst %.cc,%.o,$(SRCS))
+
+LCP_OBJ = $(patsubst %.cc,%.o,$(LCP_SRC))
+LCW_OBJ = $(patsubst %.cc,%.o,$(LCW_SRC))
+OBJECTS = $(LCP_OBJ) $(LCW_OBJ)
 
 LINK.o = $(LINK.cc)
 CXX = g++
@@ -16,13 +23,14 @@ LDFLAGS = -L $(HOME)/.local/lib
 .PHONY: all
 all: depend $(EXECUTABLES)
 
-prova:       cmdline.o combinator.o gameloader.o prova.o
-productor:   cmdline.o combinator.o gameloader.o missatge.o productor.o
-treballador: calcul.o cmdline.o combinator.o missatge.o treballador.o
-
+prova: cmdline.o combinator.o gameloader.o prova.o
+lcp:   $(LCP_OBJ)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
+lcw:   $(LCW_OBJ)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 .PHONY: tests
-tests: $(OBJECTES)
+tests: $(OBJECTS)
 	(cd tests && make runtests)
 
 .PHONY: clean
