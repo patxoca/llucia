@@ -15,22 +15,22 @@ struct AbortCalculationException : public std::exception {
 
 class Calcul {
 
-	int      dimensio;
-	Fraccio *valors;
-	bool     Bmes_no_buida;
-	long     num_bases;
+    int      dimensio;
+    Fraccio *valors;
+    bool     Bmes_no_buida;
+    long     num_bases;
 
-	Matriu   matriu;
-	Matriu   tmp_inv;
-	Matriu   clon;
+    Matriu   matriu;
+    Matriu   tmp_inv;
+    Matriu   clon;
 
   public:
 
-	Calcul();
-	Calcul(int dim, Fraccio *valors);
+    Calcul();
+    Calcul(int dim, Fraccio *valors);
 
-	void calcular(const Combination *candidats);
-	void final_calcul(ResultatCalcul &r);
+    void calcular(const Combination *candidats);
+    void final_calcul(ResultatCalcul &r);
 
 };
 

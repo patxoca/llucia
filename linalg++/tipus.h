@@ -17,14 +17,14 @@ typedef Rational<long>     Fraccio;
 typedef Array<Fraccio>     Matriu;
 
 struct ResultatCalcul {
-	// dades afegides pel calcul
-	bool bmes_no_buida;
+    // dades afegides pel calcul
+    bool bmes_no_buida;
 
-	// estadistiques afegides pel treballador
-	long   num_combinacions;
-	long   num_no_det;
-	time_t hora_inici;
-	time_t hora_final;
+    // estadistiques afegides pel treballador
+    long   num_combinacions;
+    long   num_no_det;
+    time_t hora_inici;
+    time_t hora_final;
 };
 
 

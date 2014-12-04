@@ -83,7 +83,7 @@
 //
 //=============================================================================
 template< class TYPE = int>
-	class Rational {
+    class Rational {
 
 protected:
 
@@ -103,36 +103,36 @@ public:
   //   a/b will always be reduced.
   //-----------------------------------------------------------------------
   void reduce() {
-	  if ( 0 == denominator ) {
-		  // Divide-by-zero
+      if ( 0 == denominator ) {
+          // Divide-by-zero
           numerator = 0;
-	  } else if ( 0 == numerator ) {
-		  // Zero
-		  denominator = 1;
-	  } else if ( 0 == ( numerator % denominator ) ) {
-		  // Whole number?
-		  numerator   /= denominator;
-		  denominator  = 1;
-	  } else {
-		  // Find Greatest Common Divisor (GCD) to reduce.
-		  TYPE valueA = numerator;
-		  TYPE valueB = denominator;
-		  while ( valueA != 0 ) {
-			  TYPE hold = valueA;
-			  valueA = valueB % valueA;
-			  valueB = hold;
-		  }
+      } else if ( 0 == numerator ) {
+          // Zero
+          denominator = 1;
+      } else if ( 0 == ( numerator % denominator ) ) {
+          // Whole number?
+          numerator   /= denominator;
+          denominator  = 1;
+      } else {
+          // Find Greatest Common Divisor (GCD) to reduce.
+          TYPE valueA = numerator;
+          TYPE valueB = denominator;
+          while ( valueA != 0 ) {
+              TYPE hold = valueA;
+              valueA = valueB % valueA;
+              valueB = hold;
+          }
 
-		  // Reduce by GCD (thus, making the new GCF=1).
-		  numerator   /= valueB;
-		  denominator /= valueB;
-	  }
+          // Reduce by GCD (thus, making the new GCF=1).
+          numerator   /= valueB;
+          denominator /= valueB;
+      }
 
-	  // Keep the sign on the numerator.
-	  if ( denominator < 0 ) {
+      // Keep the sign on the numerator.
+      if ( denominator < 0 ) {
           numerator   = -numerator;
           denominator = -denominator;
-	  }
+      }
 
   } // reduce
 
@@ -144,34 +144,34 @@ public:
   // Set the numerator.
   //-----------------------------------------------------------------------
   void setNumerator( TYPE const & value ) {
-	  numerator = value;
+      numerator = value;
   }
 
   //-----------------------------------------------------------------------
   // Set the denominator.
   //-----------------------------------------------------------------------
   void setDenominator ( TYPE const & value ) {
-	  denominator = value;
+      denominator = value;
   }
 
   //-----------------------------------------------------------------------
   // Set rational to whole integer-type number.
   //-----------------------------------------------------------------------
   Rational const & operator = ( TYPE const & value ) {
-	  numerator   = value;
-	  denominator = 1;
+      numerator   = value;
+      denominator = 1;
 
-	  return *this;
+      return *this;
   }
 
   //-----------------------------------------------------------------------
   // Set rational to an other rational.
   //-----------------------------------------------------------------------
   Rational const & operator = ( Rational const & value ) {
-	  numerator   = value.numerator;
-	  denominator = value.denominator;
+      numerator   = value.numerator;
+      denominator = value.denominator;
 
-	  return *this;
+      return *this;
   }
 
   //=======================================================================
@@ -182,34 +182,34 @@ public:
   // Multiplication by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator * ( TYPE const & value ) const {
-	  return Rational(numerator * value, denominator);
+      return Rational(numerator * value, denominator);
   }
 
   //-----------------------------------------------------------------------
   // Multiplication by rational.
   //-----------------------------------------------------------------------
   Rational const operator * ( Rational const & value ) const {
-	  return Rational(
-		  numerator * value.numerator,
-		  denominator * value.denominator
-		  );
+      return Rational(
+          numerator * value.numerator,
+          denominator * value.denominator
+          );
   }
 
   //-----------------------------------------------------------------------
   // Multiply self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator *= ( Rational const & value ) {
-	  numerator *= value.numerator;
-	  denominator *= value.denominator;
-	  return *this;
+      numerator *= value.numerator;
+      denominator *= value.denominator;
+      return *this;
   }
 
   //-----------------------------------------------------------------------
   // Multiply self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator *= ( TYPE const & value ) {
-	  numerator *= value;
-	  return *this;
+      numerator *= value;
+      return *this;
   }
 
   //=======================================================================
@@ -220,16 +220,16 @@ public:
   // Divide by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator / ( TYPE const & value ) const {
-	  return Rational(numerator, denominator * value);
+      return Rational(numerator, denominator * value);
   }
 
   //-----------------------------------------------------------------------
   // Divide by rational.
   //-----------------------------------------------------------------------
   Rational const operator / ( Rational const & value ) const {
-	  return Rational(
-		  numerator   * value.denominator,
-		  denominator * value.numerator
+      return Rational(
+          numerator   * value.denominator,
+          denominator * value.numerator
           );
   }
 
@@ -237,27 +237,27 @@ public:
   // Divide self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator /= ( Rational const & value ) {
-	  if (value.numerator < 0) {
-		  numerator *= -value.denominator;
-		  denominator *= -value.numerator;
-	  } else {
-		  numerator *= value.denominator;
-		  denominator *= value.numerator;
-	  }
-	  return *this;
+      if (value.numerator < 0) {
+          numerator *= -value.denominator;
+          denominator *= -value.numerator;
+      } else {
+          numerator *= value.denominator;
+          denominator *= value.numerator;
+      }
+      return *this;
   }
 
   //-----------------------------------------------------------------------
   // Divide self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator /= ( TYPE const & value ) {
-	  if (value < 0) {
-		  numerator = -numerator;
-		  denominator *= -value;
-	  } else {
-		  denominator *= value;
-	  }
-	  return *this;
+      if (value < 0) {
+          numerator = -numerator;
+          denominator *= -value;
+      } else {
+          denominator *= value;
+      }
+      return *this;
   }
 
   //=======================================================================
@@ -268,57 +268,57 @@ public:
   // Add by rational.
   //-----------------------------------------------------------------------
   Rational const operator + ( Rational const & value ) const {
-	  TYPE newNumerator   = numerator;
-	  TYPE newDenominator = denominator;
-	  TYPE otherNumerator = value.numerator;
+      TYPE newNumerator   = numerator;
+      TYPE newDenominator = denominator;
+      TYPE otherNumerator = value.numerator;
 
-	  if ( denominator != value.denominator ) {
+      if ( denominator != value.denominator ) {
           newNumerator   *= value.denominator;
           newDenominator *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  newNumerator += otherNumerator;
+      newNumerator += otherNumerator;
 
-	  return Rational( newNumerator, newDenominator );
+      return Rational( newNumerator, newDenominator );
   }
 
   //-----------------------------------------------------------------------
   // Add by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator + ( TYPE const & value ) const {
-	  return Rational( numerator + (value * denominator) , denominator );
+      return Rational( numerator + (value * denominator) , denominator );
   }
 
   //-----------------------------------------------------------------------
   // Add self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator += ( Rational const & value ) {
-	  TYPE newNumerator   = numerator;
-	  TYPE newDenominator = denominator;
-	  TYPE otherNumerator = value.numerator;
+      TYPE newNumerator   = numerator;
+      TYPE newDenominator = denominator;
+      TYPE otherNumerator = value.numerator;
 
-	  if ( denominator != value.denominator ) {
+      if ( denominator != value.denominator ) {
           newNumerator   *= value.denominator;
           newDenominator *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  newNumerator += otherNumerator;
+      newNumerator += otherNumerator;
 
-	  numerator = newNumerator;
-	  denominator = newDenominator;
+      numerator = newNumerator;
+      denominator = newDenominator;
 
-	  return *this;
+      return *this;
   }
 
   //-----------------------------------------------------------------------
   // Add self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator += ( TYPE const & value ) {
-	  numerator += value * denominator;
+      numerator += value * denominator;
 
-	  return *this;
+      return *this;
   }
 
   //=======================================================================
@@ -329,28 +329,28 @@ public:
   // Subtract by rational.
   //-----------------------------------------------------------------------
   Rational const operator - ( Rational const & value ) const {
-	  TYPE newNumerator   = numerator;
-	  TYPE newDenominator = denominator;
-	  TYPE otherNumerator = value.numerator;
+      TYPE newNumerator   = numerator;
+      TYPE newDenominator = denominator;
+      TYPE otherNumerator = value.numerator;
 
-	  if ( denominator != value.denominator ) {
+      if ( denominator != value.denominator ) {
           newNumerator   *= value.denominator;
           newDenominator *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  newNumerator -= otherNumerator;
+      newNumerator -= otherNumerator;
 
-	  return Rational( newNumerator, newDenominator );
+      return Rational( newNumerator, newDenominator );
   }
 
   //-----------------------------------------------------------------------
   // Subtract by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator - ( TYPE const & value ) const {
-	  return Rational(
-		  numerator - (value * denominator) ,
-		  denominator
+      return Rational(
+          numerator - (value * denominator) ,
+          denominator
           );
   }
 
@@ -358,31 +358,31 @@ public:
   // Subtract self by rational.
   //-----------------------------------------------------------------------
   Rational const & operator -= ( Rational const & value ) {
-	  TYPE newNumerator   = numerator;
-	  TYPE newDenominator = denominator;
-	  TYPE otherNumerator = value.numerator;
+      TYPE newNumerator   = numerator;
+      TYPE newDenominator = denominator;
+      TYPE otherNumerator = value.numerator;
 
-	  if ( denominator != value.denominator ) {
+      if ( denominator != value.denominator ) {
           newNumerator   *= value.denominator;
           newDenominator *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  newNumerator -= otherNumerator;
+      newNumerator -= otherNumerator;
 
-	  numerator =newNumerator;
-	  denominator = newDenominator;
+      numerator =newNumerator;
+      denominator = newDenominator;
 
-	  return *this;
+      return *this;
   }
 
   //-----------------------------------------------------------------------
   // Subtract self by integer-type.
   //-----------------------------------------------------------------------
   Rational const & operator -= ( TYPE const & value ) {
-	  numerator -= value * denominator;
+      numerator -= value * denominator;
 
-	  return *this;
+      return *this;
   }
 
   //=======================================================================
@@ -393,124 +393,124 @@ public:
   // Equality operator test between self and rational.
   //-----------------------------------------------------------------------
   bool operator == ( Rational const & value ) const {
-	  return ( numerator * value.denominator == denominator * value.numerator );
+      return ( numerator * value.denominator == denominator * value.numerator );
   }
 
   //-----------------------------------------------------------------------
   // Not equal operator test between self and rational.
   //-----------------------------------------------------------------------
   bool operator != ( Rational const & value ) const {
-	  return !( *this == value );
+      return !( *this == value );
   }
 
   //-----------------------------------------------------------------------
   // Equality operator test between self and integer-type.
   //-----------------------------------------------------------------------
   bool operator == ( TYPE const & value ) const {
-	  return ( numerator == value * denominator );
+      return ( numerator == value * denominator );
   }
 
   //-----------------------------------------------------------------------
   // Not equal operator test between self and integer-type.
   //-----------------------------------------------------------------------
   bool operator != ( int const value ) const {
-	  return !( *this == value );
+      return !( *this == value );
   }
 
   //-----------------------------------------------------------------------
   // Greater than operator.
   //-----------------------------------------------------------------------
   bool operator > ( TYPE const & value ) const {
-	  return ( numerator > ( value * denominator ) );
+      return ( numerator > ( value * denominator ) );
   }
 
   //-----------------------------------------------------------------------
   // Less than operator.
   //-----------------------------------------------------------------------
   bool operator < ( TYPE const & value ) const {
-	  return ( numerator < ( value * denominator ) );
+      return ( numerator < ( value * denominator ) );
   }
 
   //-----------------------------------------------------------------------
   // Greater than operator.
   //-----------------------------------------------------------------------
   bool operator > ( Rational const & value ) const {
-	  TYPE thisNumerator   = numerator;
-	  TYPE otherNumerator  = value.numerator;
+      TYPE thisNumerator   = numerator;
+      TYPE otherNumerator  = value.numerator;
 
-	  // If there isn't a common denominator...
-	  if ( denominator != value.denominator ) {
+      // If there isn't a common denominator...
+      if ( denominator != value.denominator ) {
           // Create common denominator, and adjust numerators
           thisNumerator  *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  return ( thisNumerator > otherNumerator );
+      return ( thisNumerator > otherNumerator );
   }
 
   //-----------------------------------------------------------------------
   // Less than rational operator.
   //-----------------------------------------------------------------------
   bool operator < ( Rational const & value ) const {
-	  TYPE thisNumerator   = numerator;
-	  TYPE otherNumerator  = value.numerator;
+      TYPE thisNumerator   = numerator;
+      TYPE otherNumerator  = value.numerator;
 
-	  // If there isn't a common denominator...
-	  if ( denominator != value.denominator ) {
+      // If there isn't a common denominator...
+      if ( denominator != value.denominator ) {
           // Create common denominator, and adjust numerators
           thisNumerator  *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  return ( thisNumerator < otherNumerator );
+      return ( thisNumerator < otherNumerator );
   }
 
   //-----------------------------------------------------------------------
   // Greater or equal-to operator.
   //-----------------------------------------------------------------------
   bool operator >= ( TYPE const & value ) const {
-	  return ( numerator >= ( value * denominator ) );
+      return ( numerator >= ( value * denominator ) );
   }
 
   //-----------------------------------------------------------------------
   // Less or equal-to operator.
   //-----------------------------------------------------------------------
   bool operator <= ( TYPE const & value ) const {
-	  return ( numerator <= ( value * denominator ) );
+      return ( numerator <= ( value * denominator ) );
   }
 
   //-----------------------------------------------------------------------
   // Greater pr equal-to rational operator.
   //-----------------------------------------------------------------------
   bool operator >= ( Rational const & value ) const {
-	  TYPE thisNumerator   = numerator;
-	  TYPE otherNumerator  = value.numerator;
+      TYPE thisNumerator   = numerator;
+      TYPE otherNumerator  = value.numerator;
 
-	  // If there isn't a common denominator...
-	  if ( denominator != value.denominator ) {
+      // If there isn't a common denominator...
+      if ( denominator != value.denominator ) {
           // Create common denominator, and adjust numerators
           thisNumerator  *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  return ( thisNumerator >= otherNumerator );
+      return ( thisNumerator >= otherNumerator );
   }
 
   //-----------------------------------------------------------------------
   // Less or equal-to operator.
   //-----------------------------------------------------------------------
   bool operator <= ( Rational const & value ) const {
-	  TYPE thisNumerator   = numerator;
-	  TYPE otherNumerator  = value.numerator;
+      TYPE thisNumerator   = numerator;
+      TYPE otherNumerator  = value.numerator;
 
-	  // If there isn't a common denominator...
-	  if ( denominator != value.denominator ) {
+      // If there isn't a common denominator...
+      if ( denominator != value.denominator ) {
           // Create common denominator, and adjust numerators
           thisNumerator  *= value.denominator;
           otherNumerator *= denominator;
-	  }
+      }
 
-	  return ( thisNumerator <= otherNumerator );
+      return ( thisNumerator <= otherNumerator );
   }
 
   //=======================================================================
@@ -528,28 +528,28 @@ public:
   //-----------------------------------------------------------------------
   Rational ( TYPE const & numeratorParameter, TYPE const & denominatorParameter )
   {
-	  if (denominatorParameter == 0) {
-		  numerator = 0;
-		  denominator = 0;
-	  } else {
-		  if (numeratorParameter == 0) {
-			  numerator = 0;
-			  denominator = 1;
-		  } else if (denominatorParameter < 0) {
-			  numerator = -numeratorParameter;
-			  denominator = -denominatorParameter;
-		  } else {
-			  numerator = numeratorParameter;
-			  denominator = denominatorParameter;
-		  }
-	  }
+      if (denominatorParameter == 0) {
+          numerator = 0;
+          denominator = 0;
+      } else {
+          if (numeratorParameter == 0) {
+              numerator = 0;
+              denominator = 1;
+          } else if (denominatorParameter < 0) {
+              numerator = -numeratorParameter;
+              denominator = -denominatorParameter;
+          } else {
+              numerator = numeratorParameter;
+              denominator = denominatorParameter;
+          }
+      }
   }
 
   //-----------------------------------------------------------------------
   // Constructor from rational.
   //-----------------------------------------------------------------------
   Rational ( Rational const & value ) {
-	  *this = value;
+      *this = value;
   }
 
   //-----------------------------------------------------------------------
@@ -566,14 +566,14 @@ public:
   // Return numerator.
   //-----------------------------------------------------------------------
   TYPE const & getNumerator() const {
-	  return numerator;
+      return numerator;
   }
 
   //-----------------------------------------------------------------------
   // Return denominator.
   //-----------------------------------------------------------------------
   TYPE const & getDenominator() const {
-	  return denominator;
+      return denominator;
   }
 
 };
@@ -591,7 +591,7 @@ Rational< TYPE > operator - ( Rational< TYPE > const & value ) {
 //-----------------------------------------------------------------------------
 template< class TYPE >
 Rational< TYPE > abs ( Rational< TYPE > const & value ) {
-	return Rational< TYPE >( abs(value.getNumerator()), abs(value.getDenominator()) );
+    return Rational< TYPE >( abs(value.getNumerator()), abs(value.getDenominator()) );
 }
 
 //-----------------------------------------------------------------------------
@@ -599,37 +599,37 @@ Rational< TYPE > abs ( Rational< TYPE > const & value ) {
 //-----------------------------------------------------------------------------
 template< class TYPE >
 std::ostream & operator << ( std::ostream & stream, Rational< TYPE > const & value ) {
-	Rational< TYPE > value2 = Rational< TYPE >(value);
+    Rational< TYPE > value2 = Rational< TYPE >(value);
     TYPE numerator;
     TYPE denominator;
 
-	// Simplifiquem una copia de la fraccio. L'E/S és lenta de per sí, ens
-	// podem permetre la sobrecàrrega de simplificar.
-	value2.reduce();
+    // Simplifiquem una copia de la fraccio. L'E/S és lenta de per sí, ens
+    // podem permetre la sobrecàrrega de simplificar.
+    value2.reduce();
     numerator   = value2.getNumerator();
     denominator = value2.getDenominator();
 
     if ( 0 == denominator )
-		// Divide-by-zero error
-		stream << "NaN";
+        // Divide-by-zero error
+        stream << "NaN";
     else if ( 1 == denominator )
-		// Whole number
-		stream << numerator;
-	else if ( abs( numerator ) > denominator ) {
-		// Whole number with fractional part
-		TYPE whole;
-		TYPE remainder;
+        // Whole number
+        stream << numerator;
+    else if ( abs( numerator ) > denominator ) {
+        // Whole number with fractional part
+        TYPE whole;
+        TYPE remainder;
 
-		whole     = numerator / denominator;
-		remainder = numerator % denominator;
+        whole     = numerator / denominator;
+        remainder = numerator % denominator;
 
-		if ( remainder < 0 )
-			remainder = -remainder;
+        if ( remainder < 0 )
+            remainder = -remainder;
 
-		stream << whole << "_" << remainder << "/" << denominator;
-	} else
-		// Just a fraction.
-		stream << numerator << "/" << denominator;
+        stream << whole << "_" << remainder << "/" << denominator;
+    } else
+        // Just a fraction.
+        stream << numerator << "/" << denominator;
 
     return stream;
 }

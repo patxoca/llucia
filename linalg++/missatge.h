@@ -45,59 +45,59 @@
 //   Quan no queden treballadors registrats el productor finalitza.
 
 typedef enum {
-	RQ_ABORT,
-	RQ_GAME,
-	RQ_GET,
-	RQ_REG,
-	RQ_UNREG,
-	RQ_RESULT
+    RQ_ABORT,
+    RQ_GAME,
+    RQ_GET,
+    RQ_REG,
+    RQ_UNREG,
+    RQ_RESULT
 } request_type_t;
 
 typedef enum {
-	RP_ACK,
-	RP_DATA,
-	RP_GAME,
-	RP_REGISTERED,
-	RP_REJECT,
+    RP_ACK,
+    RP_DATA,
+    RP_GAME,
+    RP_REGISTERED,
+    RP_REJECT,
 } response_type_t;
 
 
 class Requester {
-	zmq::context_t *context;
-	zmq::socket_t *socket;
-	int worker_id;
+    zmq::context_t *context;
+    zmq::socket_t *socket;
+    int worker_id;
 
   public:
 
-	Requester();
-	Requester(const char *address, zmq::context_t *ctx);
-	void close();
+    Requester();
+    Requester(const char *address, zmq::context_t *ctx);
+    void close();
 
-	bool abort();
-	bool game(unsigned int *dimension, Fraccio **values);
-	bool get(int last_packet_id, int *packet_id, int *size, Combination *buffer);
-	bool register_(int *worker_id);
-	bool unregister();
-	bool result(void *data, int size);
+    bool abort();
+    bool game(unsigned int *dimension, Fraccio **values);
+    bool get(int last_packet_id, int *packet_id, int *size, Combination *buffer);
+    bool register_(int *worker_id);
+    bool unregister();
+    bool result(void *data, int size);
 };
 
 class Responder {
-	zmq::context_t *context;
-	zmq::socket_t  *socket;
-	zmq::message_t zrequest;
+    zmq::context_t *context;
+    zmq::socket_t  *socket;
+    zmq::message_t zrequest;
 
   public:
 
-	Responder();
-	Responder(const char *address);
+    Responder();
+    Responder(const char *address);
 
-	request_type_t get_request_type();
-	void get_request_payload(void *payload);
+    request_type_t get_request_type();
+    void get_request_payload(void *payload);
 
-	bool ack();
-	bool data(int packet_id, int size, const Combination *data);
-	bool game(unsigned int dimension, const Fraccio *values);
-	bool registered(int worker_id);
+    bool ack();
+    bool data(int packet_id, int size, const Combination *data);
+    bool game(unsigned int dimension, const Fraccio *values);
+    bool registered(int worker_id);
 };
 
 #endif /* _MISSATGE_H_ */

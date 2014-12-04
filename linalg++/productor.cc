@@ -14,57 +14,57 @@
 
 
 int main(int argc, char **argv) {
-	Combinator *combinador;
-	time_t t0, tf;
-	int dimensio;
-	long num_paquets = 0;
-	int num_treballadors = 0;
-	bool avortat = false;
+    Combinator *combinador;
+    time_t t0, tf;
+    int dimensio;
+    long num_paquets = 0;
+    int num_treballadors = 0;
+    bool avortat = false;
     bool primer = true;
-	bool continuar = true;
-	ProducerOptions opcions;
-	GameLoader game;
-	Combination *PAQUET_FINALITZACIO;
-	ResultatCalcul resultat;
+    bool continuar = true;
+    ProducerOptions opcions;
+    GameLoader game;
+    Combination *PAQUET_FINALITZACIO;
+    ResultatCalcul resultat;
 
-	if (opcions.parse_cmd_line(argc, argv)) {
-		return 0;
-	}
+    if (opcions.parse_cmd_line(argc, argv)) {
+        return 0;
+    }
 
-	std::cout << "Carregant joc " << opcions.get_data_file_path() << std::endl;
-	try {
-		game.load(opcions.get_data_file_path());
-	} catch (GameLoaderException e) {
-		std::cout << e.what() << std::endl;
-		return 0;
-	}
-	dimensio = game.get_dimension();
-	PAQUET_FINALITZACIO = new Combination[dimensio];
-	for (int i = 0; i < dimensio; i++) {
-		PAQUET_FINALITZACIO[i] = 0;
-	}
+    std::cout << "Carregant joc " << opcions.get_data_file_path() << std::endl;
+    try {
+        game.load(opcions.get_data_file_path());
+    } catch (GameLoaderException e) {
+        std::cout << e.what() << std::endl;
+        return 0;
+    }
+    dimensio = game.get_dimension();
+    PAQUET_FINALITZACIO = new Combination[dimensio];
+    for (int i = 0; i < dimensio; i++) {
+        PAQUET_FINALITZACIO[i] = 0;
+    }
 
-	std::cout << "Iniciant productor n = " << dimensio << std::endl;
-	std::cout << "Escoltant en " << opcions.get_full_address() << std::endl;
+    std::cout << "Iniciant productor n = " << dimensio << std::endl;
+    std::cout << "Escoltant en " << opcions.get_full_address() << std::endl;
 
-	Responder rep(opcions.get_full_address());
+    Responder rep(opcions.get_full_address());
 
-	combinador = new Combinator((1 << dimensio) - 1, dimensio);
-	t0 = time(NULL);
-	while (continuar) {
-		switch (rep.get_request_type()) {
-		case RQ_ABORT:
-			// canviar generador
+    combinador = new Combinator((1 << dimensio) - 1, dimensio);
+    t0 = time(NULL);
+    while (continuar) {
+        switch (rep.get_request_type()) {
+        case RQ_ABORT:
+            // canviar generador
             avortat = true;
             rep.ack();
-			break;
+            break;
 
-		case RQ_GAME:
-			rep.game(dimensio, game.get_values());
-			break;
+        case RQ_GAME:
+            rep.game(dimensio, game.get_values());
+            break;
 
-		case RQ_GET:
-			// generar paquet
+        case RQ_GET:
+            // generar paquet
             int idpaquet;
             const Combination *dades;
             if (avortat) {
@@ -87,38 +87,38 @@ int main(int argc, char **argv) {
             }
             // std::cout << "Enviant paquet " << idpaquet << std::endl;
             rep.data(idpaquet, dimensio, dades);
-			break;
+            break;
 
-		case RQ_REG:
-			num_treballadors++;
-			rep.registered(num_treballadors);
-			break;
+        case RQ_REG:
+            num_treballadors++;
+            rep.registered(num_treballadors);
+            break;
 
-		case RQ_UNREG:
-			if (num_treballadors > 0) {
-				num_treballadors--;
-				rep.ack();
-			}
-			if (!num_treballadors) {
-				continuar = false;
-			}
-			break;
+        case RQ_UNREG:
+            if (num_treballadors > 0) {
+                num_treballadors--;
+                rep.ack();
+            }
+            if (!num_treballadors) {
+                continuar = false;
+            }
+            break;
 
-		case RQ_RESULT:
-			rep.get_request_payload(&resultat);
-			std::cout << "==============================\n";
-			std::cout << "Nombre combinacions  : " << resultat.num_combinacions << std::endl;
-			std::cout << "Nombre no determinant: " << resultat.num_no_det << std::endl;
-			std::cout << "Temps total (segons) : " << resultat.hora_final - resultat.hora_inici << std::endl;
-			rep.ack();
-			break;
+        case RQ_RESULT:
+            rep.get_request_payload(&resultat);
+            std::cout << "==============================\n";
+            std::cout << "Nombre combinacions  : " << resultat.num_combinacions << std::endl;
+            std::cout << "Nombre no determinant: " << resultat.num_no_det << std::endl;
+            std::cout << "Temps total (segons) : " << resultat.hora_final - resultat.hora_inici << std::endl;
+            rep.ack();
+            break;
 
-		default:
-			std::cout << "Missatge desconegut" << std::endl;
-		}
-	}
-	tf = time(NULL);
+        default:
+            std::cout << "Missatge desconegut" << std::endl;
+        }
+    }
+    tf = time(NULL);
 
-	std::cout << "Num paquets: " << num_paquets << std::endl;
-	std::cout << tf - t0 << "segons\n";
+    std::cout << "Num paquets: " << num_paquets << std::endl;
+    std::cout << tf - t0 << "segons\n";
 }
