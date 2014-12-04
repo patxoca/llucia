@@ -58,6 +58,7 @@ void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
 	Combination *buffer;
 	Requester req;
 	Coalicio COALICIO_TOTAL;
+	ResultatCalcul resultat;
 
 
 	std::cout << "Connectant amb productor en " << opcions->get_full_address() << std::endl;
@@ -113,7 +114,7 @@ void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
 		}
 	}
   abort_calculation:
-	calcul.final_calcul();
+	calcul.final_calcul(resultat);
 	tf = time(NULL);
 	req.unregister();
 	req.close();

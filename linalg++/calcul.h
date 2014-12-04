@@ -9,6 +9,9 @@
 #include "tipus.h"      // Fraccio i Matriu
 
 
+struct ResultatCalcul {
+	bool bmes_no_buida;
+};
 
 struct AbortCalculationException : public std::exception {
 };
@@ -31,7 +34,7 @@ class Calcul {
 	Calcul(int dim, Fraccio *valors);
 
 	void calcular(const Combination *candidats);
-	bool final_calcul();
+	void final_calcul(ResultatCalcul &r);
 
 };
 

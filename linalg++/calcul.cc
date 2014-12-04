@@ -37,7 +37,7 @@ void Calcul::calcular(const Combination *c) {
 	}
 }
 
-bool Calcul::final_calcul() {
+void Calcul::final_calcul(ResultatCalcul &r) {
 	std::cout << "Nombre bases: " << num_bases << std::endl;
-	return Bmes_no_buida;
+	r.bmes_no_buida = Bmes_no_buida;
 }
