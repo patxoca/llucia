@@ -19,13 +19,14 @@ computacionalment intensiva. Per facilitar distribuir el càlcul entre
 varis ordinadors i escurçar el temps requerit s'ha implementat
 mitjançant dos programes:
 
-- el *productor* carrega l'arxiu del joc i genera lots de combinacions
-  de coalicions. Per un joc donat cal que hi hagi un únic productor.
+- ``lcp``: el *productor* carrega l'arxiu del joc i genera lots de
+  combinacions de coalicions. Per un joc donat cal que hi hagi un únic
+  productor.
 
-- el *treballador* es comunica amb el productor per descarregar les
-  dades del joc i els lots de combinacions. És el responsable
-  d'executar el càlcul. Poden haver tants treballadors com sigui
-  escaient.
+- ``lcw``: el *treballador* es comunica amb el productor per
+  descarregar les dades del joc i els lots de combinacions. És el
+  responsable d'executar el càlcul. Poden haver tants treballadors com
+  sigui escaient.
 
 
 Format de l'arxiu del joc
@@ -85,7 +86,7 @@ Per obtindre la llista d'opcions disponsibles, el valor predeterminat
 per cada opció i una petita explicació es pot utilitzar l'opció
 ``--help`` o la versió curta ``-h``::
 
-    $ ./productor -h
+    $ ./lcp -h
     Allowed options:
 
     Generic options:
@@ -97,7 +98,7 @@ per cada opció i una petita explicació es pot utilitzar l'opció
     Configuration:
       -p [ --producer-port ] arg (=31415)   port del productor
 
-    $ ./treballador -h
+    $ ./lcw -h
 
     Generic options:
       -h [ --help ]                         mostra aquest missatge d'ajuda
@@ -118,11 +119,11 @@ la línia d'ordres o l'arxiu de configuració.
 La instrucció següent arranca un productor que escolta en el port
 12345 i opera amb el joc guardat en l'arxiu ``demojoc.txt``::
 
-  ./productor -p 12345 demojoc.txt
+  ./lcp -p 12345 demojoc.txt
 
 o la versió llarga equivalent::
 
-  ./productor --producer-port=12345 demojoc.txt
+  ./lcp --producer-port=12345 demojoc.txt
 
 L'arxiu de configuració és un arxiu de text on s'especifica el nom
 llarg de l'opció seguit del valor, una per línia. Per exemple::
