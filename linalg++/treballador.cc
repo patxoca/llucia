@@ -114,8 +114,14 @@ void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
 		}
 	}
   abort_calculation:
-	calcul.final_calcul(resultat);
 	tf = time(NULL);
+	calcul.final_calcul(resultat);
+	resultat.num_combinacions = num_combinacions;
+	resultat.num_no_det = num_no_det;
+	resultat.hora_inici = t0;
+	resultat.hora_final = tf;
+	req.result(&resultat, sizeof(resultat));
+
 	req.unregister();
 	req.close();
 

@@ -49,7 +49,8 @@ typedef enum {
 	RQ_GAME,
 	RQ_GET,
 	RQ_REG,
-	RQ_UNREG
+	RQ_UNREG,
+	RQ_RESULT
 } request_type_t;
 
 typedef enum {
@@ -77,6 +78,7 @@ class Requester {
 	bool get(int last_packet_id, int *packet_id, int *size, Combination *buffer);
 	bool register_(int *worker_id);
 	bool unregister();
+	bool result(void *data, int size);
 };
 
 class Responder {
@@ -90,6 +92,7 @@ class Responder {
 	Responder(const char *address);
 
 	request_type_t get_request_type();
+	void get_request_payload(void *payload);
 
 	bool ack();
 	bool data(int packet_id, int size, const Combination *data);

@@ -9,10 +9,6 @@
 #include "tipus.h"      // Fraccio i Matriu
 
 
-struct ResultatCalcul {
-	bool bmes_no_buida;
-};
-
 struct AbortCalculationException : public std::exception {
 };
 

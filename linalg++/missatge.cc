@@ -14,6 +14,10 @@ typedef struct : request_t {
 	int   last_packet_id;
 } request_get_t;
 
+typedef struct : request_t {
+	int size;
+	char data;
+} request_bulk_t;
 
 typedef struct {
 	response_type_t message;
@@ -185,6 +189,27 @@ bool Requester::unregister() {
 	return true;
 }
 
+bool Requester::result(void *data, int size) {
+	zmq::message_t  message(sizeof(request_bulk_t) + size);
+	zmq::message_t  reply;
+	request_bulk_t *request;
+
+	request = (request_bulk_t*)message.data();
+	request->message = RQ_RESULT;
+	request->worker_id = worker_id;
+	request->size = size;
+	memcpy(&(request->data), data, size);
+
+	if (!socket->send(message)) {
+		// error imagino
+	}
+	if (!socket->recv(&reply)) {
+		// error ?
+	}
+	// la resposta hauria de ser ACK, no importa realment
+	return true;
+}
+
 /*
  *                                      _
  *  _ __ ___  ___ _ __   ___  _ __   __| | ___ _ __
@@ -209,6 +234,11 @@ Responder::Responder(const char *address) {
 request_type_t Responder::get_request_type() {
 	socket->recv(&zrequest);
 	return *(request_type_t*)(zrequest.data());
+}
+
+void Responder::get_request_payload(void *dst) {
+	request_bulk_t *request = (request_bulk_t*)zrequest.data();
+	memcpy(dst, &(request->data), request->size);
 }
 
 bool Responder::ack() {

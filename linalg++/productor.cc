@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 	ProducerOptions opcions;
 	GameLoader game;
 	Combination *PAQUET_FINALITZACIO;
+	ResultatCalcul resultat;
 
 	if (opcions.parse_cmd_line(argc, argv)) {
 		return 0;
@@ -101,6 +102,15 @@ int main(int argc, char **argv) {
 			if (!num_treballadors) {
 				continuar = false;
 			}
+			break;
+
+		case RQ_RESULT:
+			rep.get_request_payload(&resultat);
+			std::cout << "==============================\n";
+			std::cout << "Nombre combinacions  : " << resultat.num_combinacions << std::endl;
+			std::cout << "Nombre no determinant: " << resultat.num_no_det << std::endl;
+			std::cout << "Temps total (segons) : " << resultat.hora_final - resultat.hora_inici << std::endl;
+			rep.ack();
 			break;
 
 		default:
