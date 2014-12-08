@@ -82,13 +82,20 @@
 //  overhead es considera acceptable.
 //
 //=============================================================================
-template< class TYPE = int>
-    class Rational {
+template< class TYPE = int, TYPE L = 127 > class Rational {
 
 protected:
 
   TYPE numerator;
   TYPE denominator;
+
+  void reduce_maybe() {
+      TYPE abs_num = numerator >= 0 ? numerator : -numerator;
+      //TYPE abs_den = denominator >= 0 ? denominator : -denominator;
+      if ((abs_num >= L) || (denominator >= L)) {
+          reduce();
+      }
+  }
 
 public:
 
@@ -114,6 +121,7 @@ public:
           numerator   /= denominator;
           denominator  = 1;
       } else {
+          // @@ revisar http://en.wikipedia.org/wiki/Binary_GCD_algorithm
           // Find Greatest Common Divisor (GCD) to reduce.
           TYPE valueA = numerator;
           TYPE valueB = denominator;
@@ -182,17 +190,21 @@ public:
   // Multiplication by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator * ( TYPE const & value ) const {
-      return Rational(numerator * value, denominator);
+      Rational r(numerator * value, denominator);
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
   // Multiplication by rational.
   //-----------------------------------------------------------------------
   Rational const operator * ( Rational const & value ) const {
-      return Rational(
+      Rational r(
           numerator * value.numerator,
           denominator * value.denominator
           );
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
@@ -201,6 +213,7 @@ public:
   Rational const & operator *= ( Rational const & value ) {
       numerator *= value.numerator;
       denominator *= value.denominator;
+      reduce_maybe();
       return *this;
   }
 
@@ -209,6 +222,7 @@ public:
   //-----------------------------------------------------------------------
   Rational const & operator *= ( TYPE const & value ) {
       numerator *= value;
+      reduce_maybe();
       return *this;
   }
 
@@ -220,17 +234,21 @@ public:
   // Divide by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator / ( TYPE const & value ) const {
-      return Rational(numerator, denominator * value);
+      Rational r(numerator, denominator * value);
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
   // Divide by rational.
   //-----------------------------------------------------------------------
   Rational const operator / ( Rational const & value ) const {
-      return Rational(
+      Rational r(
           numerator   * value.denominator,
           denominator * value.numerator
           );
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
@@ -244,6 +262,7 @@ public:
           numerator *= value.denominator;
           denominator *= value.numerator;
       }
+      reduce_maybe();
       return *this;
   }
 
@@ -257,6 +276,7 @@ public:
       } else {
           denominator *= value;
       }
+      reduce_maybe();
       return *this;
   }
 
@@ -280,14 +300,18 @@ public:
 
       newNumerator += otherNumerator;
 
-      return Rational( newNumerator, newDenominator );
+      Rational r( newNumerator, newDenominator );
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
   // Add by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator + ( TYPE const & value ) const {
-      return Rational( numerator + (value * denominator) , denominator );
+      Rational r( numerator + (value * denominator) , denominator );
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
@@ -308,6 +332,7 @@ public:
 
       numerator = newNumerator;
       denominator = newDenominator;
+      reduce_maybe();
 
       return *this;
   }
@@ -317,6 +342,7 @@ public:
   //-----------------------------------------------------------------------
   Rational const & operator += ( TYPE const & value ) {
       numerator += value * denominator;
+      reduce_maybe();
 
       return *this;
   }
@@ -341,17 +367,21 @@ public:
 
       newNumerator -= otherNumerator;
 
-      return Rational( newNumerator, newDenominator );
+      Rational r( newNumerator, newDenominator );
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
   // Subtract by integer-type.
   //-----------------------------------------------------------------------
   Rational const operator - ( TYPE const & value ) const {
-      return Rational(
+      Rational r(
           numerator - (value * denominator) ,
           denominator
           );
+      r.reduce_maybe();
+      return r;
   }
 
   //-----------------------------------------------------------------------
@@ -372,6 +402,7 @@ public:
 
       numerator =newNumerator;
       denominator = newDenominator;
+      reduce_maybe();
 
       return *this;
   }
@@ -381,7 +412,7 @@ public:
   //-----------------------------------------------------------------------
   Rational const & operator -= ( TYPE const & value ) {
       numerator -= value * denominator;
-
+      reduce_maybe();
       return *this;
   }
 
@@ -581,31 +612,31 @@ public:
 //-----------------------------------------------------------------------------
 // Negative operator for a rational number.
 //-----------------------------------------------------------------------------
-template< class TYPE >
-Rational< TYPE > operator - ( Rational< TYPE > const & value ) {
-    return Rational< TYPE >( -value.getNumerator(), value.getDenominator() );
+template< class TYPE, TYPE L >
+Rational< TYPE , L > operator - ( Rational< TYPE, L > const & value ) {
+    return Rational< TYPE, L >( -value.getNumerator(), value.getDenominator() );
 }
 
 //-----------------------------------------------------------------------------
 // Valor absolut per un racional
 //-----------------------------------------------------------------------------
-template< class TYPE >
-Rational< TYPE > abs ( Rational< TYPE > const & value ) {
-    return Rational< TYPE >( abs(value.getNumerator()), abs(value.getDenominator()) );
+template< class TYPE, TYPE L >
+Rational< TYPE, L > abs ( Rational< TYPE, L > const & value ) {
+    return Rational< TYPE, L >( abs(value.getNumerator()), abs(value.getDenominator()) );
 }
 
 //-----------------------------------------------------------------------------
 // Stream output operator for rational number--turns rational into a string.
 //-----------------------------------------------------------------------------
-template< class TYPE >
-std::ostream & operator << ( std::ostream & stream, Rational< TYPE > const & value ) {
-    Rational< TYPE > value2 = Rational< TYPE >(value);
+template< class TYPE, TYPE L >
+std::ostream & operator << ( std::ostream & stream, Rational< TYPE, L > const & value ) {
+    Rational< TYPE, L > value2 = Rational< TYPE, L >(value);
     TYPE numerator;
     TYPE denominator;
 
     // Simplifiquem una copia de la fraccio. L'E/S és lenta de per sí, ens
     // podem permetre la sobrecàrrega de simplificar.
-    value2.reduce();
+    //value2.reduce();
     numerator   = value2.getNumerator();
     denominator = value2.getDenominator();
 
@@ -615,19 +646,7 @@ std::ostream & operator << ( std::ostream & stream, Rational< TYPE > const & val
     else if ( 1 == denominator )
         // Whole number
         stream << numerator;
-    else if ( abs( numerator ) > denominator ) {
-        // Whole number with fractional part
-        TYPE whole;
-        TYPE remainder;
-
-        whole     = numerator / denominator;
-        remainder = numerator % denominator;
-
-        if ( remainder < 0 )
-            remainder = -remainder;
-
-        stream << whole << "_" << remainder << "/" << denominator;
-    } else
+    else
         // Just a fraction.
         stream << numerator << "/" << denominator;
 

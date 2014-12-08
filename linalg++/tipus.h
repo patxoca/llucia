@@ -5,6 +5,7 @@
 #ifndef TIPUS_H
 #define TIPUS_H
 
+#include <climits>
 #include <time.h>
 #include <vector>
 
@@ -12,9 +13,9 @@
 #include "rational.h"
 
 
-typedef unsigned int       Coalicio; // màxim 32 o 64 jugadors
-typedef Rational<long>     Fraccio;
-typedef Array<Fraccio>     Matriu;
+typedef unsigned int             Coalicio; // màxim 32 o 64 jugadors
+typedef Rational<long, INT_MAX>  Fraccio;
+typedef Array<Fraccio>           Matriu;
 
 struct ResultatCalcul {
     // dades afegides pel calcul

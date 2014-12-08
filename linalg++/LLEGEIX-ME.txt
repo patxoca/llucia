@@ -189,16 +189,125 @@ jugadors està limitat a 32. El format emprat per representar les
 coalicions en l'arxiu del joc limita a 10 el nombre de jugadors. En la
 pràctica el càlcul per més de 7 jugadors és prohibitivament costós.
 
-Per limitacions en la precissió de la representació dels nombres reals
-s'ha optat per operar amb racionals. Açò ralentitza el procés però per
-contra dona resultats exactes. Per guanyar velocitat el programa no
-simplifica les fraccions, açò significa que es poden produir
-*overflows* en els càlculs. El valor pel numerador i el denominador
-està limitat aproximadament l'interval [-9223372036854775808,
-9223372036854775808], cal garantir (manualment) que els valors
-utilitzats en el joc no produeixen overflow.
 
-Detallar-ho més: on i com afecta? no pel determinant/inversa, matrius
-binaries, no crec que es desmadri molt. Només amb els càlculs on
-intervenen els valors i si no recordo mal son sumes, N * max(valors)
-seria una cota?
+Sacrificis
+----------
+
+A l'hora de triar entre varies possibilitats s'ha primat sempre la que
+menys impacte té sobre el rendiment. Algunes d'aquestes decisions son:
+
+1. utilitzar tipus nadius C per representar les fraccions davant
+   biblioteques de precissió arbitraria
+
+2. no comprovar els limits al operar amb enters
+
+Com que el rang de valors representables és limitat i el programa no
+els comprova és responsabilitat de l'usuari comprovar que els valors
+del joc no produirà overflows.
+
+
+
+Precissió dels càlculs
+----------------------
+
+Degut a la limitada precissió de la representació dels números reals
+en punt flotant s'ha optat per utilitzar números racionals. La
+contrapartida a aquest guany en precissió és l'increment en el nombre
+d'operacions a realitzar i la conseqüent ralentització del càlcul.
+
+Inicialment es va suposar que per jocs de fins 7 jugadors (el límit
+tractable amb els recursos disponibles) no calia reduir les fraccions,
+al operar amb matrius de zeros i uns es confiava en que els valors que
+apareixerien al calcular el determinant i l'inversa estarien dins uns
+rangs de valors relativament petits i no caldria simplificar. Aquesta
+suposició és errònia, per exemple per un joc de cinc jugadors:
+
+  1    1    0    0    0
+  1    0    1    1    0
+  0    1    1    0    1
+  1    1    1    0    1
+  1    0    0    1    1
+
+Matriu resultat del càlcul del determinant:
+
+  1    1     0    0       0
+  0    -1    1    1       0
+  0    0     2    1       1
+  0    0     0    -1/2    1/2
+  0    0     0    0       16/8
+
+Matriu inversa:
+
+  0                 0               -2/2    262144/262144     0
+  67108864/67108864 0               2/2     -262144/262144    0
+  -65536/131072     65536/131072    0       2048/4096         -512/1024
+  256/512           256/512         2/2     -96/64            16/32
+  -64/128           -64/128         0       16/32             8/16
+
+Per n = 6 crec que es sobrepassa el rang del tipus ``long``.
+
+Dos problemes (relacionats):
+
+* rang de valors pel numerador i denonimandor: si s'utilitza un tipus
+  C (int, long ...) el càlcul és el més ràpid possible però es disposa
+  d'un rang de valors limitat. Per contra utilitzar una biblioteca
+  tipus gmp (https://gmplib.org/) ofereix un rang il·limitat a costa
+  de ralentitzar el càlcul
+
+* les fraccions es poden simplificar per tal de reduir-les a la seva
+  forma canònica. Açò pot alleujar el problema del rang però
+  incrementa el cost computacional.
+
+La solució implementada consisteix en simplificar les fraccions
+únicament si el numerador o el denominador superen cert llindar. El
+valor del llindar depen del tipus emprat per la fracció i hauria de
+complir que per qualsevol operació amb fraccions, si els operands
+cauen dins el llindar llavors el resultat és representable amb el
+tipus de la fracció.
+
+Una altra possibilitat, vist el comportament de les matrius en
+l'exemple anterior, seria simplificar les fraccions de la matriu una
+vegada finalitzada la fase de triangularització. Caldria estudiar-ho.
+
+
+
+Comparativa:
+
+* només es simplifica el factor al aplicar la funció gauss:
+  aparentment s'assoleix el límit pel numerador i denominador i es
+  produeix overflow::
+
+    Nombre combinacions  : 67945521
+    Nombre no determinant: 4342751
+    Temps total (segons) : 102
+    Numerador maxim      : 9218147657963274240
+    Denominador maxim    : 9214167704892997632
+
+* es simplifica emprant un llindar de 123456: el numerador/denominator
+  estan per sota d'aquest llindar. El temps de càlcul s'incrementa en
+  un 30%::
+
+    Nombre combinacions  : 67945521
+    Nombre no determinant: 4342751
+    Temps total (segons) : 133
+    Numerador maxim      : 122880
+    Denominador maxim    : 122500
+
+* es simplifica amb un llindar de INT_MAX: el numerador/denominator
+  estan per sota d'aquest llindar. El temps de càlcul s'incrementa en
+  un 30%. Aparenentment el valor del llindar no té un gran impacte::
+
+    Nombre combinacions  : 67945521
+    Nombre no determinant: 4342751
+    Temps total (segons) : 134
+    Numerador maxim      : 2066242608
+    Denominador maxim    : 2134623456
+
+* es simplifica la fracció resultant de cada operació: increment del
+  300% en el temps de càlcul::
+
+    Nombre combinacions  : 67945521
+    Nombre no determinant: 4342751
+    Temps total (segons) : 333
+    Numerador maxim      : 9
+    Denominador maxim    : 9
