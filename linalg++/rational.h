@@ -97,6 +97,40 @@ protected:
       }
   }
 
+  TYPE binary_gcd(TYPE u, TYPE v) {
+      int shift;
+      TYPE tmp;
+
+      if (u < 0) u = -u;
+      if (v < 0) v = -v;
+
+      if (u == 0) return v;
+      if (v == 0) return u;
+
+      for (shift = 0; ((u | v) & 1) == 0; ++shift) {
+          u >>= 1;
+          v >>= 1;
+      }
+
+      do {
+          while ((u & 1) == 0) {
+              u >>= 1;
+          }
+          while ((v & 1) == 0) {
+              v >>= 1;
+          }
+          if (u >= v) {
+              u = (u - v) >> 1;
+          } else {
+              tmp = u;
+              u = (v - u) >> 1;
+              v = tmp;
+          }
+      } while (u != 0);
+
+      return v << shift;
+  }
+
 public:
 
   //-----------------------------------------------------------------------
@@ -121,7 +155,6 @@ public:
           numerator   /= denominator;
           denominator  = 1;
       } else {
-          // @@ revisar http://en.wikipedia.org/wiki/Binary_GCD_algorithm
           // Find Greatest Common Divisor (GCD) to reduce.
           TYPE valueA = numerator;
           TYPE valueB = denominator;
