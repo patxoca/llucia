@@ -4,7 +4,7 @@ EXECUTABLES = lcp lcw
 
 LCP_SRC = acumulador.cc combinator.cc missatge.cc cmdline.cc gameloader.cc productor.cc
 LCW_SRC = calcul.cc combinator.cc missatge.cc treballador.cc cmdline.cc
-SRCS = $(LCP_SRC) $(LCW_SRC)
+SRCS = $(LCP_SRC) $(LCW_SRC) prova.cc
 
 HEADERS = $(wildcard *.h)
 
