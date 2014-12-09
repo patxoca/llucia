@@ -1,8 +1,8 @@
 # $Id:$
 
-EXECUTABLES = prova lcp lcw
+EXECUTABLES = lcp lcw
 
-LCP_SRC = combinator.cc missatge.cc cmdline.cc gameloader.cc productor.cc
+LCP_SRC = acumulador.cc combinator.cc missatge.cc cmdline.cc gameloader.cc productor.cc
 LCW_SRC = calcul.cc combinator.cc missatge.cc treballador.cc cmdline.cc
 SRCS = $(LCP_SRC) $(LCW_SRC)
 

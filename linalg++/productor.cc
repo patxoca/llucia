@@ -5,6 +5,7 @@
 #include <iostream>
 #include <time.h>
 
+#include "acumulador.h"
 #include "cmdline.h"
 #include "combinator.h"
 #include "gameloader.h"
@@ -26,6 +27,7 @@ int main(int argc, char **argv) {
     GameLoader game;
     Combination *PAQUET_FINALITZACIO;
     ResultatCalcul resultat;
+    Acumulador acumulador;
 
     if (opcions.parse_cmd_line(argc, argv)) {
         return 0;
@@ -106,10 +108,7 @@ int main(int argc, char **argv) {
 
         case RQ_RESULT:
             rep.get_request_payload(&resultat);
-            std::cout << "==============================\n";
-            std::cout << "Nombre combinacions  : " << resultat.num_combinacions << std::endl;
-            std::cout << "Nombre no determinant: " << resultat.num_no_det << std::endl;
-            std::cout << "Temps total (segons) : " << resultat.hora_final - resultat.hora_inici << std::endl;
+            acumulador.processar_resultat(resultat);
             rep.ack();
             break;
 
@@ -118,6 +117,7 @@ int main(int argc, char **argv) {
         }
     }
     tf = time(NULL);
+    acumulador.final_processament();
 
     std::cout << "Num paquets: " << num_paquets << std::endl;
     std::cout << tf - t0 << "segons\n";
