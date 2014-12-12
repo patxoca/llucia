@@ -137,6 +137,10 @@ public:
 	// correcta.
 	T *dot_v(const T *a, T *tmp) const;
 
+    // producte de matriu per matriu. S'ha implementat per poder fer unes
+    // verificacions i no s'ha micat massa cura en optimitzar-lo.
+    Array<T> dot(const Array<T> & a, Array<T> & res) const;
+
 	// transposta de la matriu
 	// Array<T> t() const;
 
@@ -471,6 +475,26 @@ T *Array<T>::dot_v(const T *a, T *tmp) const {
 		*dst++ = result;
 	}
 	return tmp;
+}
+
+template<class T>
+Array<T> Array<T>::dot(const Array<T> & a, Array<T> & tmp) const {
+    if (num_cols != a.num_rows) {
+        throw ArrayException();
+    }
+    if ((tmp.num_rows != num_rows) || (tmp.num_cols != a.num_cols)) {
+        throw ArrayException();
+    }
+    for (int i = 0; i < num_rows; i++) {
+        for (int j = 0; j < a.num_cols; j++) {
+            T c = 0;
+            for (int k = 0; k < num_cols; k++) {
+                c += get(i, k) * a.get(k, j);
+            }
+            tmp.put(i, j, c);
+        }
+    }
+    return tmp;
 }
 
 

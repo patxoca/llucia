@@ -362,6 +362,70 @@ TEST(ArrayDotVTest, dotv_with_tmp_vector_does_not_modifies_operands) {
 	EXPECT_ARRAY_EQ(m, (Tipus*)a1);
 }
 
+TEST(ArrayDotTest, dot_square_matrices_ok) {
+    Tipus a1[2][2] = {{ 6,  2},
+                      {-1, -4}};
+    Tipus a2[2][2] = {{-3, 0},
+                      { 5, 6}};
+    Tipus e[2][2] = {{ -8,  12},
+                     {-17, -24}};
+    Matriu m1(2, 2, (Tipus*)a1);
+    Matriu m2(2, 2, (Tipus*)a2);
+    Matriu r(2, 2);
+
+    m1.dot(m2, r);
+
+    EXPECT_EQ(r.get_num_cols(), 2);
+    EXPECT_EQ(r.get_num_rows(), 2);
+    EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}
+
+TEST(ArrayDotTest, dot_rectangular_matrices_ok) {
+    Tipus a1[2][3] = {{5, 4, -1},
+                      {3, 6,  1}};
+    Tipus a2[3][4] = {{ 2, 0, -3, 4},
+                      { 5, 3, -1, 1},
+                      {-2, 6,  7, 8}};
+    Tipus e[2][4] = {{32,  6, -26, 16},
+                     {34, 24,  -8, 26}};
+    Matriu m1(2, 3, (Tipus*)a1);
+    Matriu m2(3, 4, (Tipus*)a2);
+    Matriu r(2, 4);
+
+    m1.dot(m2, r);
+
+    EXPECT_EQ(r.get_num_cols(), 4);
+    EXPECT_EQ(r.get_num_rows(), 2);
+    EXPECT_ARRAY_EQ(r, (Tipus*)e);
+}
+
+TEST(ArrayDotTest, dot_thows_exception_if_mismatched_operand_dimensions) {
+    Tipus a1[2][3] = {{5, 4, -1},
+                      {3, 6,  1}};
+    Tipus a2[3][4] = {{ 2, 0, -3, 4},
+                      { 5, 3, -1, 1},
+                      {-2, 6,  7, 8}};
+    Matriu m1(2, 3, (Tipus*)a1);
+    Matriu m2(3, 4, (Tipus*)a2);
+    Matriu r(2, 4);
+
+    ASSERT_THROW(m2.dot(m1, r), ArrayException);
+}
+
+TEST(ArrayDotTest, dot_thows_exception_if_mismatched_destination_dimensions) {
+    Tipus a1[2][3] = {{5, 4, -1},
+                      {3, 6,  1}};
+    Tipus a2[3][4] = {{ 2, 0, -3, 4},
+                      { 5, 3, -1, 1},
+                      {-2, 6,  7, 8}};
+    Matriu m1(2, 3, (Tipus*)a1);
+    Matriu m2(3, 4, (Tipus*)a2);
+    Matriu r(2, 3);
+
+    ASSERT_THROW(m1.dot(m2, r), ArrayException);
+}
+
+
 
 // transposta
 
