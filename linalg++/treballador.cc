@@ -106,6 +106,7 @@ void worker_thread(zmq::context_t *context, WorkerOptions *opcions) {
                 try {
                     calcul.calcular(c);
                 } catch (AbortCalculationException e) {
+                    req.abort();
                     goto abort_calculation;
                 }
             } else {
