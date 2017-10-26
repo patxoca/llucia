@@ -220,7 +220,7 @@ tractable amb els recursos disponibles) no calia reduir les fraccions,
 al operar amb matrius de zeros i uns es confiava en que els valors que
 apareixerien al calcular el determinant i l'inversa estarien dins uns
 rangs de valors relativament petits i no caldria simplificar. Aquesta
-suposició és errònia, per exemple per un joc de cinc jugadors:
+suposició és errònia, per exemple per un joc de cinc jugadors::
 
   1    1    0    0    0
   1    0    1    1    0
@@ -228,7 +228,7 @@ suposició és errònia, per exemple per un joc de cinc jugadors:
   1    1    1    0    1
   1    0    0    1    1
 
-Matriu resultat del càlcul del determinant:
+Matriu resultat del càlcul del determinant::
 
   1    1     0    0       0
   0    -1    1    1       0
@@ -236,7 +236,7 @@ Matriu resultat del càlcul del determinant:
   0    0     0    -1/2    1/2
   0    0     0    0       16/8
 
-Matriu inversa:
+Matriu inversa::
 
   0                 0               -2/2    262144/262144     0
   67108864/67108864 0               2/2     -262144/262144    0
